@@ -14,15 +14,15 @@
 
     contains
       procedure :: Vector_Allocate
-      procedure :: Vector_Copy_From_Device
       procedure :: Vector_Copy_To_Device
+      procedure :: Vector_Copy_To_Host
 
   end type
 
   contains
 
 # include "Vector_Mod/Allocate.f90"
-# include "Vector_Mod/Copy_From_Device.f90"
 # include "Vector_Mod/Copy_To_Device.f90"
+# include "Vector_Mod/Copy_To_Host.f90"
 
   end module

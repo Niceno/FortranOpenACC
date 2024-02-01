@@ -1,5 +1,5 @@
 !==============================================================================!
-  program matrix_addition
+  program Main
 !------------------------------------------------------------------------------!
   use Full_Matrix_Mod
   use Compute_Mod
@@ -24,7 +24,7 @@
   call B % Full_Matrix_Copy_To_Device()
   call C % Full_Matrix_Copy_To_Device()
 
-  call Global_Compute % Compute_Mat_Mul(N, A % val, B % val, C % val)
+  call Global % Compute_Mat_Add(N, A % val, B % val, C % val)
 
   call C % Full_Matrix_Copy_From_Device()
 

@@ -1,22 +1,26 @@
 !==============================================================================!
-  subroutine Compute_Mat_Vec_Mul(Comp, c, a, b)
+  subroutine Compute_Mat_Mat_Add_Raw(Comp, n, c, a, b)
 !------------------------------------------------------------------------------!
-  implicit none
+    implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Compute_Type) :: Comp
-  type(Vector_Type)   :: c
-  type(Matrix_Type)   :: a
-  type(Vector_Type)   :: b
+  class(Compute_Type)  :: Comp
+  integer              :: n
+  real, dimension(n,n) :: c, a, b
 !-----------------------------------[Locals]-----------------------------------!
-  integer :: n
+  integer :: iter, i, j
 !==============================================================================!
 
-  n = c % len
-
-  call Comp % Compute_Mat_Vec_Mul_Raw(n,        &
-                                      c % val,  &
-                                      a % val,  &
-                                      b % val)
+  !$acc data present(c, a, b)
+  !$acc kernels
+  do iter = 1, 60
+    do j = 1, n
+      do i = 1, n
+        c(i,j) = a(i,j) + b(i,j)
+      end do
+    end do
+  end do
+  !$acc end kernels
+  !$acc end data
 
   end subroutine
 

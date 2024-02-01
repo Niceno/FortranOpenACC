@@ -12,17 +12,17 @@
   type Compute_Type
 
     contains
-      procedure :: Compute_Mat_Mul
+      procedure :: Compute_Mat_Add
 
   end type
 
   !-----------------------------------!
   !   Singletone type global object   !
   !-----------------------------------!
-  type(Compute_Type) :: Global_Compute
+  type(Compute_Type) :: Global
 
   contains
 
-# include "Compute_Mod/Mat_Mul.f90"
+# include "Compute_Mod/Mat_Add.f90"
 
   end module

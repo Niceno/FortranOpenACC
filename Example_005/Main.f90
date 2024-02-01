@@ -8,8 +8,8 @@
   implicit none
 !------------------------------------------------------------------------------!
   integer, parameter :: N = 10000
-  type(Matrix_Type)  :: Mat_A, Mat_B, Mat_C
-  type(Vector_Type)  ::        Vec_B, Vec_C
+  type(Matrix_Type)  :: AA, BB, CC
+  type(Vector_Type)  :: B, C
 !==============================================================================!
 
   !---------------------------------!
@@ -17,56 +17,58 @@
   !---------------------------------!
 
   ! Allocate matrices
-  call Mat_A % Matrix_Allocate(N)
-  call Mat_B % Matrix_Allocate(N)
-  call Mat_C % Matrix_Allocate(N)
+  call AA % Matrix_Allocate(N)
+  call BB % Matrix_Allocate(N)
+  call CC % Matrix_Allocate(N)
 
   ! Initialize matrices on the host
-  Mat_A % val(:,:) = 1.0
-  Mat_B % val(:,:) = 2.0
-  Mat_C % val(:,:) = 0.0
+  AA % val(:,:) = 1.0
+  BB % val(:,:) = 2.0
+  CC % val(:,:) = 0.0
 
   ! Copy matrices to the device
-  call Mat_A % Matrix_Copy_To_Device()
-  call Mat_B % Matrix_Copy_To_Device()
-  call Mat_C % Matrix_Copy_To_Device()
+  call AA % Matrix_Copy_To_Device()
+  call BB % Matrix_Copy_To_Device()
+  call CC % Matrix_Copy_To_Device()
 
   ! Perform global computations
-  call Global_Compute % Compute_Mat_Mat_Mul(N, Mat_C % val, Mat_A % val, Mat_B % val)
+  call Global % Compute_Mat_Mat_Mul(CC, AA, BB)
 
-  call Mat_C % Matrix_Copy_From_Device()
+  ! Copy results back to host
+  call CC % Matrix_Copy_To_Host()
 
   ! Print result
-  print *, 'Matrix c(1,  1  ):', Mat_C % val(1,   1)
-  print *, 'Matrix c(2,  2  ):', Mat_C % val(2,   2)
-  print *, 'Matrix c(n-1,n-1):', Mat_C % val(N-1, N-1)
-  print *, 'Matrix c(n,  n  ):', Mat_C % val(N,   N)
+  print *, 'Matrix CC(1,  1  ):', CC % val(1,   1)
+  print *, 'Matrix CC(2,  2  ):', CC % val(2,   2)
+  print *, 'Matrix CC(n-1,n-1):', CC % val(N-1, N-1)
+  print *, 'Matrix CC(n,  n  ):', CC % val(N,   N)
 
   !---------------------------------!
   !   Try some matrix-vector copy   !
   !---------------------------------!
 
   ! Allocate vectors
-  call Vec_B % Vector_Allocate(N)
-  call Vec_C % Vector_Allocate(N)
+  call B % Vector_Allocate(N)
+  call C % Vector_Allocate(N)
 
   ! Initialize vectors
-  Vec_B % val(:) = 2.0
-  Vec_C % val(:) = 0.0
+  B % val(:) = 2.0
+  C % val(:) = 0.0
 
   ! Copy vectors to the device
-  call Vec_B % Vector_Copy_To_Device()
-  call Vec_C % Vector_Copy_To_Device()
+  call B % Vector_Copy_To_Device()
+  call C % Vector_Copy_To_Device()
 
-  call Global_Compute % Compute_Mat_Vec_Mul(N, Vec_C % val, Mat_A % val, Vec_B % val)
+  call Global % Compute_Mat_Vec_Mul(C, AA, B)
 
-  call Vec_C % Vector_Copy_From_Device()
+  ! Copy results back to host
+  call C % Vector_Copy_To_Host()
 
   ! Print result
-  print *, 'Vector c(1  ):', Vec_C % val(1  )
-  print *, 'Vector c(2  ):', Vec_C % val(2  )
-  print *, 'Vector c(n-1):', Vec_C % val(N-1)
-  print *, 'Vector c(n  ):', Vec_C % val(N  )
+  print *, 'Vector C(1  ):', C % val(1  )
+  print *, 'Vector C(2  ):', C % val(2  )
+  print *, 'Vector C(n-1):', C % val(N-1)
+  print *, 'Vector C(n  ):', C % val(N  )
 
   end program
 
