@@ -2,14 +2,14 @@
   program matrix_addition
 !------------------------------------------------------------------------------!
   use Vector_Mod
-  use Full_Matrix_Mod
+  use Matrix_Mod
   use Compute_Mod
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
-  integer, parameter     :: N = 10000
-  type(Full_Matrix_Type) :: Mat_A, Mat_B, Mat_C
-  type(Vector_Type)      :: Vec_A, Vec_B, Vec_C
+  integer, parameter :: N = 10000
+  type(Matrix_Type)  :: Mat_A, Mat_B, Mat_C
+  type(Vector_Type)  :: Vec_A, Vec_B, Vec_C
 !==============================================================================!
 
   !---------------------------------!
@@ -17,9 +17,9 @@
   !---------------------------------!
 
   ! Allocate matrices
-  call Mat_A % Full_Matrix_Allocate(N)
-  call Mat_B % Full_Matrix_Allocate(N)
-  call Mat_C % Full_Matrix_Allocate(N)
+  call Mat_A % Matrix_Allocate(N)
+  call Mat_B % Matrix_Allocate(N)
+  call Mat_C % Matrix_Allocate(N)
 
   ! Initialize matrices on the host
   Mat_A % val(:,:) = 1.0
@@ -27,14 +27,14 @@
   Mat_C % val(:,:) = 0.0
 
   ! Copy matrices to the device
-  call Mat_A % Full_Matrix_Copy_To_Device()
-  call Mat_B % Full_Matrix_Copy_To_Device()
-  call Mat_C % Full_Matrix_Copy_To_Device()
+  call Mat_A % Matrix_Copy_To_Device()
+  call Mat_B % Matrix_Copy_To_Device()
+  call Mat_C % Matrix_Copy_To_Device()
 
   ! Perform global computations
   call Global_Compute % Compute_Mat_Mat_Mul(N, Mat_C % val, Mat_A % val, Mat_B % val)
 
-  call Mat_C % Full_Matrix_Copy_From_Device()
+  call Mat_C % Matrix_Copy_From_Device()
 
   ! Print result
   print *, 'Matrix c(1,  1  ):', Mat_C % val(1,   1)
