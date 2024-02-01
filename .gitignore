@@ -1,3 +1,4 @@
 No_Gpu
 With_Gpu
 *.mod
+*.o
