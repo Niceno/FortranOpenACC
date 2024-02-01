@@ -9,7 +9,7 @@
 !------------------------------------------------------------------------------!
   integer, parameter :: N = 10000
   type(Matrix_Type)  :: Mat_A, Mat_B, Mat_C
-  type(Vector_Type)  :: Vec_A, Vec_B, Vec_C
+  type(Vector_Type)  ::        Vec_B, Vec_C
 !==============================================================================!
 
   !---------------------------------!
@@ -47,17 +47,14 @@
   !---------------------------------!
 
   ! Allocate vectors
-  call Vec_A % Vector_Allocate(N)
   call Vec_B % Vector_Allocate(N)
   call Vec_C % Vector_Allocate(N)
 
   ! Initialize vectors
-  Vec_A % val(:) = 1.0
   Vec_B % val(:) = 2.0
   Vec_C % val(:) = 0.0
 
   ! Copy vectors to the device
-  call Vec_A % Vector_Copy_To_Device()
   call Vec_B % Vector_Copy_To_Device()
   call Vec_C % Vector_Copy_To_Device()
 
