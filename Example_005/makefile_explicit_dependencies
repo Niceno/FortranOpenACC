@@ -1,13 +1,16 @@
 #-- ./Compute_Mod/Mat_Mat_Mul_Raw.f90
+#-- ./Compute_Mod/Spa_Vec_Mul.f90
 #-- ./Compute_Mod/Mat_Mat_Add_Raw.f90
 #-- ./Compute_Mod/Mat_Vec_Mul.f90
 #-- ./Compute_Mod/Mat_Mat_Add.f90
+#-- ./Compute_Mod/Spa_Vec_Mul_Raw.f90
 #-- ./Compute_Mod/Mat_Mat_Mul.f90
 #-- ./Compute_Mod/Mat_Vec_Mul_Raw.f90
 #-- ./Matrix_Mod.f90
 $(DIR_OBJECT)/Matrix_Mod.o:\
 Matrix_Mod/*.f90 
 
+#-- ./Grid_Mod/Create_Grid.f90
 #-- ./Vector_Mod.f90
 $(DIR_OBJECT)/Vector_Mod.o:\
 Vector_Mod/*.f90 
@@ -16,6 +19,8 @@ Vector_Mod/*.f90
 $(DIR_OBJECT)/Compute_Mod.o:\
 $(DIR_OBJECT)/Vector_Mod.o \
 Vector_Mod/*.f90 \
+$(DIR_OBJECT)/Sparse_Mod.o \
+Sparse_Mod/*.f90 \
 $(DIR_OBJECT)/Matrix_Mod.o \
 Matrix_Mod/*.f90 \
 Compute_Mod/*.f90 
@@ -24,14 +29,31 @@ Compute_Mod/*.f90
 $(DIR_OBJECT)/Main.o:\
 $(DIR_OBJECT)/Vector_Mod.o \
 Vector_Mod/*.f90 \
+$(DIR_OBJECT)/Sparse_Mod.o \
+Sparse_Mod/*.f90 \
 $(DIR_OBJECT)/Matrix_Mod.o \
 Matrix_Mod/*.f90 \
+$(DIR_OBJECT)/Grid_Mod.o \
+Grid_Mod/*.f90 \
 $(DIR_OBJECT)/Compute_Mod.o \
 Compute_Mod/*.f90 
 
 #-- ./Vector_Mod/Copy_To_Device.f90
 #-- ./Vector_Mod/Copy_To_Host.f90
-#-- ./Vector_Mod/Allocate.f90
+#-- ./Vector_Mod/Allocate_Vector.f90
+#-- ./Sparse_Mod/Copy_To_Device.f90
+#-- ./Sparse_Mod/Copy_To_Host.f90
+#-- ./Sparse_Mod/Create_Sparse.f90
+#-- ./Grid_Mod.f90
+$(DIR_OBJECT)/Grid_Mod.o:\
+Grid_Mod/*.f90 
+
+#-- ./Sparse_Mod.f90
+$(DIR_OBJECT)/Sparse_Mod.o:\
+Sparse_Mod/*.f90 \
+$(DIR_OBJECT)/Grid_Mod.o \
+Grid_Mod/*.f90 
+
 #-- ./Matrix_Mod/Copy_To_Device.f90
+#-- ./Matrix_Mod/Allocate_Matrix.f90
 #-- ./Matrix_Mod/Copy_To_Host.f90
-#-- ./Matrix_Mod/Allocate.f90

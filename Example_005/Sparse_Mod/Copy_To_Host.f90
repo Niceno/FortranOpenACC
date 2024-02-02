@@ -1,12 +1,14 @@
 !==============================================================================!
-  subroutine Copy_Matrix_To_Host(A)
+  subroutine Copy_Sparse_To_Host(A)
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Matrix_Type) :: A
+  class(Sparse_Type) :: A
 !==============================================================================!
 
   !$acc exit data copyout(A % val)
+  !$acc exit data copyout(A % col)
+  !$acc exit data copyout(A % row)
 
   end subroutine
 

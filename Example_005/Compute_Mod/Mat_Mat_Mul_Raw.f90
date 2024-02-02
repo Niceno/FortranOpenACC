@@ -4,7 +4,7 @@
     implicit none
 !---------------------------------[Arguments]----------------------------------!
   class(Compute_Type)  :: Comp
-  integer              :: n
+  integer, intent(in)  :: n
   real, dimension(n,n) :: c, a, b
 !-----------------------------------[Locals]-----------------------------------!
   integer :: iter, i, j

@@ -111,8 +111,10 @@ $(info $(OPT_COMP))
 #-------------
 
 # Modules in shared directories
-SRC_MOD = Vector_Mod.f90	\
+SRC_MOD = Grid_Mod.f90		\
+          Vector_Mod.f90	\
           Matrix_Mod.f90	\
+          Sparse_Mod.f90	\
           Compute_Mod.f90
 
 #---------------

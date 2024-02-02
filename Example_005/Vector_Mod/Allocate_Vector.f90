@@ -1,9 +1,9 @@
 !==============================================================================!
-  subroutine Matrix_Allocate(A, n)
+  subroutine Allocate_Vector(A, n)
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Matrix_Type)  :: A
+  class(Vector_Type)  :: A
   integer, intent(in) :: n
 !==============================================================================!
 
@@ -11,6 +11,6 @@
   A % len = n
 
   ! Allocate the memory
-  allocate(A % val(n, n))
+  allocate(A % val(n))
 
   end subroutine
