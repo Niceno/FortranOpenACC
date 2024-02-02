@@ -21,8 +21,10 @@
   real, dimension(n,n) :: a     !! operand matrix
   real, dimension(n)   :: b     !! operand vector
 !-----------------------------------[Locals]-----------------------------------!
-  integer :: iter, i, j
+  integer :: i, j
   real    :: temp
+!------------------------[Avoid unused parent warning]-------------------------!
+  Unused(Comp)
 !==============================================================================!
 
   !$acc kernels

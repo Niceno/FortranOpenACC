@@ -24,8 +24,10 @@
   integer, dimension(n+1) :: a_row  !! operand matrix rows
   real,    dimension(n)   :: b      !! operand vector
 !-----------------------------------[Locals]-----------------------------------!
-  integer :: iter, i, j, ij
+  integer :: i, j, ij
   real    :: temp
+!------------------------[Avoid unused parent warning]-------------------------!
+  Unused(Comp)
 !==============================================================================!
 
   !$acc parallel loop
