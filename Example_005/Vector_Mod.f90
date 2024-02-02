@@ -24,8 +24,8 @@
 
   contains
 #   include "Vector_Mod/Allocate_Vector.f90"
-#   include "Vector_Mod/Copy_To_Device.f90"
-#   include "Vector_Mod/Copy_To_Host.f90"
-#   include "Vector_Mod/Destroy_On_Device.f90"
+#   include "Vector_Mod/Copy_Vector_To_Device.f90"
+#   include "Vector_Mod/Copy_Vector_To_Host.f90"
+#   include "Vector_Mod/Destroy_Vector_On_Device.f90"
 
   end module

@@ -57,8 +57,8 @@
 
   contains
 #   include "Sparse_Mod/Create_Sparse.f90"
-#   include "Sparse_Mod/Copy_To_Device.f90"
-#   include "Sparse_Mod/Copy_To_Host.f90"
-#   include "Sparse_Mod/Destroy_On_Device.f90"
+#   include "Sparse_Mod/Copy_Sparse_To_Device.f90"
+#   include "Sparse_Mod/Copy_Sparse_To_Host.f90"
+#   include "Sparse_Mod/Destroy_Sparse_On_Device.f90"
 
   end module

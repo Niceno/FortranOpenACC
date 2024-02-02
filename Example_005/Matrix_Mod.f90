@@ -24,8 +24,8 @@
 
   contains
 #   include "Matrix_Mod/Allocate_Matrix.f90"
-#   include "Matrix_Mod/Copy_To_Device.f90"
-#   include "Matrix_Mod/Copy_To_Host.f90"
-#   include "Matrix_Mod/Destroy_On_Device.f90"
+#   include "Matrix_Mod/Copy_Matrix_To_Device.f90"
+#   include "Matrix_Mod/Copy_Matrix_To_Host.f90"
+#   include "Matrix_Mod/Destroy_Matrix_On_Device.f90"
 
   end module
