@@ -1,16 +1,18 @@
 !==============================================================================!
-  subroutine Copy_Matrix_To_Host(A)
+  subroutine Destroy_Sparse_On_Device(A)
 !------------------------------------------------------------------------------!
-!>  Copy a dense-matrix from GPU back to CPU, but do not destroy it on GPU.
+!>  Destroys a sparse-matrix on the GPU, without copying it back to CPU.
 !------------------------------------------------------------------------------!
-!   Note: I can't possibly imagine when this functionality would be needed.    !
+!   Note: if you wanted to copy it before destroying, change delete to copyout !
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Matrix_Type) :: A  !! parent class
+  class(Sparse_Type) :: A
 !==============================================================================!
 
-  !$acc update host(A % val)
+  !$acc exit data delete(A % val)
+  !$acc exit data delete(A % col)
+  !$acc exit data delete(A % row)
 
   end subroutine
 

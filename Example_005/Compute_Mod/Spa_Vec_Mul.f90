@@ -1,12 +1,14 @@
 !==============================================================================!
   subroutine Compute_Spa_Vec_Mul(Comp, C, A, B)
 !------------------------------------------------------------------------------!
+!>  Front-end for calculation of sparse-matrix vector multiplication.
+!------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Compute_Type) :: Comp
-  type(Vector_Type)   :: C
-  type(Sparse_Type)   :: A
-  type(Vector_Type)   :: B
+  class(Compute_Type) :: Comp  !! parent class
+  type(Vector_Type)   :: C     !! result vector
+  type(Sparse_Type)   :: A     !! operand matrix
+  type(Vector_Type)   :: B     !! operand vector
 !-----------------------------------[Locals]-----------------------------------!
   integer :: n, nz
 !==============================================================================!

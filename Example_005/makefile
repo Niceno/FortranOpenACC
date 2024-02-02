@@ -52,7 +52,6 @@ $(info #-----------------------------------------------------------------------)
 #   Fortran == gnu
 #--------------------
 ifeq ($(FORTRAN), gnu)
-  $(info  # Using GNU Fortran compiler with options:)
   FC = gfortran
   ifeq ($(DEBUG),yes)
     OPT_COMP = -J $(DIR_MODULE) -cpp -fdefault-real-8 -O0 -g  \
@@ -61,13 +60,14 @@ ifeq ($(FORTRAN), gnu)
     OPT_COMP = -J $(DIR_MODULE) -cpp -fdefault-real-8 -O3
   endif
   OPT_LINK = $(OPT_COMP)
+
+  $(info # Using GNU Fortran compiler with options: $(OPT_COMP))
 endif
 
 #----------------------
 #   Fortran == intel
 #----------------------
 ifeq ($(FORTRAN), intel)
-  $(info  # Using Intel Fortran compiler with options:)
   FC = ifort
   ifeq ($(DEBUG),yes)
     OPT_COMP = -module $(DIR_MODULE) -cpp -r8 -O0 -g -warn all -check all \
@@ -76,13 +76,14 @@ ifeq ($(FORTRAN), intel)
     OPT_COMP = -module $(DIR_MODULE) -cpp -r8 -O3
   endif
   OPT_LINK = $(OPT_COMP)
-endif 
+
+  $(info # Using Intel Fortran compiler with options: $(OPT_COMP))
+endif
 
 #-----------------------
 #   Fortran == nvidia
 #-----------------------
 ifeq ($(FORTRAN), nvidia)
-  $(info  # Using Nvidia Fortran compiler with options:)
   FC = nvfortran
   ifeq ($(DEBUG),yes)
     OPT_COMP = -module $(DIR_MODULE) -cpp -r8 -O0 -g
@@ -93,9 +94,9 @@ ifeq ($(FORTRAN), nvidia)
     OPT_COMP += -acc -Minfo=accel
   endif
   OPT_LINK = $(OPT_COMP)
-endif
 
-$(info $(OPT_COMP))
+  $(info # Using Nvidia Fortran compiler with options: $(OPT_COMP))
+endif
 
 #------------------------------------------------------
 #   List of sources for modules and functions

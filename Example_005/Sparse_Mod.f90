@@ -51,6 +51,7 @@
       procedure :: Create_Sparse
       procedure :: Copy_Sparse_To_Device
       procedure :: Copy_Sparse_To_Host
+      procedure :: Destroy_Sparse_On_Device
 
   end type
 
@@ -58,5 +59,6 @@
 #   include "Sparse_Mod/Create_Sparse.f90"
 #   include "Sparse_Mod/Copy_To_Device.f90"
 #   include "Sparse_Mod/Copy_To_Host.f90"
+#   include "Sparse_Mod/Destroy_On_Device.f90"
 
   end module

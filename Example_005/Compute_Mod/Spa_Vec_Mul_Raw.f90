@@ -1,22 +1,33 @@
 !==============================================================================!
   subroutine Compute_Spa_Vec_Mul_Raw(Comp, n, nz, c, a_val, a_col, a_row, b)
 !------------------------------------------------------------------------------!
-    implicit none
+!>  This subroutine computes sparse-matrix vector multiplication on a device,
+!>  without checking if variables are present on the device.
+!------------------------------------------------------------------------------!
+!   Note:                                                                      !
+!                                                                              !
+!   * This subroutine used to have directives:                                 !
+!     !$acc data present(c, a_val, a_col, a_row, b)                            !
+!     !$acc end data                                                           !
+!     around the loop, but there was a problem with that.  The "end data"      !
+!     would destroy data on the device which I don't want in an iterative      !
+!     procedure, and "data present" couldn't hang here without "end data"      !
+!------------------------------------------------------------------------------!
+  implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Compute_Type)     :: Comp
-  integer, intent(in)     :: n
-  integer, intent(in)     :: nz
-  real,    dimension(n)   :: c
-  real,    dimension(nz)  :: a_val
-  integer, dimension(nz)  :: a_col
-  integer, dimension(n+1) :: a_row
-  real,    dimension(n)   :: b
+  class(Compute_Type)     :: Comp   !! parent class
+  integer, intent(in)     :: n      !! matrix and vector dimension
+  integer, intent(in)     :: nz     !! number of nonzeros
+  real,    dimension(n)   :: c      !! result vector
+  real,    dimension(nz)  :: a_val  !! operand matrix values
+  integer, dimension(nz)  :: a_col  !! operand matrix columns
+  integer, dimension(n+1) :: a_row  !! operand matrix rows
+  real,    dimension(n)   :: b      !! operand vector
 !-----------------------------------[Locals]-----------------------------------!
   integer :: iter, i, j, ij
   real    :: temp
 !==============================================================================!
 
-  !$acc data present(c, a_val, a_col, a_row, b)
   !$acc parallel loop
   do i = 1, n
     temp = 0.0
@@ -28,7 +39,6 @@
     end do
     c(i) = temp
   end do
-  !$acc end data
 
   end subroutine
 

@@ -1,16 +1,16 @@
 !==============================================================================!
-  subroutine Copy_Matrix_To_Host(A)
+  subroutine Destroy_Vector_On_Device(A)
 !------------------------------------------------------------------------------!
-!>  Copy a dense-matrix from GPU back to CPU, but do not destroy it on GPU.
+!>  Destroys a vector on the GPU, without copying it back to CPU.
 !------------------------------------------------------------------------------!
-!   Note: I can't possibly imagine when this functionality would be needed.    !
+!   Note: if you wanted to copy it before destroying, change delete to copyout !
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Matrix_Type) :: A  !! parent class
+  class(Vector_Type) :: A
 !==============================================================================!
 
-  !$acc update host(A % val)
+  !$acc exit data delete(A % val)
 
   end subroutine
 

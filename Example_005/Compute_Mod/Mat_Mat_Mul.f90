@@ -1,12 +1,13 @@
 !==============================================================================!
   subroutine Compute_Mat_Mat_Mul(Comp, c, a, b)
 !------------------------------------------------------------------------------!
+!>  Front-end for calculation of dense-matrix dense-matrix multiplication.
+!------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Compute_Type) :: Comp
-  type(Matrix_Type)   :: c
-  type(Matrix_Type)   :: a
-  type(Matrix_Type)   :: b
+  class(Compute_Type) :: Comp  !! parent class
+  type(Matrix_Type)   :: c     !! result matrix
+  type(Matrix_Type)   :: a, b  !! operand matrices
 !-----------------------------------[Locals]-----------------------------------!
   integer :: n
 !==============================================================================!
