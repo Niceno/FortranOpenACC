@@ -1,5 +1,5 @@
 !==============================================================================!
-  subroutine Compute_Spa_Vec_Mul_Raw(Comp, n, nz, c, a_val, a_col, a_row, b)
+  subroutine Linalg_Spa_Vec_Mul_Raw(Lin, n, nz, c, a_val, a_col, a_row, b)
 !------------------------------------------------------------------------------!
 !>  This subroutine computes sparse-matrix vector multiplication on a device,
 !>  without checking if variables are present on the device.
@@ -38,19 +38,19 @@
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Compute_Type)     :: Comp   !! parent class
-  integer, intent(in)     :: n      !! matrix and vector dimension
-  integer, intent(in)     :: nz     !! number of nonzeros
-  real,    dimension(n)   :: c      !! result vector
-  real,    dimension(nz)  :: a_val  !! operand matrix values
-  integer, dimension(nz)  :: a_col  !! operand matrix columns
-  integer, dimension(n+1) :: a_row  !! operand matrix rows
-  real,    dimension(n)   :: b      !! operand vector
+  class(Linalg_Type)      :: Lin         !! parent class
+  integer, intent(in)     :: n           !! matrix and vector dimension
+  integer, intent(in)     :: nz          !! number of nonzeros
+  real                    :: c(n)        !! result vector
+  real                    :: a_val(nz)   !! operand matrix values
+  integer                 :: a_col(nz)   !! operand matrix columns
+  integer                 :: a_row(n+1)  !! operand matrix rows
+  real                    :: b(n)        !! operand vector
 !-----------------------------------[Locals]-----------------------------------!
   integer :: i, j, ij
   real    :: temp
 !------------------------[Avoid unused parent warning]-------------------------!
-  Unused(Comp)
+  Unused(Lin)
 !==============================================================================!
 
   !$acc kernels

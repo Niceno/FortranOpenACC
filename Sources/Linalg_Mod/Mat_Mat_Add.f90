@@ -1,23 +1,20 @@
 !==============================================================================!
-  subroutine Compute_Mat_Mat_Add(Comp, c, a, b)
+  subroutine Linalg_Mat_Mat_Add(Lin, C, A, B)
 !------------------------------------------------------------------------------!
 !>  Front-end for calculation of dense-matrix dense-matrix addition.
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Compute_Type) :: Comp  !! parent class
-  type(Matrix_Type)   :: c     !! result matrix
-  type(Matrix_Type)   :: a, b  !! operand matrices
-!-----------------------------------[Locals]-----------------------------------!
-  integer :: n
+  class(Linalg_Type) :: Lin  !! parent class
+  type(Matrix_Type)  :: C    !! result matrix
+  type(Matrix_Type)  :: A    !! operand matrix
+  type(Matrix_Type)  :: B    !! operand matrix
 !==============================================================================!
 
-  n = c % len
-
-  call Comp % Compute_Mat_Mat_Add_Raw(n,        &
-                                      c % val,  &
-                                      a % val,  &
-                                      b % val)
+  call Lin % Linalg_Mat_Mat_Add_Raw(C % len,  &
+                                    C % val,  &
+                                    A % val,  &
+                                    B % val)
 
   end subroutine
 

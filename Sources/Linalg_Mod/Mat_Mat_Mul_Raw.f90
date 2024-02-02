@@ -1,7 +1,7 @@
 !==============================================================================!
-  subroutine Compute_Mat_Vec_Mul_Raw(Comp, n, c, a, b)
+  subroutine Linalg_Mat_Mat_Mul_Raw(Lin, n, c, a, b)
 !------------------------------------------------------------------------------!
-!>  This subroutine computes dense-matrix vector multiplication on
+!>  This subroutine computes dense-matrix dense-matrix multiplication on
 !>  a device without checking if variables are present on the device.
 !------------------------------------------------------------------------------!
 !   Note:                                                                      !
@@ -13,27 +13,24 @@
 !     would destroy data on the device which I don't want in an iterative      !
 !     procedure, and "data present" couldn't hang here without "end data"      !
 !------------------------------------------------------------------------------!
-  implicit none
+    implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Compute_Type)  :: Comp  !! parent class
-  integer              :: n     !! matrix and vector dimension
-  real, dimension(n)   :: c     !! result vector
-  real, dimension(n,n) :: a     !! operand matrix
-  real, dimension(n)   :: b     !! operand vector
+  class(Linalg_Type)   :: Lin     !! parent class
+  integer, intent(in)  :: n       !! matrix dimensions
+  real                 :: c(n,n)  !! result matrix
+  real                 :: a(n,n)  !! operand matrix
+  real                 :: b(n,n)  !! operand matrix
 !-----------------------------------[Locals]-----------------------------------!
   integer :: i, j
-  real    :: temp
 !------------------------[Avoid unused parent warning]-------------------------!
-  Unused(Comp)
+  Unused(Lin)
 !==============================================================================!
 
   !$acc kernels
   do j = 1, n
-    temp = 0.0
     do i = 1, n
-      temp = temp + a(j, i) * b(i)
+      c(i,j) = a(i,j) * b(i,j)
     end do
-    c(j) = temp
   end do
   !$acc end kernels
 

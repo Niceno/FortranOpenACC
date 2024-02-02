@@ -5,7 +5,7 @@
   use Vector_Mod
   use Matrix_Mod
   use Sparse_Mod
-  use Compute_Mod
+  use Linalg_Mod
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
@@ -76,7 +76,7 @@
     !-----------------------------------------------!
     call cpu_time(ts)
     do time_step = 1, 60
-      call Global % Compute_Mat_Mat_Mul(Cm, Am, Bm)
+      call Global % Linalg_Mat_Mat_Mul(Cm, Am, Bm)
     end do
     call cpu_time(te)
 
@@ -130,7 +130,7 @@
     !-----------------------------------------------!
     call cpu_time(ts)
     do time_step = 1, 60
-      call Global % Compute_Mat_Vec_Mul(C, Am, B)
+      call Global % Linalg_Mat_Vec_Mul(C, Am, B)
     end do
     call cpu_time(te)
 
@@ -189,7 +189,7 @@
     print *, '# Performing a sparse-matrix vector product'
     call cpu_time(ts)
     do time_step = 1, 60
-      call Global % Compute_Spa_Vec_Mul(C, As, B)
+      call Global % Linalg_Spa_Vec_Mul(C, As, B)
     end do
     call cpu_time(te)
 
