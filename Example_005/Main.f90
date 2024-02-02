@@ -17,6 +17,7 @@
   type(Matrix_Type)  :: Am, Bm, Cm
   type(Sparse_Type)  :: As
   type(Grid_Type)    :: G
+  integer            :: time_step
   real               :: ts, te
 !==============================================================================!
 
@@ -44,7 +45,9 @@
 
   ! Perform global computations
   call cpu_time(ts)
-  call Global % Compute_Mat_Mat_Mul(Cm, Am, Bm)
+  do time_step = 1, 60
+    call Global % Compute_Mat_Mat_Mul(Cm, Am, Bm)
+  end do
   call cpu_time(te)
 
   ! Copy results back to host
@@ -56,7 +59,7 @@
   print *, 'Matrix Cm(n-1,n-1):', Cm % val(N-1, N-1)
   print *, 'Matrix Cm(n,  n  ):', Cm % val(N,   N)
 
-  print *, '# Time elapsed for TEST  1: ', te-ts
+  print '(a,f15.6)', '# Time elapsed for TEST  1: ', te-ts
 
   !---------------------------------!
   !   Try some matrix-vector copy   !
@@ -78,7 +81,9 @@
   call C % Copy_Vector_To_Device()
 
   call cpu_time(ts)
-  call Global % Compute_Mat_Vec_Mul(C, Am, B)
+  do time_step = 1, 60
+    call Global % Compute_Mat_Vec_Mul(C, Am, B)
+  end do
   call cpu_time(te)
 
   ! Copy results back to host
@@ -90,7 +95,7 @@
   print *, 'Vector C(n-1):', C % val(N-1)
   print *, 'Vector C(n  ):', C % val(N  )
 
-  print *, '# Time elapsed for TEST  2: ', te-ts
+  print '(a,f15.6)', '# Time elapsed for TEST  2: ', te-ts
 
   !--------------------------!
   !   Try to create a grid   !
@@ -110,7 +115,9 @@
 
   print *, '# Performing a sparse-matrix vector product'
   call cpu_time(ts)
-  call Global % Compute_Spa_Vec_Mul(C, As, B)
+  do time_step = 1, 60
+    call Global % Compute_Spa_Vec_Mul(C, As, B)
+  end do
   call cpu_time(te)
 
   ! Copy results back to host
@@ -122,7 +129,7 @@
   print *, 'Vector C(n-1):', C % val(N-1)
   print *, 'Vector C(n  ):', C % val(N  )
 
-  print *, '# Time elapsed for TEST  3: ', te-ts
+  print '(a,f15.6)', '# Time elapsed for TEST  3: ', te-ts
 
   end program
 

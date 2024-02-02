@@ -20,17 +20,15 @@
   real, dimension(n,n) :: c     !! result matrix
   real, dimension(n,n) :: a, b  !! operand matrices
 !-----------------------------------[Locals]-----------------------------------!
-  integer :: iter, i, j
+  integer :: i, j
 !------------------------[Avoid unused parent warning]-------------------------!
   Unused(Comp)
 !==============================================================================!
 
   !$acc kernels
-  do iter = 1, 60
-    do j = 1, n
-      do i = 1, n
-        c(i,j) = a(i,j) * b(i,j)
-      end do
+  do j = 1, n
+    do i = 1, n
+      c(i,j) = a(i,j) * b(i,j)
     end do
   end do
   !$acc end kernels
