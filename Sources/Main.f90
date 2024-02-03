@@ -9,14 +9,14 @@
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
-  type(Vector_Type)  :: B, C
+  type(Vector_Type)  :: A, B, C
   type(Matrix_Type)  :: Am, Bm, Cm
   type(Sparse_Type)  :: As
   type(Grid_Type)    :: G
   integer            :: n, nx, ny, nz, time_step
   logical            :: fail = .false.
   character(80)      :: arg
-  real               :: ts, te
+  real               :: dot, ts, te
 !==============================================================================!
 
   !-----------------------------------!
@@ -27,7 +27,8 @@
   if(command_argument_count() .ne. 1) fail = .true.
   if(.not. fail) then
     call get_command_argument(1, arg)
-    if(arg .ne. '1' .and. arg .ne. '2' .and. arg .ne. '3') fail = .true.
+    if(arg .ne. '1' .and. arg .ne. '2' .and.  &
+       arg .ne. '3' .and. arg .ne. '4') fail = .true.
   end if
 
   if(fail) then
@@ -36,18 +37,19 @@
     print *, ''
     print *, './Program <test>'
     print *, ''
-    print *, 'where <test> can be 1, 2 or 3, depending if you want to test:'
-    print *, '  1 - dense-matrix dense-matrix multiplication'
-    print *, '  2 - dense-matrix vector multiplication'
-    print *, '  3 - sperse-matrix vector multiplication'
+    print *, 'where <test> can be from 1 to 4, depending if you want to test:'
+    print *, '  1 - dense-matrix dense-matrix product'
+    print *, '  2 - dense-matrix vector product'
+    print *, '  3 - sperse-matrix vector product'
+    print *, '  4 - vector vector dot product'
     return
   end if
 
-  !------------------------------------------------------------!
-  !                                                            !
-  !   Try some dense-matrix with dense-matrix multiplication   !
-  !                                                            !
-  !------------------------------------------------------------!
+  !-----------------------------------------------------!
+  !                                                     !
+  !   Try some dense-matrix with dense-matrix product   !
+  !                                                     !
+  !-----------------------------------------------------!
   if(arg .eq. '1') then
 
     n = 10000
@@ -97,11 +99,11 @@
     print '(a,f12.3,a)', '# Time elapsed for TEST  1: ', te-ts, ' [s]'
   end if
 
-  !------------------------------------------------------!
-  !                                                      !
-  !   Try some dense-matrix with vector multiplication   !
-  !                                                      !
-  !------------------------------------------------------!
+  !-----------------------------------------------!
+  !                                               !
+  !   Try some dense-matrix with vector product   !
+  !                                               !
+  !-----------------------------------------------!
   if(arg .eq. '2') then
 
     n = 10000
@@ -151,11 +153,11 @@
     print '(a,f12.3,a)', '# Time elapsed for TEST  2: ', te-ts, ' [s]'
   end if
 
-  !-------------------------------------------------------!
-  !                                                       !
-  !   Try some sparse-matrix with vector multiplication   !
-  !                                                       !
-  !-------------------------------------------------------!
+  !------------------------------------------------!
+  !                                                !
+  !   Try some sparse-matrix with vector product   !
+  !                                                !
+  !------------------------------------------------!
   if(arg .eq. '3') then
 
     nx = 400
@@ -208,6 +210,53 @@
     print *, 'Vector C(n  ):', C % val(n  )
 
     print '(a,f12.3,a)', '# Time elapsed for TEST  3: ', te-ts, ' [s]'
+  end if
+
+  !----------------------------------------!
+  !                                        !
+  !   Try some vector vector dot product   !
+  !                                        !
+  !----------------------------------------!
+  if(arg .eq. '4') then
+
+    nx = 800
+    ny = 800
+    nz = 800
+    n  = nx * ny * nz
+    print *, '#--------------------------------------------------'
+    print *, '# TEST  4: Performing a vector vector dot product'
+    print *, '#          The problem size is set to ', n
+    print *, '#--------------------------------------------------'
+
+    print *, '# Creating two vectors for that grid'
+    call A % Allocate_Vector(n)
+    call B % Allocate_Vector(n)
+
+    A % val(:) = 1.0
+    B % val(:) = 2.0
+
+    ! Copy vectors to the device
+    call A % Copy_Vector_To_Device()
+    call B % Copy_Vector_To_Device()
+
+    !-----------------------------------------------!
+    !   Performing a fake time loop on the device   !
+    !-----------------------------------------------!
+    print *, '# Performing a vector vector dot product'
+    call cpu_time(ts)
+    do time_step = 1, 60
+      call Linalg % Vec_Vec_Dot(dot, A, B)
+    end do
+    call cpu_time(te)
+
+    ! Destroy data on the device, you don't need them anymore
+    call A % Destroy_Vector_On_Device()
+    call B % Destroy_Vector_On_Device()
+
+    ! Print result
+    print *, 'dot product: ', dot
+
+    print '(a,f12.3,a)', '# Time elapsed for TEST  4: ', te-ts, ' [s]'
   end if
 
   end program

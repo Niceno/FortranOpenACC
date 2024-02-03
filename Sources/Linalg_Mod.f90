@@ -26,6 +26,8 @@
       procedure, private :: Mat_Vec_Mul_Raw
       procedure          :: Spa_Vec_Mul
       procedure, private :: Spa_Vec_Mul_Raw
+      procedure          :: Vec_Vec_Dot
+      procedure, private :: Vec_Vec_Dot_Raw
 
   end type
 
@@ -43,5 +45,7 @@
 #   include "Linalg_Mod/Mat_Vec_Mul_Raw.f90"
 #   include "Linalg_Mod/Spa_Vec_Mul.f90"
 #   include "Linalg_Mod/Spa_Vec_Mul_Raw.f90"
+#   include "Linalg_Mod/Vec_Vec_Dot.f90"
+#   include "Linalg_Mod/Vec_Vec_Dot_Raw.f90"
 
   end module
