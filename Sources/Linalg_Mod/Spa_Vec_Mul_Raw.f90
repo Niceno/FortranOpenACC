@@ -1,5 +1,5 @@
 !==============================================================================!
-  subroutine Linalg_Spa_Vec_Mul_Raw(Lin, n, nz, c, a_val, a_col, a_row, b)
+  subroutine Spa_Vec_Mul_Raw(Lin, n, nz, c, a_val, a_col, a_row, b)
 !------------------------------------------------------------------------------!
 !>  This subroutine computes sparse-matrix vector multiplication on a device,
 !>  without checking if variables are present on the device.
@@ -8,6 +8,7 @@
 !                                                                              !
 !   * This subroutine used to have directives:                                 !
 !     !$acc data present(c, a_val, a_col, a_row, b)                            !
+!     ...                                                                      !
 !     !$acc end data                                                           !
 !     around the loop, but there was a problem with that.  The "end data"      !
 !     would destroy data on the device which I don't want in an iterative      !
@@ -34,18 +35,20 @@
 !     ...                                                                      !
 !     !$acc end kernels                                                        !
 !                                                                              !
-!     speed up was there like in the case of structured grids.                 !
+!     speed up was there like in the case of full matrices.                    !
+!                                                                              !
+!   * Using intent clause here, was causing slower runs.                       !
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Linalg_Type)      :: Lin         !! parent class
-  integer, intent(in)     :: n           !! matrix and vector dimension
-  integer, intent(in)     :: nz          !! number of nonzeros
-  real                    :: c(n)        !! result vector
-  real                    :: a_val(nz)   !! operand matrix values
-  integer                 :: a_col(nz)   !! operand matrix columns
-  integer                 :: a_row(n+1)  !! operand matrix rows
-  real                    :: b(n)        !! operand vector
+  class(Linalg_Type) :: Lin         !! parent class
+  integer            :: n           !! matrix and vector dimension
+  integer            :: nz          !! number of nonzeros
+  real               :: c(n)        !! result vector
+  real               :: a_val(nz)   !! operand matrix values
+  integer            :: a_col(nz)   !! operand matrix columns
+  integer            :: a_row(n+1)  !! operand matrix rows
+  real               :: b(n)        !! operand vector
 !-----------------------------------[Locals]-----------------------------------!
   integer :: i, j, ij
   real    :: temp

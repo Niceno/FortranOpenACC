@@ -18,21 +18,21 @@
   type Linalg_Type
 
     contains
-      procedure          :: Linalg_Mat_Mat_Add
-      procedure, private :: Linalg_Mat_Mat_Add_Raw
-      procedure          :: Linalg_Mat_Mat_Mul
-      procedure, private :: Linalg_Mat_Mat_Mul_Raw
-      procedure          :: Linalg_Mat_Vec_Mul
-      procedure, private :: Linalg_Mat_Vec_Mul_Raw
-      procedure          :: Linalg_Spa_Vec_Mul
-      procedure, private :: Linalg_Spa_Vec_Mul_Raw
+      procedure          :: Mat_Mat_Add
+      procedure, private :: Mat_Mat_Add_Raw
+      procedure          :: Mat_Mat_Mul
+      procedure, private :: Mat_Mat_Mul_Raw
+      procedure          :: Mat_Vec_Mul
+      procedure, private :: Mat_Vec_Mul_Raw
+      procedure          :: Spa_Vec_Mul
+      procedure, private :: Spa_Vec_Mul_Raw
 
   end type
 
   !-----------------------------------!
   !   Singletone type global object   !
   !-----------------------------------!
-  type(Linalg_Type) :: Global
+  type(Linalg_Type) :: Linalg
 
   contains
 #   include "Linalg_Mod/Mat_Mat_Add.f90"

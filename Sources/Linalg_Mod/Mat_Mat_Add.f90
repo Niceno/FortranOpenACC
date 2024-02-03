@@ -1,7 +1,9 @@
 !==============================================================================!
-  subroutine Linalg_Mat_Mat_Add(Lin, C, A, B)
+  subroutine Mat_Mat_Add(Lin, C, A, B)
 !------------------------------------------------------------------------------!
 !>  Front-end for calculation of dense-matrix dense-matrix addition.
+!------------------------------------------------------------------------------!
+!   Note: Using intent clause here, was causing slower runs and crashes        !
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
@@ -11,10 +13,10 @@
   type(Matrix_Type)  :: B    !! operand matrix
 !==============================================================================!
 
-  call Lin % Linalg_Mat_Mat_Add_Raw(C % len,  &
-                                    C % val,  &
-                                    A % val,  &
-                                    B % val)
+  call Lin % Mat_Mat_Add_Raw(C % len,  &
+                             C % val,  &
+                             A % val,  &
+                             B % val)
 
   end subroutine
 
