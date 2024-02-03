@@ -26,12 +26,11 @@
     ! Initialize matrices on the host
     Am % val(:,:) = 1.0
     Bm % val(:,:) = 2.0
-    Cm % val(:,:) = 0.0
 
-    ! Copy dense matrices to the device
+    ! Copy operand dense matrices to device and create space for result matrix
     call Am % Copy_Matrix_To_Device()
     call Bm % Copy_Matrix_To_Device()
-    call Cm % Copy_Matrix_To_Device()
+    call Cm % Create_Matrix_On_Device()
 
     !-----------------------------------------------!
     !   Performing a fake time loop on the device   !

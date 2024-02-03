@@ -27,12 +27,12 @@
     ! Initialize matrix and vectors
     Am % val(:,:) = 1.0
     B  % val(:)   = 2.0
-    C  % val(:)   = 0.0
 
-    ! Copy matrix and vectors to the device
+    ! Copy operand matrix and vector to the device
+    ! and reserve memory for result vector on device
     call Am % Copy_Matrix_To_Device()
     call B  % Copy_Vector_To_Device()
-    call C  % Copy_Vector_To_Device()
+    call C  % Create_Vector_On_Device()
 
     !-----------------------------------------------!
     !   Performing a fake time loop on the device   !

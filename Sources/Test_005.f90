@@ -30,14 +30,12 @@
 
     A % val(:) = 1.0
     B % val(:) = 2.0
-    C % val(:) = 0.0
-    D % val(:) = 0.0
 
-    ! Copy vectors to the device
+    ! Copy vectors and create on the device
     call A % Copy_Vector_To_Device()
     call B % Copy_Vector_To_Device()
-    call C % Copy_Vector_To_Device()
-    call D % Copy_Vector_To_Device()
+    call C % Create_Vector_On_Device()
+    call D % Create_Vector_On_Device()
 
     !-----------------------------------------------!
     !   Performing a fake time loop on the device   !

@@ -18,6 +18,7 @@
       procedure :: Allocate_Vector
       procedure :: Copy_Vector_To_Device
       procedure :: Copy_Vector_To_Host
+      procedure :: Create_Vector_On_Device
       procedure :: Destroy_Vector_On_Device
 
   end type
@@ -26,6 +27,7 @@
 #   include "Vector_Mod/Allocate_Vector.f90"
 #   include "Vector_Mod/Copy_Vector_To_Device.f90"
 #   include "Vector_Mod/Copy_Vector_To_Host.f90"
+#   include "Vector_Mod/Create_Vector_On_Device.f90"
 #   include "Vector_Mod/Destroy_Vector_On_Device.f90"
 
   end module
