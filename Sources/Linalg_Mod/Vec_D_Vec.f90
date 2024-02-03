@@ -1,22 +1,22 @@
 !==============================================================================!
-  subroutine Mat_Mat_Mul(Lin, c, a, b)
+  subroutine Vec_D_Vec(Lin, dot, A, B)
 !------------------------------------------------------------------------------!
-!>  Front-end for calculation of dense-matrix dense-matrix multiplication.
+!>  Front-end for calculation of vector vector dot product.
 !------------------------------------------------------------------------------!
 !   Note: Using intent clause here, was causing slower runs and crashes        !
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
   class(Linalg_Type) :: Lin  !! parent class
-  type(Matrix_Type)  :: C    !! result matrix
-  type(Matrix_Type)  :: A    !! operand matrix
-  type(Matrix_Type)  :: B    !! operand matrix
+  real               :: dot  !! result of the dot product
+  type(Vector_Type)  :: A    !! operand vector
+  type(Vector_Type)  :: B    !! operand vector
 !==============================================================================!
 
-  call Lin % Mat_Mat_Mul_Raw(C % len,  &
-                             C % val,  &
-                             A % val,  &
-                             B % val)
+  call Lin % Vec_D_Vec_Acc(dot,      &
+                           A % len,  &
+                           A % val,  &
+                           B % val)
 
   end subroutine
 

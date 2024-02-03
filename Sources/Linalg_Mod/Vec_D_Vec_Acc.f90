@@ -1,5 +1,5 @@
 !==============================================================================!
-  subroutine Vec_Vec_Dot_Raw(Lin, dot, n, a, b)
+  subroutine Vec_D_Vec_Acc(Lin, dot, n, a, b)
 !------------------------------------------------------------------------------!
 !>  This subroutine computes vector vector dot product on a device,
 !>  without checking if variables are present on the device.

@@ -1,5 +1,5 @@
 !==============================================================================!
-  subroutine Mat_Vec_Mul(Lin, C, A, B)
+  subroutine Mat_X_Vec(Lin, C, A, B)
 !------------------------------------------------------------------------------!
 !>  Front-end for calculation of dense-matrix vector multiplication.
 !------------------------------------------------------------------------------!
@@ -13,10 +13,10 @@
   type(Vector_Type)  :: B    !! operand vector
 !==============================================================================!
 
-  call Lin % Mat_Vec_Mul_Raw(C % len,  &
-                             C % val,  &
-                             A % val,  &
-                             B % val)
+  call Lin % Mat_X_Vec_Acc(C % len,  &
+                           C % val,  &
+                           A % val,  &
+                           B % val)
 
   end subroutine
 

@@ -18,16 +18,20 @@
   type Linalg_Type
 
     contains
-      procedure          :: Mat_Mat_Add
-      procedure, private :: Mat_Mat_Add_Raw
-      procedure          :: Mat_Mat_Mul
-      procedure, private :: Mat_Mat_Mul_Raw
-      procedure          :: Mat_Vec_Mul
-      procedure, private :: Mat_Vec_Mul_Raw
-      procedure          :: Spa_Vec_Mul
-      procedure, private :: Spa_Vec_Mul_Raw
-      procedure          :: Vec_Vec_Dot
-      procedure, private :: Vec_Vec_Dot_Raw
+      procedure          :: Mat_P_Mat
+      procedure, private :: Mat_P_Mat_Acc
+      procedure          :: Mat_X_Mat
+      procedure, private :: Mat_X_Mat_Acc
+      procedure          :: Mat_X_Vec
+      procedure, private :: Mat_X_Vec_Acc
+      procedure          :: Spa_X_Vec
+      procedure, private :: Spa_X_Vec_Acc
+      procedure          :: Vec_D_Vec
+      procedure, private :: Vec_D_Vec_Acc
+      procedure          :: Vec_M_Sca_X_Vec
+      procedure, private :: Vec_M_Sca_X_Vec_Acc
+      procedure          :: Vec_P_Sca_X_Vec
+      procedure, private :: Vec_P_Sca_X_Vec_Acc
 
   end type
 
@@ -37,15 +41,19 @@
   type(Linalg_Type) :: Linalg
 
   contains
-#   include "Linalg_Mod/Mat_Mat_Add.f90"
-#   include "Linalg_Mod/Mat_Mat_Add_Raw.f90"
-#   include "Linalg_Mod/Mat_Mat_Mul.f90"
-#   include "Linalg_Mod/Mat_Mat_Mul_Raw.f90"
-#   include "Linalg_Mod/Mat_Vec_Mul.f90"
-#   include "Linalg_Mod/Mat_Vec_Mul_Raw.f90"
-#   include "Linalg_Mod/Spa_Vec_Mul.f90"
-#   include "Linalg_Mod/Spa_Vec_Mul_Raw.f90"
-#   include "Linalg_Mod/Vec_Vec_Dot.f90"
-#   include "Linalg_Mod/Vec_Vec_Dot_Raw.f90"
+#   include "Linalg_Mod/Mat_P_Mat.f90"
+#   include "Linalg_Mod/Mat_P_Mat_Acc.f90"
+#   include "Linalg_Mod/Mat_X_Mat.f90"
+#   include "Linalg_Mod/Mat_X_Mat_Acc.f90"
+#   include "Linalg_Mod/Mat_X_Vec.f90"
+#   include "Linalg_Mod/Mat_X_Vec_Acc.f90"
+#   include "Linalg_Mod/Spa_X_Vec.f90"
+#   include "Linalg_Mod/Spa_X_Vec_Acc.f90"
+#   include "Linalg_Mod/Vec_D_Vec.f90"
+#   include "Linalg_Mod/Vec_D_Vec_Acc.f90"
+#   include "Linalg_Mod/Vec_M_Sca_X_Vec.f90"
+#   include "Linalg_Mod/Vec_M_Sca_X_Vec_Acc.f90"
+#   include "Linalg_Mod/Vec_P_Sca_X_Vec.f90"
+#   include "Linalg_Mod/Vec_P_Sca_X_Vec_Acc.f90"
 
   end module

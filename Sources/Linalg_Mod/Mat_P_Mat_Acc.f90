@@ -1,5 +1,5 @@
 !==============================================================================!
-  subroutine Mat_Mat_Add_Raw(Lin, n, c, a, b)
+  subroutine Mat_P_Mat_Acc(Lin, n, c, a, b)
 !------------------------------------------------------------------------------!
 !>  This subroutine computes dense-matrix dense-matrix addition on a device,
 !>  without checking if variables are present on the device.
