@@ -1,17 +1,18 @@
 !==============================================================================!
-  subroutine Matrix_Create_On_Device(Gpu, A)
+  subroutine Native_Create_On_Device(Gpu, Nat)
 !------------------------------------------------------------------------------!
-!   Note: I can't possibly imagine when this functionality would be needed.    !
+!>  Create memory for a native solver on GPU.  It can't copy the whole derived
+!>  type, but its components which are needed for accelrated calculations.
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Gpu_Type)   :: Gpu !! parent class
-  type(Matrix_Type) :: A   !! matrix to create
+  class(Gpu_Type)   :: Gpu  !! parent class
+  type(Native_Type) :: Nat  !! native solver to create
 !==============================================================================!
 
-  !$acc enter data create(A % val)
-  !$acc enter data create(A % col)
-  !$acc enter data create(A % row)
+  !$acc enter data create(Nat % r)
+  !$acc enter data create(Nat % p)
+  !$acc enter data create(Nat % q)
 
   end subroutine
 

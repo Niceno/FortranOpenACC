@@ -1,12 +1,12 @@
 !==============================================================================!
   subroutine Vector_Create_On_Device(Gpu, a)
 !------------------------------------------------------------------------------!
-!>  Copy a vector from CPU to GPU.
+!>  Create memory for a vector on GPU.
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Gpu_Type) :: Gpu  !! parent class
-  real            :: a(:)
+  class(Gpu_Type) :: Gpu   !! parent class
+  real            :: a(:)  !! vector to create
 !==============================================================================!
 
   !$acc enter data create(a)

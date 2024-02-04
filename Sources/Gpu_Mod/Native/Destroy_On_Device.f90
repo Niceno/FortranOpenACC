@@ -1,19 +1,19 @@
 !==============================================================================!
-  subroutine Matrix_Copy_To_Host(Gpu, A)
+  subroutine Native_Destroy_On_Device(Gpu, Nat)
 !------------------------------------------------------------------------------!
-!>  Copy a sparse-matrix from GPU back to CPU, but do not destroy it on GPU.
+!>  Destroys a native solver on the GPU, without copying it back to CPU.
 !------------------------------------------------------------------------------!
-!   Note: I can't possibly imagine when this functionality would be needed.    !
+!   Note: if you wanted to copy it before destroying, change delete to copyout !
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Gpu_Type)   :: Gpu !! parent class
-  type(Matrix_Type) :: A   !! matrix to copy
+  class(Gpu_Type)   :: Gpu  !! parent class
+  type(Native_Type) :: Nat  !! native solver to destroy
 !==============================================================================!
 
-  !$acc update host(A % val)
-  !$acc update host(A % col)
-  !$acc update host(A % row)
+  !$acc exit data delete(Nat % r)
+  !$acc exit data delete(Nat % p)
+  !$acc exit data delete(Nat % q)
 
   end subroutine
 
