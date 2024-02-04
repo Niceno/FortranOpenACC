@@ -3,12 +3,16 @@ $(DIR_OBJECT)/Test_004.o:\
 $(DIR_OBJECT)/Linalg_Mod.o \
 Linalg_Mod/*.f90 
 
+#-- ./Matrix_Mod.f90
+$(DIR_OBJECT)/Matrix_Mod.o:\
+Matrix_Mod/*.f90 \
+$(DIR_OBJECT)/Grid_Mod.o \
+Grid_Mod/*.f90 
+
 #-- ./Linalg_Mod.f90
 $(DIR_OBJECT)/Linalg_Mod.o:\
 $(DIR_OBJECT)/Vector_Mod.o \
 Vector_Mod/*.f90 \
-$(DIR_OBJECT)/Sparse_Mod.o \
-Sparse_Mod/*.f90 \
 Linalg_Mod/*.f90 
 
 #-- ./Grid_Mod/Create_Grid.f90
@@ -17,23 +21,15 @@ Linalg_Mod/*.f90
 $(DIR_OBJECT)/Vector_Mod.o:\
 Vector_Mod/*.f90 
 
-#-- ./Linalg_Mod/Mat_P_Mat_Acc.f90
-#-- ./Linalg_Mod/Mat_X_Vec.f90
 #-- ./Linalg_Mod/Vec_Copy.f90
 #-- ./Linalg_Mod/Vec_O_Dia.f90
 #-- ./Linalg_Mod/Spa_X_Vec.f90
 #-- ./Linalg_Mod/Vec_D_Vec.f90
-#-- ./Linalg_Mod/Mat_X_Mat.f90
 #-- ./Linalg_Mod/Vec_O_Dia_Acc.f90
 #-- ./Linalg_Mod/Vec_P_Sca_X_Vec.f90
 #-- ./Linalg_Mod/Spa_X_Vec_Acc.f90
-#-- ./Linalg_Mod/Mat_X_Vec_Acc.f90
 #-- ./Linalg_Mod/Vec_Copy_Acc.f90
-#-- ./Linalg_Mod/Mat_P_Mat.f90
-#-- ./Linalg_Mod/Vec_M_Sca_X_Vec.f90
 #-- ./Linalg_Mod/Vec_P_Sca_X_Vec_Acc.f90
-#-- ./Linalg_Mod/Mat_X_Mat_Acc.f90
-#-- ./Linalg_Mod/Vec_M_Sca_X_Vec_Acc.f90
 #-- ./Linalg_Mod/Vec_D_Vec_Acc.f90
 #-- ./Main.f90
 #-- ./Vector_Mod/Destroy_Vector_On_Device.f90
@@ -46,11 +42,6 @@ $(DIR_OBJECT)/Test_001.o:\
 $(DIR_OBJECT)/Linalg_Mod.o \
 Linalg_Mod/*.f90 
 
-#-- ./Sparse_Mod/Copy_Sparse_To_Device.f90
-#-- ./Sparse_Mod/Copy_Sparse_To_Host.f90
-#-- ./Sparse_Mod/Create_Sparse_On_Device.f90
-#-- ./Sparse_Mod/Destroy_Sparse_On_Device.f90
-#-- ./Sparse_Mod/Create_Sparse.f90
 #-- ./Test_003.f90
 $(DIR_OBJECT)/Test_003.o:\
 $(DIR_OBJECT)/Linalg_Mod.o \
@@ -70,9 +61,8 @@ $(DIR_OBJECT)/Test_002.o:\
 $(DIR_OBJECT)/Linalg_Mod.o \
 Linalg_Mod/*.f90 
 
-#-- ./Sparse_Mod.f90
-$(DIR_OBJECT)/Sparse_Mod.o:\
-Sparse_Mod/*.f90 \
-$(DIR_OBJECT)/Grid_Mod.o \
-Grid_Mod/*.f90 
-
+#-- ./Matrix_Mod/Destroy_Matrix_On_Device.f90
+#-- ./Matrix_Mod/Create_Matrix_On_Device.f90
+#-- ./Matrix_Mod/Copy_Matrix_To_Host.f90
+#-- ./Matrix_Mod/Copy_Matrix_To_Device.f90
+#-- ./Matrix_Mod/Create_Matrix.f90

@@ -1,9 +1,9 @@
 !==============================================================================!
-  subroutine Create_Sparse(A, Grid, singular)
+  subroutine Create_Matrix(A, Grid, singular)
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Sparse_Type)  :: A
+  class(Matrix_Type)  :: A
   type(Grid_Type)     :: Grid
   logical, intent(in) :: singular
 !-----------------------------------[Locals]-----------------------------------!

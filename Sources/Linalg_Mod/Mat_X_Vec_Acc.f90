@@ -1,5 +1,5 @@
 !==============================================================================!
-  subroutine Spa_X_Vec_Acc(Lin, n, nz, c, a_val, a_col, a_row, b)
+  subroutine Mat_X_Vec_Acc(Lin, n, nz, c, a_val, a_col, a_row, b)
 !------------------------------------------------------------------------------!
 !>  This subroutine computes sparse-matrix vector multiplication on a device,
 !>  without checking if variables are present on the device.

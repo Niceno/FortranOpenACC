@@ -1,5 +1,5 @@
 !==============================================================================!
-  module Sparse_Mod
+  module Matrix_Mod
 !------------------------------------------------------------------------------!
 !----------------------------------[Modules]-----------------------------------!
   use Grid_Mod
@@ -35,10 +35,10 @@
 
   !-----------------!
   !                 !
-  !   Sparse Type   !
+  !   Matrix Type   !
   !                 !
   !-----------------!
-  type Sparse_Type
+  type Matrix_Type
     integer              :: n = 0     ! matrix dimension
     integer              :: nonzeros  ! number of nonzero entries
     real,    allocatable :: val(:)    ! value
@@ -48,19 +48,19 @@
     integer, allocatable :: mir(:)    ! position of the mirror entry
 
     contains
-      procedure :: Create_Sparse
-      procedure :: Copy_Sparse_To_Device
-      procedure :: Copy_Sparse_To_Host
-      procedure :: Create_Sparse_On_Device
-      procedure :: Destroy_Sparse_On_Device
+      procedure :: Create_Matrix
+      procedure :: Copy_Matrix_To_Device
+      procedure :: Copy_Matrix_To_Host
+      procedure :: Create_Matrix_On_Device
+      procedure :: Destroy_Matrix_On_Device
 
   end type
 
   contains
-#   include "Sparse_Mod/Create_Sparse.f90"
-#   include "Sparse_Mod/Copy_Sparse_To_Device.f90"
-#   include "Sparse_Mod/Copy_Sparse_To_Host.f90"
-#   include "Sparse_Mod/Create_Sparse_On_Device.f90"
-#   include "Sparse_Mod/Destroy_Sparse_On_Device.f90"
+#   include "Matrix_Mod/Create_Matrix.f90"
+#   include "Matrix_Mod/Copy_Matrix_To_Device.f90"
+#   include "Matrix_Mod/Copy_Matrix_To_Host.f90"
+#   include "Matrix_Mod/Create_Matrix_On_Device.f90"
+#   include "Matrix_Mod/Destroy_Matrix_On_Device.f90"
 
   end module

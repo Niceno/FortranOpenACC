@@ -7,7 +7,7 @@
 !---------------------------------[Arguments]----------------------------------!
   class(Linalg_Type) :: Lin  !! parent class
   type(Vector_Type)  :: C    !! result vector
-  type(Sparse_Type)  :: A    !! operand matrix
+  type(Matrix_Type)  :: A    !! operand matrix
   type(Vector_Type)  :: B    !! operand vector
 !-----------------------------------[Locals]-----------------------------------!
   integer :: nz

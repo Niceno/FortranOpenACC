@@ -1,14 +1,14 @@
 !==============================================================================!
-  subroutine Create_Sparse_On_Device(A)
+  subroutine Copy_Matrix_To_Device(A)
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Sparse_Type) :: A
+  class(Matrix_Type) :: A
 !==============================================================================!
 
-  !$acc enter data create(A % val)
-  !$acc enter data create(A % col)
-  !$acc enter data create(A % row)
+  !$acc enter data copyin(A % val)
+  !$acc enter data copyin(A % col)
+  !$acc enter data copyin(A % row)
 
   end subroutine
 

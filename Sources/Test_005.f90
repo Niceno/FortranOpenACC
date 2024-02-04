@@ -11,13 +11,13 @@
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
-  type(Grid_Type)   :: G   !! computational grid
-  type(Sparse_Type) :: As  !! system matrix
-  type(Vector_Type) :: X   !! solution, dependent variable
-  type(Vector_Type) :: B   !! right-hand side vector
-  type(Vector_Type) :: R   !! residual vector
-  type(Vector_Type) :: P   !! helping vector
-  type(Vector_Type) :: Q   !! helping vector
+  type(Grid_Type)   :: G  !! computational grid
+  type(Matrix_Type) :: A  !! system matrix
+  type(Vector_Type) :: X  !! solution, dependent variable
+  type(Vector_Type) :: B  !! right-hand side vector
+  type(Vector_Type) :: R  !! residual vector
+  type(Vector_Type) :: P  !! helping vector
+  type(Vector_Type) :: Q  !! helping vector
   integer           :: n, nx, ny, nz, iter
   real              :: ts, te
   real              :: alpha, beta, pq, rho, rho_old, res, tol
@@ -39,7 +39,7 @@
   print '(a)', ' # Creating a grid'
   call G % Create_Grid(1.0, 1.0, 1.0, nx, ny, nz)
 
-  call As % Create_Sparse(G, singular=.false.)
+  call A % Create_Matrix(G, singular=.false.)
 
   print '(a)', ' # Creating two vectors for solution and right hand side'
   call X  % Allocate_Vector(n)
@@ -55,14 +55,14 @@
   B % val(:) = G % dx * G % dy * G % dz
 
   ! Copy components of the linear system to the device
-  call As % Copy_Sparse_To_Device()
-  call X  % Copy_Vector_To_Device()
-  call B  % Copy_Vector_To_Device()
+  call A % Copy_Matrix_To_Device()
+  call X % Copy_Vector_To_Device()
+  call B % Copy_Vector_To_Device()
 
   ! Allocate vectors related to CG algorithm on the device
-  call R  % Create_Vector_On_Device()
-  call P  % Create_Vector_On_Device()
-  call Q  % Create_Vector_On_Device()
+  call R % Create_Vector_On_Device()
+  call P % Create_Vector_On_Device()
+  call Q % Create_Vector_On_Device()
 
   !-----------------------------------------------!
   !   Performing a fake time loop on the device   !
@@ -73,7 +73,7 @@
   !----------------!
   !   r = b - Ax   !     =-->  (Q used for Ax)
   !----------------!
-  call Linalg % Spa_X_Vec(Q, As, X)             ! Ax = A * X
+  call Linalg % Mat_X_Vec(Q, A, X)              ! Ax = A * X
   call Linalg % Vec_P_Sca_X_Vec(R, B, -1.0, Q)  ! R  = b - AX
 
   !-----------!
@@ -86,7 +86,7 @@
     !---------------!
     !   z = r / M   !    =--> (A used for M, Q for Z)
     !---------------!
-    call Linalg % Vec_O_Dia(Q, As, R)  ! Q = R / As
+    call Linalg % Vec_O_Dia(Q, A, R)  ! Q = R / A
 
     !-----------------!
     !   rho = r * z   !  =--> (Q used for Z)
@@ -112,7 +112,7 @@
     !------------!
     !   q = Ap   !
     !------------!
-    call Linalg % Spa_X_Vec(Q, As, P)   ! Q  = A * P
+    call Linalg % Mat_X_Vec(Q, A, P)   ! Q  = A * P
 
     !---------------------------!
     !   alfa =  rho / (p * q)   !
@@ -143,13 +143,13 @@
   call X % Copy_Vector_To_Host()
 
   ! Destroy data on the device, you don't need them anymore
-  call As % Destroy_Sparse_On_Device()
-  call X  % Destroy_Vector_On_Device()
-  call B  % Destroy_Vector_On_Device()
+  call A % Destroy_Matrix_On_Device()
+  call X % Destroy_Vector_On_Device()
+  call B % Destroy_Vector_On_Device()
 
-  call R  % Destroy_Vector_On_Device()
-  call P  % Destroy_Vector_On_Device()
-  call Q  % Destroy_Vector_On_Device()
+  call R % Destroy_Vector_On_Device()
+  call P % Destroy_Vector_On_Device()
+  call Q % Destroy_Vector_On_Device()
 
   ! Print result
   print '(a,es12.3)', ' Vector X(1  ):', X % val(1  )
