@@ -16,13 +16,13 @@
   ny = 600
   nz = 600
   n  = nx * ny * nz
-  print *, '#-----------------------------------------------------'
-  print *, '# TEST  5: Performing vector operations:'
-  print *, '#          C = A + s * B  and  C = A - s * B'
-  print *, '#          The problem size is set to ', n
-  print *, '#-----------------------------------------------------'
+  print '(a)',     ' #-----------------------------------------------------'
+  print '(a)',     ' # TEST  5: Performing vector operations:'
+  print '(a)',     ' #          C = A + s * B  and  C = A - s * B'
+  print '(a,i12)', ' #         The problem size is set to ', n
+  print '(a)',     ' #-----------------------------------------------------'
 
-  print *, '# Creating three vectors'
+  print '(a)', ' # Creating three vectors'
   call A % Allocate_Vector(n)
   call B % Allocate_Vector(n)
   call C % Allocate_Vector(n)
@@ -40,7 +40,7 @@
   !-----------------------------------------------!
   !   Performing a fake time loop on the device   !
   !-----------------------------------------------!
-  print *, '# Performing a sparse-matrix vector product'
+  print '(a)', ' # Performing a sparse-matrix vector product'
   call cpu_time(ts)
   do time_step = 1, 60
     call Linalg % Vec_P_Sca_X_Vec(C, A, 2.0, B)  ! result should be  5
@@ -59,15 +59,15 @@
   call D % Destroy_Vector_On_Device()
 
   ! Print results
-  print *, 'Vector C(1  ):', C % val(1  )
-  print *, 'Vector C(2  ):', C % val(2  )
-  print *, 'Vector C(n-1):', C % val(n-1)
-  print *, 'Vector C(n  ):', C % val(n  )
-  print *, 'Vector D(1  ):', D % val(1  )
-  print *, 'Vector D(2  ):', D % val(2  )
-  print *, 'Vector D(n-1):', D % val(n-1)
-  print *, 'Vector D(n  ):', D % val(n  )
+  print '(a,es12.3)', ' Vector C(1  ):', C % val(1  )
+  print '(a,es12.3)', ' Vector C(2  ):', C % val(2  )
+  print '(a,es12.3)', ' Vector C(n-1):', C % val(n-1)
+  print '(a,es12.3)', ' Vector C(n  ):', C % val(n  )
+  print '(a,es12.3)', ' Vector D(1  ):', D % val(1  )
+  print '(a,es12.3)', ' Vector D(2  ):', D % val(2  )
+  print '(a,es12.3)', ' Vector D(n-1):', D % val(n-1)
+  print '(a,es12.3)', ' Vector D(n  ):', D % val(n  )
 
-  print '(a,f12.3,a)', '# Time elapsed for TEST  5: ', te-ts, ' [s]'
+  print '(a,f12.3,a)', ' # Time elapsed for TEST 5: ', te-ts, ' [s]'
 
   end subroutine

@@ -14,12 +14,12 @@
   ny = 800
   nz = 800
   n  = nx * ny * nz
-  print *, '#--------------------------------------------------'
-  print *, '# TEST  4: Performing a vector vector dot product'
-  print *, '#          The problem size is set to ', n
-  print *, '#--------------------------------------------------'
+  print '(a)',     ' #-------------------------------------------------'
+  print '(a)',     ' # TEST 4: Performing a vector vector dot product'
+  print '(a,i12)', ' #         The problem size is set to ', n
+  print '(a)',     ' #-------------------------------------------------'
 
-  print *, '# Creating two vectors'
+  print '(a)', ' # Creating two vectors'
   call A % Allocate_Vector(n)
   call B % Allocate_Vector(n)
 
@@ -33,7 +33,7 @@
   !-----------------------------------------------!
   !   Performing a fake time loop on the device   !
   !-----------------------------------------------!
-  print *, '# Performing a vector vector dot product'
+  print '(a)', ' # Performing a vector vector dot product'
   call cpu_time(ts)
   do time_step = 1, 60
     call Linalg % Vec_D_Vec(dot, A, B)
@@ -45,8 +45,8 @@
   call B % Destroy_Vector_On_Device()
 
   ! Print result
-  print *, 'dot product: ', dot
+  print '(a,es12.3)', ' Dot product: ', dot
 
-  print '(a,f12.3,a)', '# Time elapsed for TEST  4: ', te-ts, ' [s]'
+  print '(a,f12.3,a)', ' # Time elapsed for TEST  4: ', te-ts, ' [s]'
 
   end subroutine

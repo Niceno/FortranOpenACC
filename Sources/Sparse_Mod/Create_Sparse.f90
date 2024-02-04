@@ -13,7 +13,11 @@
   real    :: dx, dy, dz, a_e, a_w, a_n, a_s, a_t, a_b, a_sum
 !==============================================================================!
 
-  print *, '# Creating A sparse matrix'
+  if(singular) then
+    print '(a)', ' # Creating a sparse singular matrix'
+  else
+    print '(a)', ' # Creating a sparse non-singular matrix'
+  end if
 
   ni = Grid % nx
   nj = Grid % ny
@@ -46,7 +50,7 @@
     end do
   end do
 
-  print *, '# Number of nonzeros: ', non_zeros
+  print '(a,i15)', ' # Number of nonzeros: ', non_zeros
   A % n        = ni*nj*nk
   A % nonzeros = non_zeros
   allocate (A % row(ni*nj*nk+1)); A % row = 0

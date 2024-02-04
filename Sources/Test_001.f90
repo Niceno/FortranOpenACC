@@ -13,10 +13,10 @@
 !==============================================================================!
 
   n = 10000
-  print *, '#----------------------------------------------------------'
-  print *, '# TEST  1: Performing a dense-matrix dense-matrix product'
-  print *, '#          The problem size is set to ', n
-  print *, '#----------------------------------------------------------'
+  print '(a)',     ' #---------------------------------------------------------'
+  print '(a)',     ' # TEST 1: Performing a dense-matrix dense-matrix product'
+  print '(a,i12)', ' #         The problem size is set to ', n
+  print '(a)',     ' #---------------------------------------------------------'
 
   ! Allocate matrices
   call Am % Allocate_Matrix(n)
@@ -50,11 +50,11 @@
   call Cm % Destroy_Matrix_On_Device()
 
   ! Print result
-  print *, 'Matrix Cm(1,  1  ):', Cm % val(1,   1)
-  print *, 'Matrix Cm(2,  2  ):', Cm % val(2,   2)
-  print *, 'Matrix Cm(n-1,n-1):', Cm % val(n-1, n-1)
-  print *, 'Matrix Cm(n,  n  ):', Cm % val(n,   n)
+  print '(a,es12.3)', ' Matrix Cm(1,  1  ):', Cm % val(1,   1)
+  print '(a,es12.3)', ' Matrix Cm(2,  2  ):', Cm % val(2,   2)
+  print '(a,es12.3)', ' Matrix Cm(n-1,n-1):', Cm % val(n-1, n-1)
+  print '(a,es12.3)', ' Matrix Cm(n,  n  ):', Cm % val(n,   n)
 
-  print '(a,f12.3,a)', '# Time elapsed for TEST  1: ', te-ts, ' [s]'
+  print '(a,f12.3,a)', ' # Time elapsed for TEST 1: ', te-ts, ' [s]'
 
   end subroutine

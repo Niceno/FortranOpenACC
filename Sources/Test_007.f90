@@ -24,9 +24,9 @@
   integer           :: i, j, k
 !==============================================================================!
 
-  nx  = 101
-  ny  = 101
-  nz  = 101
+  nx  = 201
+  ny  = 201
+  nz  = 201
   n   = nx * ny * nz
   tol = 1.0 / n
 
@@ -36,13 +36,12 @@
   print '(a,es12.3)', ' #          Target solver tolerace is : ', tol
   print '(a)',        ' #-----------------------------------------------------'
 
-  print *, '# Creating a grid'
+  print '(a)', ' # Creating a grid'
   call G % Create_Grid(1.0, 1.0, 1.0, nx, ny, nz)
 
-  print *, '# Creating a non-simgular sparse matrix'
   call As % Create_Sparse(G, singular=.false.)
 
-  print *, '# Creating two vectors for solution and right hand side'
+  print '(a)', ' # Creating two vectors for solution and right hand side'
   call X  % Allocate_Vector(n)
   call B  % Allocate_Vector(n)
 
@@ -68,7 +67,7 @@
   !-----------------------------------------------!
   !   Performing a fake time loop on the device   !
   !-----------------------------------------------!
-  print *, '# Performing a demo of the preconditioned CG method'
+  print '(a)', ' # Performing a demo of the preconditioned CG method'
   call cpu_time(ts)
 
   !----------------!
@@ -132,7 +131,7 @@
     !   Check residual   !
     !--------------------!
     call Linalg % Vec_D_Vec(res, R, R)  ! res = R * R
-    if(mod(iter,8) .eq. 0) print '(a,i12,es12.3)', 'iter, res = ', iter, res
+    if(mod(iter,8) .eq. 0) print '(a,i12,es12.3)', ' iter, res = ', iter, res
     if(res .lt. tol) goto 1
 
     rho_old = rho
@@ -153,14 +152,14 @@
   call Q  % Destroy_Vector_On_Device()
 
   ! Print result
-  print *, 'Vector X(1  ):', X % val(1  )
-  print *, 'Vector X(2  ):', X % val(2  )
-  print *, 'Vector X(n-1):', X % val(n-1)
-  print *, 'Vector X(n  ):', X % val(n  )
+  print '(a,es12.3)', ' Vector X(1  ):', X % val(1  )
+  print '(a,es12.3)', ' Vector X(2  ):', X % val(2  )
+  print '(a,es12.3)', ' Vector X(n-1):', X % val(n-1)
+  print '(a,es12.3)', ' Vector X(n  ):', X % val(n  )
 
   ! Save results
   call G % Save_Vtk_Debug(X % val)
 
-  print '(a,f12.3,a)', '# Time elapsed for TEST  7: ', te-ts, ' [s]'
+  print '(a,f12.3,a)', ' # Time elapsed for TEST 7: ', te-ts, ' [s]'
 
   end subroutine

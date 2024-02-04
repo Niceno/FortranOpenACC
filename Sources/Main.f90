@@ -56,19 +56,19 @@
   !----------------------------------------------------------------------!
   !   If you are here, something was wrong with command line arguments   !
   !----------------------------------------------------------------------!
-  print *, 'Failed to invoke the program correctly.'
-  print *, 'Correct invocation is:'
-  print *, ''
-  print *, './Program <test>'
-  print *, ''
-  print *, 'where <test> can be from 1 to 5, depending if you want to test:'
-  print *, '  1 - dense-matrix dense-matrix product'
-  print *, '  2 - dense-matrix vector product'
-  print *, '  3 - sparse-matrix vector product'
-  print *, '  4 - vector vector dot product'
-  print *, '  5 - operations: C = A + scalar * B and'
-  print *, '                  C = A - scalar * B'
-  print *, '  6 - diagonal preconditioning'
-  print *, '  7 - conjugate gradients steps'
+  print '(a)', ' Failed to invoke the program correctly.'
+  print '(a)', ' Correct invocation is:'
+  print '(a)', ''
+  print '(a)', ' ./Program <test>'
+  print '(a)', ''
+  print '(a)', ' where <test> can be from 1 to 7 depending if you want to test:'
+  print '(a)', '   1 - dense-matrix dense-matrix product'
+  print '(a)', '   2 - dense-matrix vector product'
+  print '(a)', '   3 - sparse-matrix vector product'
+  print '(a)', '   4 - vector vector dot product'
+  print '(a)', '   5 - operations: C = A + scalar * B and'
+  print '(a)', '                   C = A - scalar * B'
+  print '(a)', '   6 - diagonal preconditioning'
+  print '(a)', '   7 - conjugate gradients steps'
 
   end program

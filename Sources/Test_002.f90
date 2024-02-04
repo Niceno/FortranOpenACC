@@ -14,10 +14,10 @@
 !==============================================================================!
 
   n = 10000
-  print *, '#----------------------------------------------------'
-  print *, '# TEST  2: Performing a dense-matrix vector product'
-  print *, '#          The problem size is set to ', n
-  print *, '#----------------------------------------------------'
+  print '(a)',     ' #---------------------------------------------------'
+  print '(a)',     ' # TEST 2: Performing a dense-matrix vector product'
+  print '(a,i12)', ' #         The problem size is set to ', n
+  print '(a)',     ' #---------------------------------------------------'
 
   ! Allocate matrix and vectors
   call Am % Allocate_Matrix(n)
@@ -52,11 +52,11 @@
   call C  % Destroy_Vector_On_Device()
 
   ! Print result
-  print *, 'Vector C(1  ):', C % val(1  )
-  print *, 'Vector C(2  ):', C % val(2  )
-  print *, 'Vector C(n-1):', C % val(n-1)
-  print *, 'Vector C(n  ):', C % val(n  )
+  print '(a,es12.3)', ' Vector C(1  ):', C % val(1  )
+  print '(a,es12.3)', ' Vector C(2  ):', C % val(2  )
+  print '(a,es12.3)', ' Vector C(n-1):', C % val(n-1)
+  print '(a,es12.3)', ' Vector C(n  ):', C % val(n  )
 
-  print '(a,f12.3,a)', '# Time elapsed for TEST  2: ', te-ts, ' [s]'
+  print '(a,f12.3,a)', ' # Time elapsed for TEST 2: ', te-ts, ' [s]'
 
   end subroutine
