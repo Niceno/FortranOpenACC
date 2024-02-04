@@ -14,39 +14,29 @@
     ! Fetch the command line argument
     call get_command_argument(1, arg)
 
-    ! Dense-matrix with dense-matrix product
+    ! Sparse-matrix with vector product
     if(arg .eq. '1') then
       call Test_001()
       return
 
-    ! Dense-matrix with vector product
+    ! Vector vector dot product
     else if(arg .eq. '2') then
       call Test_002()
       return
 
-    ! Sparse-matrix with vector product
+    ! Operations  C = A + s * B  and  C = A - s * B
     else if(arg .eq. '3') then
       call Test_003()
       return
 
-    ! Vector vector dot product
+    ! Preconditioner
     else if(arg .eq. '4') then
       call Test_004()
       return
 
-    ! Operations  C = A + s * B  and  C = A - s * B
+    ! Conjugate Gradient steps
     else if(arg .eq. '5') then
       call Test_005()
-      return
-
-    ! Preconditioner
-    else if(arg .eq. '6') then
-      call Test_006()
-      return
-
-    ! Conjugate Gradient steps
-    else if(arg .eq. '7') then
-      call Test_007()
       return
 
     end if
@@ -62,13 +52,11 @@
   print '(a)', ' ./Program <test>'
   print '(a)', ''
   print '(a)', ' where <test> can be from 1 to 7 depending if you want to test:'
-  print '(a)', '   1 - dense-matrix dense-matrix product'
-  print '(a)', '   2 - dense-matrix vector product'
-  print '(a)', '   3 - sparse-matrix vector product'
-  print '(a)', '   4 - vector vector dot product'
-  print '(a)', '   5 - operations: C = A + scalar * B and'
+  print '(a)', '   1 - sparse-matrix vector product'
+  print '(a)', '   2 - vector vector dot product'
+  print '(a)', '   3 - operations: C = A + scalar * B and'
   print '(a)', '                   C = A - scalar * B'
-  print '(a)', '   6 - diagonal preconditioning'
-  print '(a)', '   7 - conjugate gradients steps'
+  print '(a)', '   4 - diagonal preconditioning'
+  print '(a)', '   5 - conjugate gradients steps'
 
   end program

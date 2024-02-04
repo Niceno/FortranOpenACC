@@ -1,61 +1,51 @@
 !==============================================================================!
   subroutine Test_002
 !------------------------------------------------------------------------------!
-!>  Tests dense-matrix with vector product
-!------------------------------------------------------------------------------!
   use Linalg_Mod
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
-  type(Vector_Type)  :: B, C
-  type(Matrix_Type)  :: Am
-  integer            :: n, time_step
-  real               :: ts, te
+  type(Vector_Type)  :: A, B
+  integer            :: n, nx, ny, nz, time_step
+  real               :: dot, ts, te
 !==============================================================================!
 
-  n = 10000
-  print '(a)',     ' #---------------------------------------------------'
-  print '(a)',     ' # TEST 2: Performing a dense-matrix vector product'
+  nx = 800
+  ny = 800
+  nz = 800
+  n  = nx * ny * nz
+  print '(a)',     ' #-------------------------------------------------'
+  print '(a)',     ' # TEST 2: Performing a vector vector dot product'
   print '(a,i12)', ' #         The problem size is set to ', n
-  print '(a)',     ' #---------------------------------------------------'
+  print '(a)',     ' #-------------------------------------------------'
 
-  ! Allocate matrix and vectors
-  call Am % Allocate_Matrix(n)
-  call B  % Allocate_Vector(n)
-  call C  % Allocate_Vector(n)
+  print '(a)', ' # Creating two vectors'
+  call A % Allocate_Vector(n)
+  call B % Allocate_Vector(n)
 
-  ! Initialize matrix and vectors
-  Am % val(:,:) = 1.0
-  B  % val(:)   = 2.0
+  A % val(:) = 1.0
+  B % val(:) = 2.0
 
-  ! Copy operand matrix and vector to the device
-  ! and reserve memory for result vector on device
-  call Am % Copy_Matrix_To_Device()
-  call B  % Copy_Vector_To_Device()
-  call C  % Create_Vector_On_Device()
+  ! Copy vectors to the device
+  call A % Copy_Vector_To_Device()
+  call B % Copy_Vector_To_Device()
 
   !-----------------------------------------------!
   !   Performing a fake time loop on the device   !
   !-----------------------------------------------!
+  print '(a)', ' # Performing a vector vector dot product'
   call cpu_time(ts)
   do time_step = 1, 60
-    call Linalg % Mat_X_Vec(C, Am, B)
+    call Linalg % Vec_D_Vec(dot, A, B)
   end do
   call cpu_time(te)
 
-  ! Copy results back to host
-  call C % Copy_Vector_To_Host()
-
   ! Destroy data on the device, you don't need them anymore
-  call Am % Destroy_Matrix_On_Device()
-  call B  % Destroy_Vector_On_Device()
-  call C  % Destroy_Vector_On_Device()
+  call A % Destroy_Vector_On_Device()
+  call B % Destroy_Vector_On_Device()
 
   ! Print result
-  print '(a,es12.3)', ' Vector C(1  ):', C % val(1  )
-  print '(a,es12.3)', ' Vector C(2  ):', C % val(2  )
-  print '(a,es12.3)', ' Vector C(n-1):', C % val(n-1)
-  print '(a,es12.3)', ' Vector C(n  ):', C % val(n  )
+  print '(a,es12.3)', ' Dot product: ', dot
 
   print '(a,f12.3,a)', ' # Time elapsed for TEST 2: ', te-ts, ' [s]'
 
