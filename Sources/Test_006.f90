@@ -1,7 +1,7 @@
 !==============================================================================!
-  subroutine Test_003
+  subroutine Test_006
 !------------------------------------------------------------------------------!
-!>  Tests parse-matrix with vector product
+!>  Tests diagonal preconditioner
 !------------------------------------------------------------------------------!
   use Linalg_Mod
 !------------------------------------------------------------------------------!
@@ -14,24 +14,24 @@
   real               :: ts, te
 !==============================================================================!
 
-  nx = 400
-  ny = 400
-  nz = 400
+  nx = 300
+  ny = 300
+  nz = 300
   n  = nx * ny * nz
   print *, '#-----------------------------------------------------'
-  print *, '# TEST  3: Performing a sparse-matrix vector product'
+  print *, '# TEST  6: Performing diagonal preconditioning'
   print *, '#          The problem size is set to ', n
   print *, '#-----------------------------------------------------'
 
   print *, '# Creating a grid'
   call G % Create_Grid(1.0, 1.0, 1.0, nx, ny, nz)
 
-  print *, '# Creating a singular sparse matrix and two vectors for that grid'
-  call As % Create_Sparse(G, singular=.true.)
+  print *, '# Creating a sparse matrix and two vectors for that grid'
+  call As % Create_Sparse(G, singular=.false.)
   call B  % Allocate_Vector(n)
   call C  % Allocate_Vector(n)
 
-  B % val(:) = 2.0
+  B % val(:) = 1.0
 
   ! Copy operand matrix and vector to the device ...
   ! ... and reserve memory for result vector on device
@@ -42,10 +42,10 @@
   !-----------------------------------------------!
   !   Performing a fake time loop on the device   !
   !-----------------------------------------------!
-  print *, '# Performing a sparse-matrix vector product'
+  print *, '# Performing diagonal preconditioning'
   call cpu_time(ts)
   do time_step = 1, 60
-    call Linalg % Spa_X_Vec(C, As, B)
+    call Linalg % Vec_O_Dia(C, As, B)
   end do
   call cpu_time(te)
 
@@ -63,6 +63,6 @@
   print *, 'Vector C(n-1):', C % val(n-1)
   print *, 'Vector C(n  ):', C % val(n  )
 
-  print '(a,f12.3,a)', '# Time elapsed for TEST  3: ', te-ts, ' [s]'
+  print '(a,f12.3,a)', '# Time elapsed for TEST  6: ', te-ts, ' [s]'
 
   end subroutine

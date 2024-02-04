@@ -8,6 +8,8 @@
   integer, intent(in) :: nx, ny, nz
 !==============================================================================!
 
+  Grid % n_cells = nx * ny * nz
+
   Grid % lx = lx
   Grid % ly = ly
   Grid % lz = lz
@@ -15,6 +17,10 @@
   Grid % nx = nx
   Grid % ny = ny
   Grid % nz = nz
+
+  Grid % dx = lx / nx
+  Grid % dy = ly / ny
+  Grid % dz = lz / nz
 
   end subroutine
 
