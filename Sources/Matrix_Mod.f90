@@ -39,13 +39,16 @@
   !                 !
   !-----------------!
   type Matrix_Type
-    integer              :: n = 0     ! matrix dimension
-    integer              :: nonzeros  ! number of nonzero entries
-    real,    allocatable :: val(:)    ! value
-    integer, allocatable :: col(:)    ! beginning of each row
-    integer, allocatable :: row(:)    ! column positions
-    integer, allocatable :: dia(:)    ! diagonal positions 
-    integer, allocatable :: mir(:)    ! position of the mirror entry
+
+    type(Grid_Type), pointer :: pnt_grid  !! pointer to grid
+
+!   integer              :: n = 0     !! matrix dimension
+    integer              :: nonzeros  !! number of nonzero entries
+    real,    allocatable :: val(:)    !! value
+    integer, allocatable :: col(:)    !! beginning of each row
+    integer, allocatable :: row(:)    !! column positions
+    integer, allocatable :: dia(:)    !! diagonal positions
+    integer, allocatable :: mir(:)    !! position of the mirror entry
 
     contains
       procedure :: Create_Matrix

@@ -39,6 +39,11 @@
       call Test_005()
       return
 
+    ! Field creation and gradient calculation
+    else if(arg .eq. '6') then
+      call Test_006()
+      return
+
     end if
 
   end if
@@ -58,5 +63,6 @@
   print '(a)', '                   C = A - scalar * B'
   print '(a)', '   4 - diagonal preconditioning'
   print '(a)', '   5 - conjugate gradients steps'
+  print '(a)', '   6 - field creation and gradient calculation'
 
   end program

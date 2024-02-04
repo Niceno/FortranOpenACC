@@ -3,15 +3,18 @@
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Matrix_Type)  :: A
-  type(Grid_Type)     :: Grid
-  logical, intent(in) :: singular
+  class(Matrix_Type)      :: A
+  type(Grid_Type), target :: Grid
+  logical,     intent(in) :: singular
 !-----------------------------------[Locals]-----------------------------------!
   integer :: i, j, k, ni, nj, nk, non_zeros
   integer :: c, w, e, s, n, b, t
   integer :: col_a, col_b, row_a, row_b, pos_a, pos_b
   real    :: dx, dy, dz, a_e, a_w, a_n, a_s, a_t, a_b, a_sum
 !==============================================================================!
+
+  ! Store pointer to the grid
+  A % pnt_grid => Grid
 
   if(singular) then
     print '(a)', ' # Creating a sparse singular matrix'
@@ -50,13 +53,12 @@
   end do
 
   print '(a,i15)', ' # Number of nonzeros: ', non_zeros
-  A % n        = ni*nj*nk
   A % nonzeros = non_zeros
-  allocate (A % row(ni*nj*nk+1)); A % row = 0
-  allocate (A % dia(ni*nj*nk));   A % dia = 0
-  allocate (A % col(non_zeros));  A % col = 0
-  allocate (A % val(non_zeros));  A % val = 0
-  allocate (A % mir(non_zeros));  A % mir = 0
+  allocate (A % row(Grid % n_cells+1));  A % row = 0
+  allocate (A % dia(Grid % n_cells));    A % dia = 0
+  allocate (A % col(non_zeros));         A % col = 0
+  allocate (A % val(non_zeros));         A % val = 0
+  allocate (A % mir(non_zeros));         A % mir = 0
 
   !--------------------------------!
   !   Form the compressed matrix   !
@@ -173,7 +175,7 @@
   !---------------------------------!
   !   Find positions of diagonals   !
   !---------------------------------!
-  do row_a = 1, A % n
+  do row_a = 1, Grid % n_cells
     do pos_a = A % row(row_a), A % row(row_a + 1) - 1
       col_a = A % col(pos_a)  ! at this point you have row_a and col_a
       if(col_a == row_a) then
@@ -189,7 +191,7 @@
   !----------------------!
 
   ! Outer loop
-  do row_a = 1, A % n
+  do row_a = 1, Grid % n_cells
     do pos_a = A % row(row_a), A % row(row_a + 1) - 1
       col_a = A % col(pos_a)  ! at this point you have row_a and col_a
 
