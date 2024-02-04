@@ -157,7 +157,7 @@
   print '(a,es12.3)', ' vector x(n  ):', x(n  )
 
   ! Save results
-  call G % Save_Vtk_Debug(x)
+  call G % Save_Vtk_Debug("solution.vtk", x)
 
   print '(a,f12.3,a)', ' # Time elapsed for TEST 5: ', te-ts, ' [s]'
 

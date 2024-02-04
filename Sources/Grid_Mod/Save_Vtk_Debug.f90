@@ -1,19 +1,20 @@
 !==============================================================================!
-  subroutine Save_Vtk_Debug(Grid, phi)
+  subroutine Save_Vtk_Debug(Grid, file_name, phi)
 !------------------------------------------------------------------------------!
   implicit none
-!------------------------------------------------------------------------------!
+!---------------------------------[Arguments]----------------------------------!
   class(Grid_Type) :: Grid                 !! computational grid
+  character(*)     :: file_name
   real             :: phi(Grid % n_cells)  !! solution
-!------------------------------------------------------------------------------!
+!-----------------------------------[Locals]-----------------------------------!
   integer :: i, j, k, c, fu
   real    :: xn, yn, zn
 !==============================================================================!
 
   ! Open file
   fu = 10
-  open(unit=fu, file='result.vtk', status='replace', action='write')
-  print '(a)', ' # Saving the results in: result.vtk'
+  open(unit=fu, file=file_name, status='replace', action='write')
+  print '(a)', ' # Saving the results in: '//file_name
 
   ! Write VTK header
   write(fu,'(a)') '# vtk DataFile Version 3.0'
@@ -47,14 +48,12 @@
 
   ! Write cell-centered scalar data
   write(fu,*) ' CELL_DATA ', Grid % n_cells
-  write(fu,*) ' SCALARS variable_name float 1'
+  write(fu,*) ' SCALARS solution float 1'
   write(fu,*) ' LOOKUP_TABLE default'
   do k = 1, Grid % nz
     do j = 1, Grid % ny
       do i = 1, Grid % nx
-        c = (k-1)*Grid % nx * Grid % ny  &
-          + (j-1)*Grid % nx              &
-          + i
+        c = Grid % Cell_Number(i, j, k)
         write(fu, '(es14.5)') phi(c)
       end do
     end do

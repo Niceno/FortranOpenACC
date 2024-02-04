@@ -36,7 +36,6 @@
   do k = 1, nk
     do j = 1, nj
       do i = 1, ni
-        c = (k-1)*ni*nj + (j-1)*ni + i
 
         if(k > 1) non_zeros = non_zeros + 1
         if(j > 1) non_zeros = non_zeros + 1
@@ -68,7 +67,7 @@
   do k = 1, nk
     do j = 1, nj
       do i = 1, ni
-        c = (k-1)*ni*nj + (j-1)*ni + i
+        c = Grid % Cell_Number(i, j, k)
 
         ! First neighbours
         e = c+1
