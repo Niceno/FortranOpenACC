@@ -11,17 +11,16 @@
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
-  type(Grid_Type)   :: G  !! computational grid
-  type(Matrix_Type) :: A  !! system matrix
-  type(Vector_Type) :: X  !! solution, dependent variable
-  type(Vector_Type) :: B  !! right-hand side vector
-  type(Vector_Type) :: R  !! residual vector
-  type(Vector_Type) :: P  !! helping vector
-  type(Vector_Type) :: Q  !! helping vector
+  type(Grid_Type)   :: G     !! computational grid
+  type(Matrix_Type) :: A     !! system matrix
+  real, allocatable :: x(:)  !! solution, dependent variable
+  real, allocatable :: b(:)  !! right-hand side vector
+  real, allocatable :: r(:)  !! residual vector
+  real, allocatable :: p(:)  !! helping vector
+  real, allocatable :: q(:)  !! helping vector
   integer           :: n, nx, ny, nz, iter
   real              :: ts, te
   real              :: alpha, beta, pq, rho, rho_old, res, tol
-  integer           :: i, j, k
 !==============================================================================!
 
   nx  = 301
@@ -42,27 +41,27 @@
   call A % Create_Matrix(G, singular=.false.)
 
   print '(a)', ' # Creating two vectors for solution and right hand side'
-  call X  % Allocate_Vector(n)
-  call B  % Allocate_Vector(n)
+  allocate(x(n))
+  allocate(b(n))
 
   ! Allocate vectors related to CG algorithm
-  call R  % Allocate_Vector(n)
-  call P  % Allocate_Vector(n)
-  call Q  % Allocate_Vector(n)
+  allocate(r(n))
+  allocate(p(n))
+  allocate(q(n))
 
   ! Initialize right-hand side, the source
-  X % val(:) = 0.0
-  B % val(:) = G % dx * G % dy * G % dz
+  x(:) = 0.0
+  b(:) = G % dx * G % dy * G % dz
 
   ! Copy components of the linear system to the device
-  call A % Copy_Matrix_To_Device()
-  call X % Copy_Vector_To_Device()
-  call B % Copy_Vector_To_Device()
+  call Gpu % Matrix_Copy_To_Device(A)
+  call Gpu % Vector_Copy_To_Device(x)
+  call Gpu % Vector_Copy_To_Device(b)
 
   ! Allocate vectors related to CG algorithm on the device
-  call R % Create_Vector_On_Device()
-  call P % Create_Vector_On_Device()
-  call Q % Create_Vector_On_Device()
+  call Gpu % Vector_Create_On_Device(r)
+  call Gpu % Vector_Create_On_Device(p)
+  call Gpu % Vector_Create_On_Device(q)
 
   !-----------------------------------------------!
   !   Performing a fake time loop on the device   !
@@ -71,66 +70,66 @@
   call cpu_time(ts)
 
   !----------------!
-  !   r = b - Ax   !     =-->  (Q used for Ax)
+  !   r = b - Ax   !     =-->  (q used for temporary storing Ax)
   !----------------!
-  call Linalg % Mat_X_Vec(Q, A, X)              ! Ax = A * X
-  call Linalg % Vec_P_Sca_X_Vec(R, B, -1.0, Q)  ! R  = b - AX
+  call Linalg % Mat_X_Vec(q, A, x)              ! Ax = A * x
+  call Linalg % Vec_P_Sca_X_Vec(r, b, -1.0, q)  ! r  = b - Ax
 
   !-----------!
   !   p = r   !
   !-----------!
-  call Linalg % Vec_Copy(P, R)
+  call Linalg % Vec_Copy(p, r)
 
   do iter = 1, n
 
     !---------------!
     !   z = r / M   !    =--> (A used for M, Q for Z)
     !---------------!
-    call Linalg % Vec_O_Dia(Q, A, R)  ! Q = R / A
+    call Linalg % Vec_O_Dia(q, A, r)  ! q = r / A
 
     !-----------------!
-    !   rho = r * z   !  =--> (Q used for Z)
+    !   rho = r * z   !  =--> (q used for z)
     !-----------------!
-    call Linalg % Vec_D_Vec(rho, R, Q)  ! rho = R * Q
+    call Linalg % Vec_D_Vec(rho, r, q)  ! rho = r * q
 
     if(iter .eq. 1) then
 
       !-----------!
-      !   p = z   !  =--> (Q used for Z)
+      !   p = z   !  =--> (q used for z)
       !-----------!
-      call Linalg % Vec_Copy(P, Q)  ! P = Q
+      call Linalg % Vec_Copy(p, q)  ! p = q
     else
 
       !--------------------------!
       !   beta = rho / rho_old   !
-      !   p = z + beta * p       !  =--> (Q used for P)
+      !   p = z + beta * p       !  =--> (q used for p)
       !--------------------------!
       beta = rho / rho_old
-      call Linalg % Vec_P_Sca_X_Vec(P, Q, beta, P)   ! P = Q + beta P
+      call Linalg % Vec_P_Sca_X_Vec(p, q, beta, p)   ! p = q + beta p
     end if
 
     !------------!
     !   q = Ap   !
     !------------!
-    call Linalg % Mat_X_Vec(Q, A, P)   ! Q  = A * P
+    call Linalg % Mat_X_Vec(q, A, p)   ! q  = A * p
 
     !---------------------------!
     !   alfa =  rho / (p * q)   !
     !---------------------------!
-    call Linalg % Vec_D_Vec(pq, P, Q)  ! pq = P * Q
+    call Linalg % Vec_D_Vec(pq, p, q)  ! pq = p * q
     alpha = rho / pq
 
     !---------------------!
     !   x = x + alfa p    !
     !   r = r - alfa Q    !
     !---------------------!
-    call Linalg % Vec_P_Sca_X_Vec(X, X, +alpha, P)  ! X = X + alpha P
-    call Linalg % Vec_P_Sca_X_Vec(R, R, -alpha, Q)  ! R = R - alpha Q
+    call Linalg % Vec_P_Sca_X_Vec(x, x, +alpha, p)  ! x = x + alpha p
+    call Linalg % Vec_P_Sca_X_Vec(r, r, -alpha, q)  ! r = r - alpha q
 
     !--------------------!
     !   Check residual   !
     !--------------------!
-    call Linalg % Vec_D_Vec(res, R, R)  ! res = R * R
+    call Linalg % Vec_D_Vec(res, r, r)  ! res = r * r
     if(mod(iter,8) .eq. 0) print '(a,i12,es12.3)', ' iter, res = ', iter, res
     if(res .lt. tol) goto 1
 
@@ -140,25 +139,25 @@
   call cpu_time(te)
 
   ! Copy results back to host
-  call X % Copy_Vector_To_Host()
+  call Gpu % Vector_Copy_To_Host(x)
 
   ! Destroy data on the device, you don't need them anymore
-  call A % Destroy_Matrix_On_Device()
-  call X % Destroy_Vector_On_Device()
-  call B % Destroy_Vector_On_Device()
+  call Gpu % Matrix_Destroy_On_Device(A)
+  call Gpu % Vector_Destroy_On_Device(x)
+  call Gpu % Vector_Destroy_On_Device(b)
 
-  call R % Destroy_Vector_On_Device()
-  call P % Destroy_Vector_On_Device()
-  call Q % Destroy_Vector_On_Device()
+  call Gpu % Vector_Destroy_On_Device(r)
+  call Gpu % Vector_Destroy_On_Device(p)
+  call Gpu % Vector_Destroy_On_Device(q)
 
   ! Print result
-  print '(a,es12.3)', ' Vector X(1  ):', X % val(1  )
-  print '(a,es12.3)', ' Vector X(2  ):', X % val(2  )
-  print '(a,es12.3)', ' Vector X(n-1):', X % val(n-1)
-  print '(a,es12.3)', ' Vector X(n  ):', X % val(n  )
+  print '(a,es12.3)', ' vector x(1  ):', x(1  )
+  print '(a,es12.3)', ' vector x(2  ):', x(2  )
+  print '(a,es12.3)', ' vector x(n-1):', x(n-1)
+  print '(a,es12.3)', ' vector x(n  ):', x(n  )
 
   ! Save results
-  call G % Save_Vtk_Debug(X % val)
+  call G % Save_Vtk_Debug(x)
 
   print '(a,f12.3,a)', ' # Time elapsed for TEST 5: ', te-ts, ' [s]'
 

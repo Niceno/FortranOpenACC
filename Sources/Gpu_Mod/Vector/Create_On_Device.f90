@@ -1,14 +1,15 @@
 !==============================================================================!
-  subroutine Copy_Matrix_To_Device(A)
+  subroutine Vector_Create_On_Device(Gpu, a)
+!------------------------------------------------------------------------------!
+!>  Copy a vector from CPU to GPU.
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Matrix_Type) :: A
+  class(Gpu_Type) :: Gpu  !! parent class
+  real            :: a(:)
 !==============================================================================!
 
-  !$acc enter data copyin(A % val)
-  !$acc enter data copyin(A % col)
-  !$acc enter data copyin(A % row)
+  !$acc enter data create(a)
 
   end subroutine
 

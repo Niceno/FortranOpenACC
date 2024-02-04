@@ -7,16 +7,17 @@
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Linalg_Type) :: Lin  !! parent class
-  real               :: dot  !! result of the dot product
-  type(Vector_Type)  :: A    !! operand vector
-  type(Vector_Type)  :: B    !! operand vector
+  class(Linalg_Type) :: Lin   !! parent class
+  real               :: dot   !! result of the dot product
+  real               :: a(:)  !! operand vector
+  real               :: b(:)  !! operand vector
+!-----------------------------------[Locals]-----------------------------------!
+  integer :: n
 !==============================================================================!
 
-  call Lin % Vec_D_Vec_Acc(dot,      &
-                           A % len,  &
-                           A % val,  &
-                           B % val)
+  n = size(a)
+
+  call Lin % Vec_D_Vec_Acc(dot, n, a, b)
 
   end subroutine
 

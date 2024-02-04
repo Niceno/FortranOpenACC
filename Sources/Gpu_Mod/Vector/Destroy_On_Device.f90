@@ -1,15 +1,17 @@
 !==============================================================================!
-  subroutine Copy_Vector_To_Host(A)
+  subroutine Vector_Destroy_On_Device(Gpu, a)
 !------------------------------------------------------------------------------!
-!>  Copy a vector from GPU back to CPU, but do not destroy it on GPU, useful
-!>  when fetching results from GPUs for saving and post-processing.
+!>  Destroys a vector on the GPU, without copying it back to CPU.
+!------------------------------------------------------------------------------!
+!   Note: if you wanted to copy it before destroying, change delete to copyout !
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Vector_Type) :: A  !! parent class
+  class(Gpu_Type) :: Gpu  !! parent class
+  real            :: a(:)
 !==============================================================================!
 
-  !$acc update host(A % val)
+  !$acc exit data delete(a)
 
   end subroutine
 

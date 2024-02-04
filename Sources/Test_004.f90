@@ -7,11 +7,11 @@
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
-  type(Vector_Type)  :: B, C
-  type(Matrix_Type)  :: A
-  type(Grid_Type)    :: G
-  integer            :: n, nx, ny, nz, time_step
-  real               :: ts, te
+  type(Matrix_Type) :: A
+  real, allocatable :: b(:), c(:)
+  type(Grid_Type)   :: G
+  integer           :: n, nx, ny, nz, time_step
+  real              :: ts, te
 !==============================================================================!
 
   nx = 300
@@ -27,16 +27,16 @@
   call G % Create_Grid(1.0, 1.0, 1.0, nx, ny, nz)
 
   call A % Create_Matrix(G, singular=.false.)
-  call B % Allocate_Vector(n)
-  call C % Allocate_Vector(n)
+  allocate(b(n))
+  allocate(c(n))
 
-  B % val(:) = 1.0
+  b(:) = 2.0
 
   ! Copy operand matrix and vector to the device ...
   ! ... and reserve memory for result vector on device
-  call A % Copy_Matrix_To_Device()
-  call B % Copy_Vector_To_Device()
-  call C % Create_Vector_On_Device()
+  call Gpu % Matrix_Copy_To_Device(A)
+  call Gpu % Vector_Copy_To_Device(b)
+  call Gpu % Vector_Create_On_Device(c)
 
   !-----------------------------------------------!
   !   Performing a fake time loop on the device   !
@@ -44,23 +44,23 @@
   print '(a)', ' # Performing diagonal preconditioning'
   call cpu_time(ts)
   do time_step = 1, 60
-    call Linalg % Vec_O_Dia(C, A, B)
+    call Linalg % Vec_O_Dia(c, A, b)
   end do
   call cpu_time(te)
 
   ! Copy results back to host
-  call C % Copy_Vector_To_Host()
+  call Gpu % Vector_Copy_To_Host(c)
 
   ! Destroy data on the device, you don't need them anymore
-  call A % Destroy_Matrix_On_Device()
-  call B % Destroy_Vector_On_Device()
-  call C % Destroy_Vector_On_Device()
+  call Gpu % Matrix_Destroy_On_Device(A)
+  call Gpu % Vector_Destroy_On_Device(b)
+  call Gpu % Vector_Destroy_On_Device(c)
 
   ! Print result
-  print '(a,es12.3)', ' Vector C(1  ):', C % val(1  )
-  print '(a,es12.3)', ' Vector C(2  ):', C % val(2  )
-  print '(a,es12.3)', ' Vector C(n-1):', C % val(n-1)
-  print '(a,es12.3)', ' Vector C(n  ):', C % val(n  )
+  print '(a,es12.3)', ' vector c(1  ):', c(1  )
+  print '(a,es12.3)', ' vector c(2  ):', c(2  )
+  print '(a,es12.3)', ' vector c(n-1):', c(n-1)
+  print '(a,es12.3)', ' vector c(n  ):', c(n  )
 
   print '(a,f12.3,a)', ' # Time elapsed for TEST 4: ', te-ts, ' [s]'
 

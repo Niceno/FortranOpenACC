@@ -5,7 +5,7 @@
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
-  type(Vector_Type) :: A, B
+  real, allocatable :: a(:), b(:)
   integer           :: n, nx, ny, nz, time_step
   real              :: dot, ts, te
 !==============================================================================!
@@ -20,15 +20,15 @@
   print '(a)',     ' #-------------------------------------------------'
 
   print '(a)', ' # Creating two vectors'
-  call A % Allocate_Vector(n)
-  call B % Allocate_Vector(n)
+  allocate(a(n))
+  allocate(b(n))
 
-  A % val(:) = 1.0
-  B % val(:) = 2.0
+  a(:) = 1.0
+  b(:) = 2.0
 
   ! Copy vectors to the device
-  call A % Copy_Vector_To_Device()
-  call B % Copy_Vector_To_Device()
+  call Gpu % Vector_Copy_To_Device(a)
+  call Gpu % Vector_Copy_To_Device(b)
 
   !-----------------------------------------------!
   !   Performing a fake time loop on the device   !
@@ -36,13 +36,13 @@
   print '(a)', ' # Performing a vector vector dot product'
   call cpu_time(ts)
   do time_step = 1, 60
-    call Linalg % Vec_D_Vec(dot, A, B)
+    call Linalg % Vec_D_Vec(dot, a, b)
   end do
   call cpu_time(te)
 
   ! Destroy data on the device, you don't need them anymore
-  call A % Destroy_Vector_On_Device()
-  call B % Destroy_Vector_On_Device()
+  call Gpu % Vector_Destroy_On_Device(a)
+  call Gpu % Vector_Destroy_On_Device(b)
 
   ! Print result
   print '(a,es12.3)', ' Dot product: ', dot

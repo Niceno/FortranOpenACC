@@ -1,16 +1,15 @@
 !==============================================================================!
-  subroutine Allocate_Vector(A, n)
+  subroutine Vector_Copy_To_Device(Gpu, a)
+!------------------------------------------------------------------------------!
+!>  Copy a vector from CPU to GPU.
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Vector_Type)  :: A
-  integer, intent(in) :: n
+  class(Gpu_Type) :: Gpu   !! parent class
+  real            :: a(:)  !! vector to copy
 !==============================================================================!
 
-  ! Store the length
-  A % len = n
-
-  ! Allocate the memory
-  allocate(A % val(n))
+  !$acc enter data copyin(a)
 
   end subroutine
+

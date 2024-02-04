@@ -7,7 +7,7 @@
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
-  type(Vector_Type) :: A, B, C, D
+  real, allocatable :: a(:), b(:), c(:), d(:)
   integer           :: n, nx, ny, nz, time_step
   real              :: ts, te
 !==============================================================================!
@@ -18,24 +18,24 @@
   n  = nx * ny * nz
   print '(a)',     ' #----------------------------------------------------'
   print '(a)',     ' # TEST 3: Performing vector operations:'
-  print '(a)',     ' #         C = A + s * B  and  C = A - s * B'
+  print '(a)',     ' #         c = a + s * b  and  c = a - s * b'
   print '(a,i12)', ' #         The problem size is set to ', n
   print '(a)',     ' #-----------------------------------------------------'
 
   print '(a)', ' # Creating three vectors'
-  call A % Allocate_Vector(n)
-  call B % Allocate_Vector(n)
-  call C % Allocate_Vector(n)
-  call D % Allocate_Vector(n)
+  allocate(a(n))
+  allocate(b(n))
+  allocate(c(n))
+  allocate(d(n))
 
-  A % val(:) = 1.0
-  B % val(:) = 2.0
+  a(:) = 1.0
+  b(:) = 2.0
 
   ! Copy vectors and create on the device
-  call A % Copy_Vector_To_Device()
-  call B % Copy_Vector_To_Device()
-  call C % Create_Vector_On_Device()
-  call D % Create_Vector_On_Device()
+  call Gpu % Vector_Copy_To_Device(a)
+  call Gpu % Vector_Copy_To_Device(b)
+  call Gpu % Vector_Create_On_Device(c)
+  call Gpu % Vector_Create_On_Device(d)
 
   !-----------------------------------------------!
   !   Performing a fake time loop on the device   !
@@ -43,30 +43,30 @@
   print '(a)', ' # Performing a sparse-matrix vector product'
   call cpu_time(ts)
   do time_step = 1, 60
-    call Linalg % Vec_P_Sca_X_Vec(C, A,  2.0, B)  ! result should be  5
-    call Linalg % Vec_P_Sca_X_Vec(D, C, -2.0, B)  ! result should be  1
+    call Linalg % Vec_P_Sca_X_Vec(c, a,  2.0, b)  ! result should be  5
+    call Linalg % Vec_P_Sca_X_Vec(d, c, -2.0, b)  ! result should be  1
   end do
   call cpu_time(te)
 
   ! Copy results back to host
-  call C % Copy_Vector_To_Host()
-  call D % Copy_Vector_To_Host()
+  call Gpu % Vector_Copy_To_Host(c)
+  call Gpu % Vector_Copy_To_Host(d)
 
   ! Destroy data on the device, you don't need them anymore
-  call A % Destroy_Vector_On_Device()
-  call B % Destroy_Vector_On_Device()
-  call C % Destroy_Vector_On_Device()
-  call D % Destroy_Vector_On_Device()
+  call Gpu % Vector_Destroy_On_Device(a)
+  call Gpu % Vector_Destroy_On_Device(b)
+  call Gpu % Vector_Destroy_On_Device(c)
+  call Gpu % Vector_Destroy_On_Device(d)
 
   ! Print results
-  print '(a,es12.3)', ' Vector C(1  ):', C % val(1  )
-  print '(a,es12.3)', ' Vector C(2  ):', C % val(2  )
-  print '(a,es12.3)', ' Vector C(n-1):', C % val(n-1)
-  print '(a,es12.3)', ' Vector C(n  ):', C % val(n  )
-  print '(a,es12.3)', ' Vector D(1  ):', D % val(1  )
-  print '(a,es12.3)', ' Vector D(2  ):', D % val(2  )
-  print '(a,es12.3)', ' Vector D(n-1):', D % val(n-1)
-  print '(a,es12.3)', ' Vector D(n  ):', D % val(n  )
+  print '(a,es12.3)', ' vector c(1  ):', c(1  )
+  print '(a,es12.3)', ' vector c(2  ):', c(2  )
+  print '(a,es12.3)', ' vector c(n-1):', c(n-1)
+  print '(a,es12.3)', ' vector c(n  ):', c(n  )
+  print '(a,es12.3)', ' vector c(1  ):', d(1  )
+  print '(a,es12.3)', ' vector c(2  ):', d(2  )
+  print '(a,es12.3)', ' vector c(n-1):', d(n-1)
+  print '(a,es12.3)', ' vector c(n  ):', d(n  )
 
   print '(a,f12.3,a)', ' # Time elapsed for TEST 3: ', te-ts, ' [s]'
 

@@ -24,7 +24,7 @@
       call Test_002()
       return
 
-    ! Operations  C = A + s * B  and  C = A - s * B
+    ! Operations  c = a + s * b  and  c = a - s * b
     else if(arg .eq. '3') then
       call Test_003()
       return

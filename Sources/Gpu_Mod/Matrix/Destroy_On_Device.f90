@@ -1,16 +1,19 @@
 !==============================================================================!
-  subroutine Destroy_Vector_On_Device(A)
+  subroutine Matrix_Destroy_On_Device(Gpu, A)
 !------------------------------------------------------------------------------!
-!>  Destroys a vector on the GPU, without copying it back to CPU.
+!>  Destroys a sparse-matrix on the GPU, without copying it back to CPU.
 !------------------------------------------------------------------------------!
 !   Note: if you wanted to copy it before destroying, change delete to copyout !
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Vector_Type) :: A
+  class(Gpu_Type)   :: Gpu !! parent class
+  type(Matrix_Type) :: A   !! matrix to destroy
 !==============================================================================!
 
   !$acc exit data delete(A % val)
+  !$acc exit data delete(A % col)
+  !$acc exit data delete(A % row)
 
   end subroutine
 

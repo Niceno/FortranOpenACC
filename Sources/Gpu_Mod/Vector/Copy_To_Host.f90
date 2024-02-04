@@ -1,18 +1,16 @@
 !==============================================================================!
-  subroutine Destroy_Matrix_On_Device(A)
+  subroutine Vector_Copy_To_Host(Gpu, a)
 !------------------------------------------------------------------------------!
-!>  Destroys a sparse-matrix on the GPU, without copying it back to CPU.
-!------------------------------------------------------------------------------!
-!   Note: if you wanted to copy it before destroying, change delete to copyout !
+!>  Copy a vector from GPU back to CPU, but do not destroy it on GPU, useful
+!>  when fetching results from GPUs for saving and post-processing.
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Matrix_Type) :: A
+  class(Gpu_Type) :: Gpu   !! parent class
+  real            :: a(:)  !! vector to copy
 !==============================================================================!
 
-  !$acc exit data delete(A % val)
-  !$acc exit data delete(A % col)
-  !$acc exit data delete(A % row)
+  !$acc update host(a)
 
   end subroutine
 

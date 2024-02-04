@@ -11,32 +11,25 @@ Grid_Mod/*.f90
 
 #-- ./Linalg_Mod.f90
 $(DIR_OBJECT)/Linalg_Mod.o:\
-$(DIR_OBJECT)/Vector_Mod.o \
-Vector_Mod/*.f90 \
-Linalg_Mod/*.f90 
+$(DIR_OBJECT)/Matrix_Mod.o \
+Matrix_Mod/*.f90 \
+Linalg_Mod/*.f90 \
+$(DIR_OBJECT)/Gpu_Mod.o \
+Gpu_Mod/*/*.f90 
 
 #-- ./Grid_Mod/Create_Grid.f90
 #-- ./Grid_Mod/Save_Vtk_Debug.f90
-#-- ./Vector_Mod.f90
-$(DIR_OBJECT)/Vector_Mod.o:\
-Vector_Mod/*.f90 
-
+#-- ./Linalg_Mod/Mat_X_Vec.f90
 #-- ./Linalg_Mod/Vec_Copy.f90
 #-- ./Linalg_Mod/Vec_O_Dia.f90
-#-- ./Linalg_Mod/Spa_X_Vec.f90
 #-- ./Linalg_Mod/Vec_D_Vec.f90
 #-- ./Linalg_Mod/Vec_O_Dia_Acc.f90
 #-- ./Linalg_Mod/Vec_P_Sca_X_Vec.f90
-#-- ./Linalg_Mod/Spa_X_Vec_Acc.f90
+#-- ./Linalg_Mod/Mat_X_Vec_Acc.f90
 #-- ./Linalg_Mod/Vec_Copy_Acc.f90
 #-- ./Linalg_Mod/Vec_P_Sca_X_Vec_Acc.f90
 #-- ./Linalg_Mod/Vec_D_Vec_Acc.f90
 #-- ./Main.f90
-#-- ./Vector_Mod/Destroy_Vector_On_Device.f90
-#-- ./Vector_Mod/Create_Vector_On_Device.f90
-#-- ./Vector_Mod/Copy_Vector_To_Host.f90
-#-- ./Vector_Mod/Allocate_Vector.f90
-#-- ./Vector_Mod/Copy_Vector_To_Device.f90
 #-- ./Test_001.f90
 $(DIR_OBJECT)/Test_001.o:\
 $(DIR_OBJECT)/Linalg_Mod.o \
@@ -61,8 +54,18 @@ $(DIR_OBJECT)/Test_002.o:\
 $(DIR_OBJECT)/Linalg_Mod.o \
 Linalg_Mod/*.f90 
 
-#-- ./Matrix_Mod/Destroy_Matrix_On_Device.f90
-#-- ./Matrix_Mod/Create_Matrix_On_Device.f90
-#-- ./Matrix_Mod/Copy_Matrix_To_Host.f90
-#-- ./Matrix_Mod/Copy_Matrix_To_Device.f90
+#-- ./Gpu_Mod.f90
+$(DIR_OBJECT)/Gpu_Mod.o:\
+$(DIR_OBJECT)/Matrix_Mod.o \
+Matrix_Mod/*.f90 \
+Gpu_Mod/*/*.f90 
+
 #-- ./Matrix_Mod/Create_Matrix.f90
+#-- ./Gpu_Mod/Vector/Destroy_On_Device.f90
+#-- ./Gpu_Mod/Vector/Copy_To_Device.f90
+#-- ./Gpu_Mod/Vector/Copy_To_Host.f90
+#-- ./Gpu_Mod/Vector/Create_On_Device.f90
+#-- ./Gpu_Mod/Matrix/Destroy_On_Device.f90
+#-- ./Gpu_Mod/Matrix/Copy_To_Device.f90
+#-- ./Gpu_Mod/Matrix/Copy_To_Host.f90
+#-- ./Gpu_Mod/Matrix/Create_On_Device.f90

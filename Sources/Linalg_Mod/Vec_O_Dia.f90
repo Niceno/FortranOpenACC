@@ -1,26 +1,27 @@
 !==============================================================================!
-  subroutine Vec_O_Dia(Lin, C, A, B)
+  subroutine Vec_O_Dia(Lin, c, A, b)
 !------------------------------------------------------------------------------!
 !>  Front-end for dividing a vector with sparse matrix's diagonal.
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Linalg_Type) :: Lin  !! parent class
-  type(Vector_Type)  :: C    !! result vector
-  type(Matrix_Type)  :: A    !! operand matrix
-  type(Vector_Type)  :: B    !! operand vector
+  class(Linalg_Type) :: Lin   !! parent class
+  real               :: c(:)  !! result vector
+  type(Matrix_Type)  :: A     !! operand matrix
+  real               :: b(:)  !! operand vector
 !-----------------------------------[Locals]-----------------------------------!
-  integer :: nz
+  integer :: n, nz
 !==============================================================================!
 
+  n  = size(c)
   nz = A % nonzeros
 
-  call Lin % Vec_O_Dia_Acc(C % len,  &
+  call Lin % Vec_O_Dia_Acc(n,        &
                            nz,       &
-                           C % val,  &
+                           c,        &
                            A % val,  &
                            A % dia,  &
-                           B % val)
+                           b)
 
   end subroutine
 
