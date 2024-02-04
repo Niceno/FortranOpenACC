@@ -4,32 +4,32 @@
 !>  Tests matrix-vector product
 !------------------------------------------------------------------------------!
   use Linalg_Mod
+  use Gpu_Mod
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
   type(Matrix_Type) :: A
   real, allocatable :: b(:), c(:)
-  type(Grid_Type)   :: G
-  integer           :: n, nx, ny, nz, time_step
+  type(Grid_Type)   :: Grid
+  integer           :: nx, ny, nz, time_step
   real              :: ts, te
 !==============================================================================!
 
   nx = 400
   ny = 400
   nz = 400
-  n  = nx * ny * nz
   print '(a)',     ' #----------------------------------------------------'
   print '(a)',     ' # TEST 1: Performing a sparse-matrix vector product'
-  print '(a,i12)', ' #         The problem size is set to ', n
+  print '(a,i12)', ' #         The problem size is set to ', nx*ny*nz
   print '(a)',     ' #----------------------------------------------------'
 
   print '(a)', ' # Creating a grid'
-  call G % Create_Grid(1.0, 1.0, 1.0, nx, ny, nz)
+  call Grid % Create_Grid(1.0, 1.0, 1.0, nx, ny, nz)
 
   print '(a)', ' # Creating a singular sparse matrix and two vectors'
-  call A % Create_Matrix(G, singular=.true.)
-  allocate(b(n))
-  allocate(c(n))
+  call A % Create_Matrix(Grid, singular=.true.)
+  allocate(b(Grid % n_cells))
+  allocate(c(Grid % n_cells))
 
   b(:) = 2.0
 
@@ -58,10 +58,10 @@
   call Gpu % Vector_Destroy_On_Device(c)
 
   ! Print result
-  print '(a,es12.3)', ' vector c(1  ):', c(1  )
-  print '(a,es12.3)', ' vector c(2  ):', c(2  )
-  print '(a,es12.3)', ' vector c(n-1):', c(n-1)
-  print '(a,es12.3)', ' vector c(n  ):', c(n  )
+  print '(a,es12.3)', ' vector c(1  ):', c(1)
+  print '(a,es12.3)', ' vector c(2  ):', c(2)
+  print '(a,es12.3)', ' vector c(n-1):', c(Grid % n_cells - 1)
+  print '(a,es12.3)', ' vector c(n  ):', c(Grid % n_cells)
 
   print '(a,f12.3,a)', ' # Time elapsed for TEST 1: ', te-ts, ' [s]'
 

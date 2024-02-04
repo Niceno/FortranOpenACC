@@ -1,24 +1,27 @@
 !==============================================================================!
   subroutine Test_005
 !------------------------------------------------------------------------------!
-!>  Tests steps the Conjugate Gradient (CG) algorithm
+!>  Tests steps the Conjugate Gradient (CG) algorithm.  This subroutine will
+!>  probably be superseeded by Test_006.  If that happens, it will probably
+!>  be replaced by Test_006 and all the other tests will shift up one place.
 !------------------------------------------------------------------------------!
 !   Note: This algorithm is based on: "Templates for the Solution of Linear    !
 !         Systems: Building Blocks for Iterative Methods", available for       !
 !         download here: https://netlib.org/linalg/html_templates/report.html  !
 !------------------------------------------------------------------------------!
   use Linalg_Mod
+  use Gpu_Mod
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
-  type(Grid_Type)   :: G     !! computational grid
+  type(Grid_Type)   :: Grid  !! computational grid
   type(Matrix_Type) :: A     !! system matrix
   real, allocatable :: x(:)  !! solution, dependent variable
   real, allocatable :: b(:)  !! right-hand side vector
   real, allocatable :: r(:)  !! residual vector
   real, allocatable :: p(:)  !! helping vector
   real, allocatable :: q(:)  !! helping vector
-  integer           :: n, nx, ny, nz, iter
+  integer           :: nx, ny, nz, iter
   real              :: ts, te
   real              :: alpha, beta, pq, rho, rho_old, res, tol
 !==============================================================================!
@@ -26,32 +29,31 @@
   nx  = 301
   ny  = 301
   nz  = 301
-  n   = nx * ny * nz
-  tol = 1.0 / n
+  tol = 1.0 / (nx * ny * nz)
 
   print '(a)',        ' #----------------------------------------------------'
   print '(a)',        ' # TEST 5: Performing Conjugate Gradient steps'
-  print '(a, i12)',   ' #         The problem size is set to: ', n
+  print '(a, i12)',   ' #         The problem size is set to: ', nx * ny * nz
   print '(a,es12.3)', ' #         Target solver tolerace is : ', tol
   print '(a)',        ' #-----------------------------------------------------'
 
   print '(a)', ' # Creating a grid'
-  call G % Create_Grid(1.0, 1.0, 1.0, nx, ny, nz)
+  call Grid % Create_Grid(1.0, 1.0, 1.0, nx, ny, nz)
 
-  call A % Create_Matrix(G, singular=.false.)
+  call A % Create_Matrix(Grid, singular=.false.)
 
   print '(a)', ' # Creating two vectors for solution and right hand side'
-  allocate(x(n))
-  allocate(b(n))
+  allocate(x(Grid % n_cells))
+  allocate(b(Grid % n_cells))
 
   ! Allocate vectors related to CG algorithm
-  allocate(r(n))
-  allocate(p(n))
-  allocate(q(n))
+  allocate(r(Grid % n_cells))
+  allocate(p(Grid % n_cells))
+  allocate(q(Grid % n_cells))
 
   ! Initialize right-hand side, the source
   x(:) = 0.0
-  b(:) = G % dx * G % dy * G % dz
+  b(:) = Grid % dx * Grid % dy * Grid % dz
 
   ! Copy components of the linear system to the device
   call Gpu % Matrix_Copy_To_Device(A)
@@ -80,10 +82,10 @@
   !-----------!
   call Linalg % Vec_Copy(p, r)
 
-  do iter = 1, n
+  do iter = 1, Grid % n_cells
 
     !---------------!
-    !   z = r / M   !    =--> (A used for M, Q for Z)
+    !   z = r / M   !    =--> (A used for M, q for z)
     !---------------!
     call Linalg % Vec_O_Dia(q, A, r)  ! q = r / A
 
@@ -121,7 +123,7 @@
 
     !---------------------!
     !   x = x + alfa p    !
-    !   r = r - alfa Q    !
+    !   r = r - alfa q    !
     !---------------------!
     call Linalg % Vec_P_Sca_X_Vec(x, x, +alpha, p)  ! x = x + alpha p
     call Linalg % Vec_P_Sca_X_Vec(r, r, -alpha, q)  ! r = r - alpha q
@@ -151,13 +153,13 @@
   call Gpu % Vector_Destroy_On_Device(q)
 
   ! Print result
-  print '(a,es12.3)', ' vector x(1  ):', x(1  )
-  print '(a,es12.3)', ' vector x(2  ):', x(2  )
-  print '(a,es12.3)', ' vector x(n-1):', x(n-1)
-  print '(a,es12.3)', ' vector x(n  ):', x(n  )
+  print '(a,es12.3)', ' vector x(1  ):', x(1)
+  print '(a,es12.3)', ' vector x(2  ):', x(2)
+  print '(a,es12.3)', ' vector x(n-1):', x(Grid % n_cells-1)
+  print '(a,es12.3)', ' vector x(n  ):', x(Grid % n_cells)
 
   ! Save results
-  call G % Save_Vtk_Debug("solution.vtk", x)
+  call Grid % Save_Vtk_Debug("solution.vtk", x)
 
   print '(a,f12.3,a)', ' # Time elapsed for TEST 5: ', te-ts, ' [s]'
 
