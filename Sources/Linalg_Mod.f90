@@ -3,7 +3,6 @@
 !==============================================================================!
   module Linalg_Mod
 !----------------------------------[Modules]-----------------------------------!
-  use Gpu_Mod
   use Matrix_Mod
 !------------------------------------------------------------------------------!
   implicit none
@@ -46,6 +45,5 @@
 #   include "Linalg_Mod/Vec_O_Dia_Acc.f90"
 #   include "Linalg_Mod/Vec_P_Sca_X_Vec.f90"
 #   include "Linalg_Mod/Vec_P_Sca_X_Vec_Acc.f90"
-
 
   end module
