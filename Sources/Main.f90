@@ -39,9 +39,14 @@
       call Test_005()
       return
 
-    ! Field creation and gradient calculation
+    ! Conjugate Gradient from the native module
     else if(arg .eq. '6') then
       call Test_006()
+      return
+
+    ! Field creation and gradient calculation
+    else if(arg .eq. '7') then
+      call Test_007()
       return
 
     end if
@@ -59,10 +64,11 @@
   print '(a)', ' where <test> can be from 1 to 7 depending if you want to test:'
   print '(a)', '   1 - sparse-matrix vector product'
   print '(a)', '   2 - vector vector dot product'
-  print '(a)', '   3 - operations: C = A + scalar * B and'
-  print '(a)', '                   C = A - scalar * B'
+  print '(a)', '   3 - operations: c = a + scalar * b and'
+  print '(a)', '                   c = a - scalar * b'
   print '(a)', '   4 - diagonal preconditioning'
   print '(a)', '   5 - conjugate gradients steps'
-  print '(a)', '   6 - field creation and gradient calculation'
+  print '(a)', '   6 - conjugate gradient from the native module'
+  print '(a)', '   7 - field creation and gradient calculation'
 
   end program
