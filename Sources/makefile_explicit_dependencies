@@ -1,97 +1,93 @@
+#-- ./Test_002.f90
+$(DIR_OBJECT)/Test_002.o:\
+$(DIR_OBJECT)/Gpu_Mod.o \
+Gpu_Mod/*/*.f90 
+
+#-- ./Gpu_Mod.f90
+$(DIR_OBJECT)/Gpu_Mod.o:\
+$(DIR_OBJECT)/Native_Mod.o \
+Native_Mod/*.f90 \
+Gpu_Mod/*/*.f90 
+
+#-- ./Linalg_Mod/Vec_P_Sca_X_Vec.f90
+#-- ./Linalg_Mod/Vec_Copy.f90
+#-- ./Linalg_Mod/Vec_P_Sca_X_Vec_Acc.f90
+#-- ./Linalg_Mod/Mat_X_Vec_Acc.f90
+#-- ./Linalg_Mod/Vec_Copy_Acc.f90
+#-- ./Linalg_Mod/Mat_X_Vec.f90
+#-- ./Linalg_Mod/Vec_D_Vec_Acc.f90
+#-- ./Linalg_Mod/Vec_D_Vec.f90
+#-- ./Gpu_Mod/Native/Create_On_Device.f90
+#-- ./Gpu_Mod/Native/Destroy_On_Device.f90
+#-- ./Gpu_Mod/Vector/Copy_To_Device.f90
+#-- ./Gpu_Mod/Vector/Create_On_Device.f90
+#-- ./Gpu_Mod/Vector/Destroy_On_Device.f90
+#-- ./Gpu_Mod/Vector/Copy_To_Host.f90
+#-- ./Gpu_Mod/Matrix/Copy_To_Device.f90
+#-- ./Gpu_Mod/Matrix/Destroy_On_Device.f90
 #-- ./Test_004.f90
 $(DIR_OBJECT)/Test_004.o:\
-$(DIR_OBJECT)/Linalg_Mod.o \
-Linalg_Mod/*.f90 
+$(DIR_OBJECT)/Native_Mod.o \
+Native_Mod/*.f90 \
+$(DIR_OBJECT)/Gpu_Mod.o \
+Gpu_Mod/*/*.f90 
 
-#-- ./Matrix_Mod.f90
-$(DIR_OBJECT)/Matrix_Mod.o:\
-Matrix_Mod/*.f90 \
-$(DIR_OBJECT)/Grid_Mod.o \
+#-- ./Test_001.f90
+$(DIR_OBJECT)/Test_001.o:\
+$(DIR_OBJECT)/Linalg_Mod.o \
+Linalg_Mod/*.f90 \
+$(DIR_OBJECT)/Gpu_Mod.o \
+Gpu_Mod/*/*.f90 
+
+#-- ./Grid_Mod.f90
+$(DIR_OBJECT)/Grid_Mod.o:\
 Grid_Mod/*.f90 
 
+#-- ./Native_Mod/Cg.f90
+#-- ./Native_Mod/Cg_Avoids_If.f90
+#-- ./Native_Mod/Create_Native.f90
 #-- ./Linalg_Mod.f90
 $(DIR_OBJECT)/Linalg_Mod.o:\
 $(DIR_OBJECT)/Matrix_Mod.o \
 Matrix_Mod/*.f90 \
 Linalg_Mod/*.f90 
 
-#-- ./Grid_Mod/Create_Grid.f90
-#-- ./Grid_Mod/Save_Vtk_Debug.f90
-#-- ./Grid_Mod/Cell_Number.f90
-#-- ./Grid_Mod/Cells_I_J_K.f90
-#-- ./Linalg_Mod/Mat_X_Vec.f90
-#-- ./Linalg_Mod/Vec_Copy.f90
-#-- ./Linalg_Mod/Vec_O_Dia.f90
-#-- ./Linalg_Mod/Vec_D_Vec.f90
-#-- ./Linalg_Mod/Vec_O_Dia_Acc.f90
-#-- ./Linalg_Mod/Vec_P_Sca_X_Vec.f90
-#-- ./Linalg_Mod/Mat_X_Vec_Acc.f90
-#-- ./Linalg_Mod/Vec_Copy_Acc.f90
-#-- ./Linalg_Mod/Vec_P_Sca_X_Vec_Acc.f90
-#-- ./Linalg_Mod/Vec_D_Vec_Acc.f90
-#-- ./Field_Mod/Calculate_Grad_Matrix.f90
-#-- ./Field_Mod/Create_Field.f90
-#-- ./Test_007.f90
-$(DIR_OBJECT)/Test_007.o:\
-$(DIR_OBJECT)/Field_Mod.o \
-Field_Mod/*.f90 
-
 #-- ./Main.f90
-#-- ./Test_001.f90
-$(DIR_OBJECT)/Test_001.o:\
-$(DIR_OBJECT)/Linalg_Mod.o \
-Linalg_Mod/*.f90 
-
-#-- ./Native_Mod.f90
-$(DIR_OBJECT)/Native_Mod.o:\
-Native_Mod/*.f90 \
-$(DIR_OBJECT)/Linalg_Mod.o \
-Linalg_Mod/*.f90 
-
-#-- ./Test_006.f90
-$(DIR_OBJECT)/Test_006.o:\
-$(DIR_OBJECT)/Linalg_Mod.o \
-Linalg_Mod/*.f90 
-
 #-- ./Test_003.f90
 $(DIR_OBJECT)/Test_003.o:\
-$(DIR_OBJECT)/Linalg_Mod.o \
-Linalg_Mod/*.f90 
-
-#-- ./Grid_Mod.f90
-$(DIR_OBJECT)/Grid_Mod.o:\
-Grid_Mod/*.f90 
+$(DIR_OBJECT)/Gpu_Mod.o \
+Gpu_Mod/*/*.f90 
 
 #-- ./Test_005.f90
 $(DIR_OBJECT)/Test_005.o:\
-$(DIR_OBJECT)/Linalg_Mod.o \
-Linalg_Mod/*.f90 
+$(DIR_OBJECT)/Gpu_Mod.o \
+Gpu_Mod/*/*.f90 \
+$(DIR_OBJECT)/Field_Mod.o \
+Field_Mod/*.f90 
 
+#-- ./Grid_Mod/Cells_I_J_K.f90
+#-- ./Grid_Mod/Cell_Number.f90
+#-- ./Grid_Mod/Create_Grid.f90
+#-- ./Grid_Mod/Save_Vtk_Debug.f90
 #-- ./Field_Mod.f90
 $(DIR_OBJECT)/Field_Mod.o:\
 $(DIR_OBJECT)/Matrix_Mod.o \
 Matrix_Mod/*.f90 \
 Field_Mod/*.f90 
 
-#-- ./Test_002.f90
-$(DIR_OBJECT)/Test_002.o:\
+#-- ./Field_Mod/Create_Field.f90
+#-- ./Field_Mod/Calculate_Grad_Matrix.f90
+#-- ./Matrix_Mod.f90
+$(DIR_OBJECT)/Matrix_Mod.o:\
+Matrix_Mod/*.f90 \
+$(DIR_OBJECT)/Grid_Mod.o \
+Grid_Mod/*.f90 
+
+#-- ./Matrix_Mod/Create_Matrix_From_Matrix.f90
+#-- ./Matrix_Mod/Create_Matrix.f90
+#-- ./Native_Mod.f90
+$(DIR_OBJECT)/Native_Mod.o:\
+Native_Mod/*.f90 \
 $(DIR_OBJECT)/Linalg_Mod.o \
 Linalg_Mod/*.f90 
 
-#-- ./Gpu_Mod.f90
-$(DIR_OBJECT)/Gpu_Mod.o:\
-$(DIR_OBJECT)/Matrix_Mod.o \
-Matrix_Mod/*.f90 \
-Gpu_Mod/*/*.f90 
-
-#-- ./Matrix_Mod/Create_Matrix.f90
-#-- ./Gpu_Mod/Vector/Destroy_On_Device.f90
-#-- ./Gpu_Mod/Vector/Copy_To_Device.f90
-#-- ./Gpu_Mod/Vector/Copy_To_Host.f90
-#-- ./Gpu_Mod/Vector/Create_On_Device.f90
-#-- ./Gpu_Mod/Matrix/Destroy_On_Device.f90
-#-- ./Gpu_Mod/Matrix/Copy_To_Device.f90
-#-- ./Gpu_Mod/Matrix/Copy_To_Host.f90
-#-- ./Gpu_Mod/Matrix/Create_On_Device.f90
-#-- ./Native_Mod/Create_Native.f90
-#-- ./Native_Mod/Cg.f90

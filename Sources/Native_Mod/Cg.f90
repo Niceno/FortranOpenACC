@@ -16,16 +16,18 @@
     !! right-hand side vector
   integer,                    intent(in)    :: miter    !! maximum iterations
 !-----------------------------------[Locals]-----------------------------------!
-  type(Grid_Type),  pointer :: Grid
-  real, contiguous, pointer :: r(:), p(:), q(:)
-  real                      :: alpha, beta, pq, rho, rho_old, res, tol
-  integer                   :: nc, iter
+  type(Grid_Type),   pointer :: Grid
+  type(Matrix_Type), pointer :: M
+  real, contiguous,  pointer :: r(:), p(:), q(:)
+  real                       :: alpha, beta, pq, rho, rho_old, res, tol
+  integer                    :: nc, iter
 !==============================================================================!
 
   ! Take aliases
   r    => Nat % r
   p    => Nat % p
   q    => Nat % q
+  M    => Nat % D
   Grid => Nat % pnt_grid
   nc   =  Grid % n_cells
 
@@ -46,9 +48,9 @@
   do iter = 1, miter
 
     !---------------!
-    !   z = r / M   !    =--> (A used for M, q for z)
+    !   z = r / M   !    =--> (q used for z)
     !---------------!
-    call Linalg % Vec_O_Dia(q, A, r)  ! q = r / A
+    call Linalg % Mat_X_Vec(q, M, r)  ! q = r / M
 
     !-----------------!
     !   rho = r * z   !  =--> (q used for z)

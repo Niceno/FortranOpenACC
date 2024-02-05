@@ -51,10 +51,12 @@
 
     contains
       procedure :: Create_Matrix
+      procedure :: Create_Matrix_From_Matrix
 
   end type
 
   contains
 #   include "Matrix_Mod/Create_Matrix.f90"
+#   include "Matrix_Mod/Create_Matrix_From_Matrix.f90"
 
   end module
