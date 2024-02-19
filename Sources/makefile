@@ -112,7 +112,8 @@ endif
 #-------------
 
 # Modules in shared directories
-SRC_MOD = Grid_Mod.f90		\
+SRC_MOD = Assert_Mod.f90	\
+          Grid_Mod.f90		\
           Matrix_Mod.f90	\
           Linalg_Mod.f90	\
           Native_Mod.f90	\
