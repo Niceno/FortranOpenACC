@@ -10,14 +10,15 @@
   real              :: dot, ts, te
 !==============================================================================!
 
+  print '(a)',     ' #-------------------------------------------------'
+  print '(a)',     ' # TEST 2: Performing a vector vector dot product'
+  print '(a)',     ' #-------------------------------------------------'
+
   nx = 800
   ny = 800
   nz = 800
   n  = nx * ny * nz
-  print '(a)',     ' #-------------------------------------------------'
-  print '(a)',     ' # TEST 2: Performing a vector vector dot product'
-  print '(a,i12)', ' #         The problem size is set to ', n
-  print '(a)',     ' #-------------------------------------------------'
+  print '(a,i12)', ' # The problem size is: ', n
 
   print '(a)', ' # Creating two vectors'
   allocate(a(n))

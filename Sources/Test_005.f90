@@ -11,21 +11,19 @@
   type(Grid_Type)   :: Grid  !! computational grid
   type(Matrix_Type) :: A     !! system matrix
   type(Field_Type)  :: F     !! flow field
-  integer           :: nx, ny, nz
   real              :: ts, te
+  integer           :: n
 !==============================================================================!
 
-  nx  = 101
-  ny  = 101
-  nz  = 101
-
   print '(a)',        ' #----------------------------------------------------'
-  print '(a)',        ' # TEST 6: Creating a flow field and gradient matrix'
-  print '(a, i12)',   ' #         The problem size is set to: ', nx * ny * nz
+  print '(a)',        ' # TEST 5: Creating a flow field and gradient matrix'
   print '(a)',        ' #-----------------------------------------------------'
 
   print '(a)', ' # Creating a grid'
-  call Grid % Create_Grid(1.0, 1.0, 1.0, nx, ny, nz)
+  call Grid % Load_Grid("101_cube.ini")
+
+  n = Grid % n_cells
+  print '(a, i12)',   ' # The problem size is: ', n
 
   call A % Create_Matrix(Grid, singular=.false.)
 

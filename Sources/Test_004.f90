@@ -14,22 +14,20 @@
   type(Native_Type) :: Nat   !! linear solver suite
   real, allocatable :: x(:)  !! solution, dependent variable
   real, allocatable :: b(:)  !! right-hand side vector
-  integer           :: nx, ny, nz
   real              :: ts, te
+  integer           :: n
 !==============================================================================!
 
-  nx  = 301
-  ny  = 301
-  nz  = 301
-
   print '(a)',        ' #----------------------------------------------------'
-  print '(a)',        ' # TEST 6: Call Conjugate Gradient from Native_Mod'
-  print '(a, i12)',   ' #         The problem size is set to: ', nx * ny * nz
-  print '(a,es12.3)', ' #         Target solver tolerace is : ', 1.0/(nx*ny*nz)
+  print '(a)',        ' # TEST 4: Call Conjugate Gradient from Native_Mod'
   print '(a)',        ' #-----------------------------------------------------'
 
   print '(a)', ' # Creating a grid'
-  call Grid % Create_Grid(1.0, 1.0, 1.0, nx, ny, nz)
+  call Grid % Load_Grid("301_cube.ini")
+
+  n = Grid % n_cells
+  print '(a, i12)',   ' # The problem size is: ', n
+  print '(a,es12.3)', ' # Solver tolerace is : ', 1.0/n
 
   call A0 % Create_Matrix(Grid, singular=.false.)
   call A  % Create_Matrix_From_Matrix(A0)          ! to see if copy works

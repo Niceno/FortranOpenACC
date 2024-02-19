@@ -11,20 +11,18 @@
   type(Matrix_Type) :: A
   real, allocatable :: b(:), c(:)
   type(Grid_Type)   :: Grid
-  integer           :: nx, ny, nz, time_step
+  integer           :: time_step
   real              :: ts, te
 !==============================================================================!
 
-  nx = 400
-  ny = 400
-  nz = 400
   print '(a)',     ' #----------------------------------------------------'
   print '(a)',     ' # TEST 1: Performing a sparse-matrix vector product'
-  print '(a,i12)', ' #         The problem size is set to ', nx*ny*nz
   print '(a)',     ' #----------------------------------------------------'
 
   print '(a)', ' # Creating a grid'
-  call Grid % Create_Grid(1.0, 1.0, 1.0, nx, ny, nz)
+  call Grid % Load_Grid("400_cube.ini")
+
+  print '(a,i12)', ' # The problem size is: ', Grid % n_cells
 
   print '(a)', ' # Creating a singular sparse matrix and two vectors'
   call A % Create_Matrix(Grid, singular=.true.)

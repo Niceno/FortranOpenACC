@@ -12,15 +12,16 @@
   real              :: ts, te
 !==============================================================================!
 
+  print '(a)',     ' #----------------------------------------------------'
+  print '(a)',     ' # TEST 3: Performing vector operations:'
+  print '(a)',     ' #         c = a + s * b  and  c = a - s * b'
+  print '(a)',     ' #-----------------------------------------------------'
+
   nx = 600
   ny = 600
   nz = 600
   n  = nx * ny * nz
-  print '(a)',     ' #----------------------------------------------------'
-  print '(a)',     ' # TEST 3: Performing vector operations:'
-  print '(a)',     ' #         c = a + s * b  and  c = a - s * b'
-  print '(a,i12)', ' #         The problem size is set to ', n
-  print '(a)',     ' #-----------------------------------------------------'
+  print '(a,i12)', ' # The problem size is: ', n
 
   print '(a)', ' # Creating three vectors'
   allocate(a(n))
