@@ -11,6 +11,11 @@
   real, allocatable :: visited(:)
 !==============================================================================!
 
+  ! The minimum number of cells in each direction is three
+  Assert(nx > 1)
+  Assert(ny > 1)
+  Assert(nz > 1)
+
   !-----------!
   !   Cells   !
   !-----------!
@@ -107,7 +112,7 @@
 
   ! Handle facs inside the domain
   do k = 1, Grid % nz
-    do j = 1, Grid % nz
+    do j = 1, Grid % ny
       do i = 1, Grid % nx
 
         c = Grid % Cell_Number(i, j, k)
