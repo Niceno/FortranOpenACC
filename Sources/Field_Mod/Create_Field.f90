@@ -1,19 +1,16 @@
 !==============================================================================!
-  subroutine Create_Field(Flow, A)
+  subroutine Create_Field(Flow, Grid)
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
   class(Field_Type), target :: Flow  !! parent flow object
-  type(Matrix_Type), target :: A     !! matrix object used with this field
+  type(Grid_Type),   target :: Grid
 !-----------------------------------[Locals]-----------------------------------!
-  type(Grid_Type), pointer :: Grid
   integer                  :: nb, nc
 !==============================================================================!
 
   ! Store the pointer to a Grid
-  Flow % pnt_matrix => A
-  Flow % pnt_grid   => A % pnt_grid
-  Grid              => A % pnt_grid
+  Flow % pnt_grid => Grid
 
   ! Take some aliases
   nb = Grid % n_bnd_cells

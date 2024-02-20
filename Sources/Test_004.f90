@@ -29,19 +29,17 @@
   print '(a, i12)',   ' # The problem size is: ', n
   print '(a,es12.3)', ' # Solver tolerace is : ', 1.0/n
 
-  call A0 % Create_Matrix(Grid, singular=.false.)
+  call A0 % Create_Matrix(Grid, b)
   call A  % Create_Matrix_From_Matrix(A0)          ! to see if copy works
 
   print '(a)', ' # Creating two vectors for solution and right hand side'
   allocate(x(-Grid % n_bnd_cells:Grid % n_cells))
-  allocate(b( Grid % n_cells))
 
   print '(a)', ' # Creating a native solver'
   call Nat % Create_Native(A)
 
   ! Initialize right-hand side, the source
   x(:) = 0.0
-  b(:) = Grid % dx * Grid % dy * Grid % dz
 
   ! Copy components of the linear system to the device
   call Gpu % Matrix_Copy_To_Device(A)
@@ -76,7 +74,7 @@
   print '(a,es12.3)', ' vector x(n  ):', x(Grid % n_cells)
 
   ! Save results
-  call Grid % Save_Vtk_Debug("solution.vtk", x)
+  call Grid % Save_Vtk_Debug("solution.vtk", x(1:Grid % n_cells))
 
   print '(a,f12.3,a)', ' # Time elapsed for TEST 4: ', te-ts, ' [s]'
 

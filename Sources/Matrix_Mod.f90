@@ -1,3 +1,5 @@
+#include "Assert.h90"
+
 !==============================================================================!
   module Matrix_Mod
 !------------------------------------------------------------------------------!
@@ -42,6 +44,7 @@
 
     type(Grid_Type), pointer :: pnt_grid  !! pointer to grid
 
+    integer              :: n
     integer              :: nonzeros  !! number of nonzero entries
     real,    allocatable :: val(:)    !! value
     integer, allocatable :: col(:)    !! beginning of each row

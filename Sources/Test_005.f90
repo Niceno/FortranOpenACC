@@ -10,6 +10,7 @@
 !------------------------------------------------------------------------------!
   type(Grid_Type)   :: Grid  !! computational grid
   type(Matrix_Type) :: A     !! system matrix
+  real, allocatable :: b(:)  !! right hand side
   type(Field_Type)  :: F     !! flow field
   real              :: ts, te
   integer           :: n
@@ -25,10 +26,10 @@
   n = Grid % n_cells
   print '(a, i12)',   ' # The problem size is: ', n
 
-  call A % Create_Matrix(Grid, singular=.false.)
+  call A % Create_Matrix(Grid, b)
 
   print '(a)', ' # Creating a field'
-  call F % Create_Field(A)
+  call F % Create_Field(Grid)
 
   print '(a)', ' # Calculating gradient matrix for the field'
   call F % Calculate_Grad_Matrix()

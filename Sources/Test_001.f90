@@ -25,8 +25,8 @@
   print '(a,i12)', ' # The problem size is: ', Grid % n_cells
 
   print '(a)', ' # Creating a singular sparse matrix and two vectors'
-  call A % Create_Matrix(Grid, singular=.true.)
-  allocate(b(Grid % n_cells))
+  call A % Create_Matrix(Grid, b)
+
   allocate(c(Grid % n_cells))
 
   b(:) = 2.0
