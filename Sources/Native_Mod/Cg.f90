@@ -17,19 +17,18 @@
   integer,                    intent(in)    :: miter    !! maximum iterations
 !-----------------------------------[Locals]-----------------------------------!
   type(Grid_Type),   pointer :: Grid
-  type(Matrix_Type), pointer :: M
-  real, contiguous,  pointer :: r(:), p(:), q(:)
+  real, contiguous,  pointer :: r(:), p(:), q(:), d_inv(:)
   real                       :: alpha, beta, pq, rho, rho_old, res, tol
-  integer                    :: nc, iter
+  integer                    :: nc, iter, i
 !==============================================================================!
 
   ! Take aliases
-  r    => Nat % r
-  p    => Nat % p
-  q    => Nat % q
-  M    => Nat % D
-  Grid => Nat % pnt_grid
-  nc   =  Grid % n_cells
+  r     => Nat % r
+  p     => Nat % p
+  q     => Nat % q
+  d_inv => Nat % d_inv
+  Grid  => Nat % pnt_grid
+  nc    =  Grid % n_cells
 
   ! Set tolerance
   tol = 1.0 / Grid % n_cells
@@ -50,7 +49,7 @@
     !---------------!
     !   z = r / M   !    =--> (q used for z)
     !---------------!
-    call Linalg % Mat_X_Vec(q, M, r)  ! q = r / M
+    call Linalg % Vec_X_Vec(q, r, d_inv)
 
     !-----------------!
     !   rho = r * z   !  =--> (q used for z)

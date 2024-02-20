@@ -11,6 +11,7 @@
   type(Native_Type) :: Nat  !! native solver to destroy
 !==============================================================================!
 
+  !$acc exit data delete(Nat % d_inv)
   !$acc exit data delete(Nat % r)
   !$acc exit data delete(Nat % p)
   !$acc exit data delete(Nat % q)

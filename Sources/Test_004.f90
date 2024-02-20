@@ -47,7 +47,7 @@
   call Gpu % Vector_Copy_To_Device(b)
 
   ! Allocate vectors related to CG algorithm on the device
-  call Gpu % Native_Create_On_Device(Nat)
+  call Gpu % Native_Transfer_To_Device(Nat)
 
   !-----------------------------------------------!
   !   Performing a fake time loop on the device   !

@@ -26,7 +26,7 @@
       procedure :: Matrix_Destroy_On_Device
 
       ! Procedures to copy native solver to device
-      procedure :: Native_Create_On_Device
+      procedure :: Native_Transfer_To_Device
       procedure :: Native_Destroy_On_Device
 
   end type
@@ -46,7 +46,7 @@
 #   include "Gpu_Mod/Matrix/Destroy_On_Device.f90"
 
     ! Procedures to copy native solver to device
-#   include "Gpu_Mod/Native/Create_On_Device.f90"
+#   include "Gpu_Mod/Native/Transfer_To_Device.f90"
 #   include "Gpu_Mod/Native/Destroy_On_Device.f90"
 
   end module
