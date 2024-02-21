@@ -19,9 +19,9 @@
 
   ! Allocate vectors related to CG algorithm
   allocate(Nat % d_inv(Grid % n_cells))
-  allocate(Nat % r(Grid % n_cells))
   allocate(Nat % p(Grid % n_cells))
   allocate(Nat % q(Grid % n_cells))
+  allocate(Nat % r(Grid % n_cells))
 
   ! Prepare matrix for diagonal preconditioning
   d_inv => Nat % d_inv

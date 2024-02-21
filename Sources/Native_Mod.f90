@@ -18,9 +18,9 @@
 
     ! Vectors used with native solvers
     real, allocatable :: d_inv(:)  !! diagonal of the preconditioner inversed
-    real, allocatable :: r(:)      !! residual vector
     real, allocatable :: p(:)      !! helping vector
     real, allocatable :: q(:)      !! helping vector
+    real, allocatable :: r(:)      !! residual vector
 
     contains
       procedure :: Cg             !! conjugate gradient solver

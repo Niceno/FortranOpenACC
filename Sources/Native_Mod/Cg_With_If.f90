@@ -1,11 +1,9 @@
 !==============================================================================!
   subroutine Cg(Nat, A, x, b, miter, tol)
 !------------------------------------------------------------------------------!
-!   Note: This is an alternative algorithm and I am honestly not sure where    !
-!         I have found it any more, but it avoids one "if" block during the    !
-!         iterations.  It gives exactly the same result as the original Cg.    !
-!         This verision was implemented in SFS package, and I wanted to make   !
-!         sure it is the same as the original Cg.                              !
+!   Note: This algorithm is based on: "Templates for the Solution of Linear    !
+!         Systems: Building Blocks for Iterative Methods", available for       !
+!         download here: https://netlib.org/linalg/html_templates/report.html  !
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
@@ -39,22 +37,38 @@
   call Linalg % Mat_X_Vec(q, A, x(1:nc))        ! Ax = A * x
   call Linalg % Vec_P_Sca_X_Vec(r, b, -1.0, q)  ! r  = b - Ax
 
-  !---------------!
-  !   z = r \ M   !    =--> (q used for z)
-  !---------------!
-  call Linalg % Vec_X_Vec(q, r, d_inv)
-
-  !-----------------!
-  !   rho = r * z   !  =--> (q used for z)
-  !-----------------!
-  call Linalg % Vec_D_Vec(rho, r, q)  ! rho = r * q
-
   !-----------!
-  !   p = z   !  =--> (q used for z)
+  !   p = r   !
   !-----------!
-  call Linalg % Vec_Copy(p, q)
+  call Linalg % Vec_Copy(p, r)
 
   do iter = 1, miter
+
+    !---------------!
+    !   z = r \ M   !    =--> (q used for z)
+    !---------------!
+    call Linalg % Vec_X_Vec(q, r, d_inv)
+
+    !-----------------!
+    !   rho = r * z   !  =--> (q used for z)
+    !-----------------!
+    call Linalg % Vec_D_Vec(rho, r, q)  ! rho = r * q
+
+    if(iter .eq. 1) then
+
+      !-----------!
+      !   p = z   !  =--> (q used for z)
+      !-----------!
+      call Linalg % Vec_Copy(p, q)  ! p = q
+    else
+
+      !--------------------------!
+      !   beta = rho / rho_old   !
+      !   p = z + beta * p       !  =--> (q used for p)
+      !--------------------------!
+      beta = rho / rho_old
+      call Linalg % Vec_P_Sca_X_Vec(p, q, beta, p)   ! p = q + beta p
+    end if
 
     !------------!
     !   q = Ap   !
@@ -73,24 +87,6 @@
     !---------------------!
     call Linalg % Vec_P_Sca_X_Vec(x(1:nc), x(1:nc), +alpha, p)  ! x = x + alpha p
     call Linalg % Vec_P_Sca_X_Vec(r,       r,       -alpha, q)  ! r = r - alpha q
-
-    !---------------!
-    !   z = r \ M   !    =--> (q used for z)
-    !---------------!
-    call Linalg % Vec_X_Vec(q, r, d_inv)
-
-    !-----------------!
-    !   rho = r * z   !  =--> (q used for z)
-    !-----------------!
-    rho_old = rho
-    call Linalg % Vec_D_Vec(rho, r, q)  ! rho = r * q
-
-    !--------------------------!
-    !   beta = rho / rho_old   !
-    !   p = z + beta * p       !  =--> (q used for p)
-    !--------------------------!
-    beta = rho / rho_old
-    call Linalg % Vec_P_Sca_X_Vec(p, q, beta, p)   ! p = q + beta p
 
     !--------------------!
     !   Check residual   !
