@@ -13,6 +13,8 @@
   !--------------!
   type Gpu_Type
 
+    real :: gb_used = 0.0
+
     contains
 
       ! Procedures to copy vectors to device

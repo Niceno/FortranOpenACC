@@ -13,5 +13,9 @@
 
   !$acc exit data delete(a)
 
+  Gpu % gb_used = Gpu % gb_used - real(sizeof(a)) / GIGABYTE
+
+  print '(a,f7.3,a)', ' # '//__FILE__//' :', Gpu % gb_used, ' GB on device'
+
   end subroutine
 

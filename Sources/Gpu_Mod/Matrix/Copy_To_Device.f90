@@ -14,5 +14,11 @@
   !$acc enter data copyin(A % col)
   !$acc enter data copyin(A % row)
 
+  Gpu % gb_used = Gpu % gb_used + (  real(sizeof(A % val))   &
+                                   + real(sizeof(A % col))   &
+                                   + real(sizeof(A % row))) / GIGABYTE
+
+  print '(a,f7.3,a)', ' # '//__FILE__//' :', Gpu % gb_used, ' GB on device'
+
   end subroutine
 
