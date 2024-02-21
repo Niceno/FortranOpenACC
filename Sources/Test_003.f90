@@ -7,21 +7,29 @@
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
-  real, allocatable :: a(:), b(:), c(:), d(:)
-  integer           :: n, nx, ny, nz, time_step
-  real              :: ts, te
+  real, allocatable  :: a(:), b(:), c(:), d(:)
+  integer            :: n, nx, ny, nz, time_step
+  integer, parameter :: N_STEPS = 1200  ! spend enough time on device
+  real               :: ts, te
 !==============================================================================!
 
-  print '(a)',     ' #----------------------------------------------------'
-  print '(a)',     ' # TEST 3: Performing vector operations:'
-  print '(a)',     ' #         c = a + s * b  and  c = a - s * b'
-  print '(a)',     ' #-----------------------------------------------------'
+  print '(a)', ' #===================================================='
+  print '(a)', ' # TEST 3: Performing vector operations:'
+  print '(a)', ' #         c = a + s * b  and  c = a - s * b'
+  print '(a)', ' #===================================================='
 
   nx = 600
   ny = 600
   nz = 600
   n  = nx * ny * nz
   print '(a,i12)', ' # The problem size is: ', n
+
+  print '(a)', ' #----------------------------------------------------'
+  print '(a)', ' # Be careful with memory usage.  If you exceed the'
+  print '(a)', ' # 90% (as a rule of thumb) of the memory your GPU'
+  print '(a)', ' # card has the program will become memory bound no'
+  print '(a)', ' # matter how you wrote it, and it may even crash.'
+  print '(a)', ' #----------------------------------------------------'
 
   print '(a)', ' # Creating three vectors'
   allocate(a(n))
@@ -41,9 +49,10 @@
   !-----------------------------------------------!
   !   Performing a fake time loop on the device   !
   !-----------------------------------------------!
-  print '(a)', ' # Performing a sparse-matrix vector product'
+  print '(a,i6,a)', ' # Performing a sparse-matrix vector product',  &
+                    N_STEPS, ' times'
   call cpu_time(ts)
-  do time_step = 1, 60
+  do time_step = 1, N_STEPS
     call Linalg % Vec_P_Sca_X_Vec(c, a,  2.0, b)  ! result should be  5
     call Linalg % Vec_P_Sca_X_Vec(d, c, -2.0, b)  ! result should be  1
   end do

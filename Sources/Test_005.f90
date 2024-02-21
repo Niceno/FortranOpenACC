@@ -16,12 +16,12 @@
   integer           :: n
 !==============================================================================!
 
-  print '(a)',        ' #----------------------------------------------------'
-  print '(a)',        ' # TEST 5: Creating a flow field and gradient matrix'
-  print '(a)',        ' #-----------------------------------------------------'
+  print '(a)', ' #===================================================='
+  print '(a)', ' # TEST 5: Creating a flow field and gradient matrix'
+  print '(a)', ' #===================================================='
 
   print '(a)', ' # Creating a grid'
-  call Grid % Load_Grid("101_cube.ini")
+  call Grid % Load_Grid("test_005_cube.ini")
 
   n = Grid % n_cells
   print '(a, i12)',   ' # The problem size is: ', n

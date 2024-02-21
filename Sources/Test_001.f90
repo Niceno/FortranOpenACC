@@ -8,21 +8,29 @@
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
-  type(Matrix_Type) :: A
-  real, allocatable :: b(:), c(:)
-  type(Grid_Type)   :: Grid
-  integer           :: time_step
-  real              :: ts, te
+  type(Matrix_Type)  :: A
+  real, allocatable  :: b(:), c(:)
+  type(Grid_Type)    :: Grid
+  integer            :: time_step
+  integer, parameter :: N_STEPS = 1200  ! spend enough time on device
+  real               :: ts, te
 !==============================================================================!
 
-  print '(a)',     ' #----------------------------------------------------'
-  print '(a)',     ' # TEST 1: Performing a sparse-matrix vector product'
-  print '(a)',     ' #----------------------------------------------------'
+  print '(a)', ' #===================================================='
+  print '(a)', ' # TEST 1: Performing a sparse-matrix vector product'
+  print '(a)', ' #===================================================='
 
   print '(a)', ' # Creating a grid'
-  call Grid % Load_Grid("400_cube.ini")
+  call Grid % Load_Grid("test_001_cube.ini")
 
   print '(a,i12)', ' # The problem size is: ', Grid % n_cells
+
+  print '(a)', ' #----------------------------------------------------'
+  print '(a)', ' # Be careful with memory usage.  If you exceed the'
+  print '(a)', ' # 90% (as a rule of thumb) of the memory your GPU'
+  print '(a)', ' # card has the program will become memory bound no'
+  print '(a)', ' # matter how you wrote it, and it may even crash.'
+  print '(a)', ' #----------------------------------------------------'
 
   print '(a)', ' # Creating a singular sparse matrix and two vectors'
   call A % Create_Matrix(Grid, b)
@@ -40,9 +48,9 @@
   !-----------------------------------------------!
   !   Performing a fake time loop on the device   !
   !-----------------------------------------------!
-  print '(a)', ' # Performing a sparse-matrix vector product'
+  print '(a,i6,a)', ' # Performing ', N_STEPS, ' sparse-matrix vector products'
   call cpu_time(ts)
-  do time_step = 1, 60
+  do time_step = 1, N_STEPS
     call Linalg % Mat_X_Vec(c, A, b)
   end do
   call cpu_time(te)
