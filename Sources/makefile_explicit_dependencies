@@ -9,7 +9,8 @@ Gpu_Mod/*/*.f90
 $(DIR_OBJECT)/Matrix_Mod.o:\
 Matrix_Mod/*.f90 \
 $(DIR_OBJECT)/Grid_Mod.o \
-Grid_Mod/*.f90 
+Grid_Mod/*.f90 \
+$(DIR_OBJECT)/Const_Mod.o 
 
 #-- ./Linalg_Mod.f90
 $(DIR_OBJECT)/Linalg_Mod.o:\
@@ -19,8 +20,9 @@ Linalg_Mod/*.f90
 
 #-- ./Grid_Mod/Load_Grid.f90
 #-- ./Grid_Mod/Create_Grid.f90
-#-- ./Grid_Mod/Save_Vtk_Debug.f90
+#-- ./Grid_Mod/Save_Vtk_Vector.f90
 #-- ./Grid_Mod/Cell_Number.f90
+#-- ./Grid_Mod/Save_Vtk_Scalar.f90
 #-- ./Grid_Mod/Cells_I_J_K.f90
 #-- ./Linalg_Mod/Mat_X_Vec.f90
 #-- ./Linalg_Mod/Vec_Copy.f90
@@ -71,7 +73,9 @@ Field_Mod/*.f90
 $(DIR_OBJECT)/Field_Mod.o:\
 $(DIR_OBJECT)/Matrix_Mod.o \
 Matrix_Mod/*.f90 \
-Field_Mod/*.f90 
+Field_Mod/*.f90 \
+$(DIR_OBJECT)/Assert_Mod.o \
+Assert_Mod/*.f90 
 
 #-- ./Test_002.f90
 $(DIR_OBJECT)/Test_002.o:\
@@ -85,6 +89,7 @@ Native_Mod/*.f90 \
 Gpu_Mod/*/*.f90 
 
 #-- ./Matrix_Mod/Create_Matrix_From_Matrix.f90
+#-- ./Matrix_Mod/Size_In_Gb.f90
 #-- ./Matrix_Mod/Create_Matrix.f90
 #-- ./Gpu_Mod/Native/Destroy_On_Device.f90
 #-- ./Gpu_Mod/Native/Transfer_To_Device.f90
@@ -94,10 +99,12 @@ Gpu_Mod/*/*.f90
 #-- ./Gpu_Mod/Vector/Create_On_Device.f90
 #-- ./Gpu_Mod/Matrix/Destroy_On_Device.f90
 #-- ./Gpu_Mod/Matrix/Copy_To_Device.f90
+#-- ./Const_Mod.f90
 #-- ./Assert_Mod.f90
 $(DIR_OBJECT)/Assert_Mod.o:\
 Assert_Mod/*.f90 
 
+#-- ./Native_Mod/Cg_With_If.f90
 #-- ./Native_Mod/Create_Native.f90
 #-- ./Native_Mod/Cg.f90
 #-- ./Native_Mod/Cg_Avoids_If.f90

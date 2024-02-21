@@ -4,18 +4,16 @@
 #
 #-------------------------------------------------------------------------------
 
+#-------------------------------------
+#   Default options for compilation
+#-------------------------------------
+FORTRAN ?= nvidia
+GPU     ?= yes
+DEBUG   ?= no
+
 #--------------------------
 #   Variable definitions
 #--------------------------
-
-# Fortran compiler ("gnu", "intel" or "nvidia")
-FORTRAN = nvidia
-
-# Should you use GPUs?
-GPU = yes
-
-# Debugging ("yes" or "no")
-DEBUG = no
 
 # Directories for objects and modules. (No need to change.)
 DIR_BINARY = .
@@ -29,6 +27,22 @@ ifeq ($(GPU), yes)
 endif
 
 PROGRAM_FILE = $(DIR_BINARY)/$(PROGRAM_NAME)
+
+#-------------------------------------------
+#   Variables to pass to compiled program
+#-------------------------------------------
+PASS_ON = -DVFS=1
+ifeq ($(ASSERT), yes)
+  PASS_ON += -DVFS_ASSERT=1
+else
+  PASS_ON += -DVFS_ASSERT=0
+endif
+
+ifeq ($(DEBUG), yes)
+  PASS_ON += -DVFS_DEBUG=1
+else
+  PASS_ON += -DVFS_DEBUG=0
+endif
 
 $(info #=======================================================================)
 $(info # Compiling $(PROGRAM_NAME) with compiler $(FORTRAN))
@@ -112,7 +126,8 @@ endif
 #-------------
 
 # Modules in shared directories
-SRC_MOD = Assert_Mod.f90	\
+SRC_MOD = Const_Mod.f90		\
+          Assert_Mod.f90	\
           Grid_Mod.f90		\
           Matrix_Mod.f90	\
           Linalg_Mod.f90	\
@@ -147,12 +162,12 @@ OBJ = $(OBJ_MOD) $(OBJ_FUN)
 # Modules
 $(DIR_OBJECT)/%.o: %.f90 %/*.f90 makefile*
 	@echo FC $<
-	@$(FC) $(OPT_COMP) -c -o $@ $<
+	@$(FC) $(OPT_COMP) $(PASS_ON) -c -o $@ $<
 
 # Functions
 $(DIR_OBJECT)/%.o: %.f90 makefile*
 	@echo FC $<
-	@$(FC) $(OPT_COMP) -c -o $@ $<
+	@$(FC) $(OPT_COMP) $(PASS_ON) -c -o $@ $<
 
 #-----------------------------------
 #   Rule to build main program
