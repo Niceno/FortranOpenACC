@@ -27,11 +27,13 @@
 
       procedure :: Create_Field
       procedure :: Calculate_Grad_Matrix
+      procedure :: Grad_Component
 
   end type
 
   contains
 #   include "Field_Mod/Create_Field.f90"
 #   include "Field_Mod/Calculate_Grad_Matrix.f90"
+#   include "Field_Mod/Grad_Component.f90"
 
   end module

@@ -46,11 +46,14 @@
     integer :: n_bnd_cells
     integer :: n_faces
 
-    integer, allocatable :: faces_c(:,:)
-
     integer :: nx, ny, nz  ! domain resolution in x, y and z direction
     real    :: lx, ly, lz  ! domain size in x, y and z direction
-    real    :: dx, dy, dz  ! cell size in x, y and z direction
+
+    integer, allocatable :: faces_c(:,:)
+
+    real, allocatable :: xn(:), yn(:), zn(:)
+    real, allocatable :: xc(:), yc(:), zc(:)
+    real, allocatable :: dx(:), dy(:), dz(:)
 
     type(Bc_Type) :: bc  ! boundary conditions
 

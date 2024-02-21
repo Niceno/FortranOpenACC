@@ -33,14 +33,14 @@
   ! Boundary cells
   do s = 1, Grid % n_faces
     c1 = Grid % faces_c(1,s)
-    c2 = Grid % faces_c(1,s)
+    c2 = Grid % faces_c(2,s)
 
     if(c2 .lt. 0) then
 
       ! This is not correct on boundaries
-      dx_c1 = Grid % dx
-      dy_c1 = Grid % dy
-      dz_c1 = Grid % dz
+      dx_c1 = Grid % dx(s)
+      dy_c1 = Grid % dy(s)
+      dz_c1 = Grid % dz(s)
 
       Flow % grad_c2c(1,c1)=Flow % grad_c2c(1,c1) + dx_c1*dx_c1  ! 1,1
       Flow % grad_c2c(2,c1)=Flow % grad_c2c(2,c1) + dy_c1*dy_c1  ! 2,2
@@ -55,17 +55,17 @@
   ! Faces inside the domain
   do s = 1, Grid % n_faces
     c1 = Grid % faces_c(1,s)
-    c2 = Grid % faces_c(1,s)
+    c2 = Grid % faces_c(2,s)
 
     if(c2 .gt. 0) then
 
       ! This is correct only on uniform grids
-      dx_c1 = Grid % dx
-      dy_c1 = Grid % dy
-      dz_c1 = Grid % dz
-      dx_c2 = Grid % dx
-      dy_c2 = Grid % dy
-      dz_c2 = Grid % dz
+      dx_c1 = Grid % dx(s)
+      dy_c1 = Grid % dy(s)
+      dz_c1 = Grid % dz(s)
+      dx_c2 = Grid % dx(s)
+      dy_c2 = Grid % dy(s)
+      dz_c2 = Grid % dz(s)
 
       Flow % grad_c2c(1,c1)=Flow % grad_c2c(1,c1) + dx_c1*dx_c1  ! 1,1
       Flow % grad_c2c(2,c1)=Flow % grad_c2c(2,c1) + dy_c1*dy_c1  ! 2,2
