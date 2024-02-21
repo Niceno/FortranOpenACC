@@ -1,6 +1,9 @@
+#include "Assert.h90"
+
 !==============================================================================!
   module Field_Mod
 !----------------------------------[Modules]-----------------------------------!
+  use Assert_Mod
   use Matrix_Mod
 !------------------------------------------------------------------------------!
   implicit none
@@ -15,7 +18,7 @@
     type(Grid_Type),   pointer :: pnt_grid    !! grid for which it is defined
 
     ! Pressure-like potential for initial velocity field
-    real, allocatable :: potential(:)
+    real, allocatable :: phi(:)
 
     ! Gradient matrices for cells to cells (c2c)
     real, allocatable :: grad_c2c(:,:)  !! gradient matrices [1/m^2]

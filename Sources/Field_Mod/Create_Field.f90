@@ -21,6 +21,6 @@
   !----------------------------------!
   allocate(Flow % grad_c2c(6, nc));  Flow % grad_c2c(:,:) = 0.0
 
-  allocate(Flow % potential(-nb:nc)); Flow % potential = 0.
+  allocate(Flow % phi(-nb:nc)); Flow % phi = 0.
 
   end subroutine
