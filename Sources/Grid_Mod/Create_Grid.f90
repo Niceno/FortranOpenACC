@@ -153,7 +153,10 @@
       visited(c2) = visited(c2) + 1.0
     end if
   end do
-  call Grid % Save_Vtk_Debug("visited.vtk", visited)
+
+# if VFS_DEBUG == 1
+    call Grid % Save_Vtk_Scalar("visited.vtk", visited)
+# endif
 
   end subroutine
 

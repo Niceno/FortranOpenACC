@@ -1,11 +1,13 @@
 !==============================================================================!
-  subroutine Save_Vtk_Debug(Grid, file_name, phi)
+  subroutine Save_Vtk_Vector(Grid, file_name, phi1, phi2, phi3)
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Grid_Type) :: Grid                 !! computational grid
+  class(Grid_Type) :: Grid                  !! computational grid
   character(*)     :: file_name
-  real             :: phi(Grid % n_cells)  !! solution
+  real             :: phi1(Grid % n_cells)  !! solution - x component
+  real             :: phi2(Grid % n_cells)  !! solution - y component
+  real             :: phi3(Grid % n_cells)  !! solution - z component
 !-----------------------------------[Locals]-----------------------------------!
   integer :: i, j, k, c, fu
   real    :: xn, yn, zn
@@ -46,15 +48,14 @@
     write(fu, '(es14.5)') zn
   end do
 
-  ! Write cell-centered scalar data
+  ! Write cell-centered vector data
   write(fu,*) ' CELL_DATA ', Grid % n_cells
-  write(fu,*) ' SCALARS solution float 1'
-  write(fu,*) ' LOOKUP_TABLE default'
+  write(fu,*) ' VECTORS solution float'
   do k = 1, Grid % nz
     do j = 1, Grid % ny
       do i = 1, Grid % nx
         c = Grid % Cell_Number(i, j, k)
-        write(fu, '(es14.5)') phi(c)
+        write(fu, '(3(es14.5))') phi1(c), phi2(c), phi3(c)
       end do
     end do
   end do
