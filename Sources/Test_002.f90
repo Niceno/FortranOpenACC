@@ -48,7 +48,7 @@
 
   call cpu_time(ts)
   do time_step = 1, N_STEPS
-    call Linalg % Vec_D_Vec(dot, a, b)
+    call Linalg % Vec_D_Vec(n, dot, a, b)
   end do
   call cpu_time(te)
 

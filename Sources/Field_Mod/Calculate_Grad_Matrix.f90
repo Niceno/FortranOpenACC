@@ -6,7 +6,7 @@
   class(Field_Type) :: Flow  !! parent flow object
 !-----------------------------------[Locals]-----------------------------------!
   type(Grid_Type), pointer  :: Grid
-  integer                   :: c, c1, c2, s, reg
+  integer                   :: c, c1, c2, s
   real                      :: dx_c1, dy_c1, dz_c1, dx_c2, dy_c2, dz_c2
   real                      :: jac, g_inv(6)
 !==============================================================================!

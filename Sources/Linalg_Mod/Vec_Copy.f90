@@ -1,5 +1,5 @@
 !==============================================================================!
-  subroutine Vec_Copy(Lin, a, b)
+  subroutine Vec_Copy(Lin, n, a, b)
 !------------------------------------------------------------------------------!
 !>  Front-end for calculation of vector vector dot product.
 !------------------------------------------------------------------------------!
@@ -7,14 +7,11 @@
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Linalg_Type) :: Lin   !! parent class
-  real               :: a(:)  !! operand vector
-  real               :: b(:)  !! operand vector
-!-----------------------------------[Locals]-----------------------------------!
-  integer :: n
+  class(Linalg_Type)  :: Lin   !! parent class
+  integer, intent(in) :: n     !! size of vectors
+  real                :: a(n)  !! operand vector
+  real                :: b(n)  !! operand vector
 !==============================================================================!
-
-  n = size(a)
 
   call Lin % Vec_Copy_Acc(n, a, b)
 

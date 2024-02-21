@@ -1,5 +1,5 @@
 !==============================================================================!
-  subroutine Vec_D_Vec(Lin, dot, A, B)
+  subroutine Vec_D_Vec(Lin, n, dot, A, B)
 !------------------------------------------------------------------------------!
 !>  Front-end for calculation of vector vector dot product.
 !------------------------------------------------------------------------------!
@@ -7,15 +7,12 @@
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Linalg_Type) :: Lin   !! parent class
-  real               :: dot   !! result of the dot product
-  real               :: a(:)  !! operand vector
-  real               :: b(:)  !! operand vector
-!-----------------------------------[Locals]-----------------------------------!
-  integer :: n
+  class(Linalg_Type)  :: Lin   !! parent class
+  integer, intent(in) :: n     !! size of vectors
+  real                :: dot   !! result of the dot product
+  real                :: a(n)  !! operand vector
+  real                :: b(n)  !! operand vector
 !==============================================================================!
-
-  n = size(a)
 
   call Lin % Vec_D_Vec_Acc(dot, n, a, b)
 

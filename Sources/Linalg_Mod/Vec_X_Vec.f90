@@ -1,5 +1,5 @@
 !==============================================================================!
-  subroutine Vec_X_Vec(Lin, c, a, b)
+  subroutine Vec_X_Vec(Lin, n, c, a, b)
 !------------------------------------------------------------------------------!
 !>  Front-end for calculation of vector vector multiplication.
 !------------------------------------------------------------------------------!
@@ -7,15 +7,12 @@
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Linalg_Type) :: Lin   !! parent class
-  real               :: c(:)  !! result vector
-  real               :: a(:)  !! operand vector
-  real               :: b(:)  !! operand vector
-!-----------------------------------[Locals]-----------------------------------!
-  integer :: n, nz
+  class(Linalg_Type)  :: Lin   !! parent class
+  integer, intent(in) :: n     !! size of vectors
+  real                :: c(n)  !! result vector
+  real                :: a(n)  !! operand vector
+  real                :: b(n)  !! operand vector
 !==============================================================================!
-
-  n  = size(c)
 
   call Lin % Vec_X_Vec_Acc(n,   &
                            c,   &

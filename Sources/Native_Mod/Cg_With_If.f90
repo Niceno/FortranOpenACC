@@ -34,32 +34,32 @@
   !----------------!
   !   r = b - Ax   !     =-->  (q used for temporary storing Ax)
   !----------------!
-  call Linalg % Mat_X_Vec(q, A, x(1:nc))        ! Ax = A * x
-  call Linalg % Vec_P_Sca_X_Vec(r, b, -1.0, q)  ! r  = b - Ax
+  call Linalg % Mat_X_Vec(nc, q, A, x(1:nc))        ! Ax = A * x
+  call Linalg % Vec_P_Sca_X_Vec(nc, r, b, -1.0, q)  ! r  = b - Ax
 
   !-----------!
   !   p = r   !
   !-----------!
-  call Linalg % Vec_Copy(p, r)
+  call Linalg % Vec_Copy(nc, p, r)
 
   do iter = 1, miter
 
     !---------------!
     !   z = r \ M   !    =--> (q used for z)
     !---------------!
-    call Linalg % Vec_X_Vec(q, r, d_inv)
+    call Linalg % Vec_X_Vec(nc, q, r, d_inv)
 
     !-----------------!
     !   rho = r * z   !  =--> (q used for z)
     !-----------------!
-    call Linalg % Vec_D_Vec(rho, r, q)  ! rho = r * q
+    call Linalg % Vec_D_Vec(nc, rho, r, q)  ! rho = r * q
 
     if(iter .eq. 1) then
 
       !-----------!
       !   p = z   !  =--> (q used for z)
       !-----------!
-      call Linalg % Vec_Copy(p, q)  ! p = q
+      call Linalg % Vec_Copy(nc, p, q)  ! p = q
     else
 
       !--------------------------!
@@ -67,31 +67,31 @@
       !   p = z + beta * p       !  =--> (q used for p)
       !--------------------------!
       beta = rho / rho_old
-      call Linalg % Vec_P_Sca_X_Vec(p, q, beta, p)   ! p = q + beta p
+      call Linalg % Vec_P_Sca_X_Vec(nc, p, q, beta, p)   ! p = q + beta p
     end if
 
     !------------!
     !   q = Ap   !
     !------------!
-    call Linalg % Mat_X_Vec(q, A, p)   ! q  = A * p
+    call Linalg % Mat_X_Vec(nc, q, A, p)   ! q  = A * p
 
     !---------------------------!
     !   alfa =  rho / (p * q)   !
     !---------------------------!
-    call Linalg % Vec_D_Vec(pq, p, q)  ! pq = p * q
+    call Linalg % Vec_D_Vec(nc, pq, p, q)  ! pq = p * q
     alpha = rho / pq
 
     !---------------------!
     !   x = x + alfa p    !
     !   r = r - alfa q    !
     !---------------------!
-    call Linalg % Vec_P_Sca_X_Vec(x(1:nc), x(1:nc), +alpha, p)  ! x = x + alpha p
-    call Linalg % Vec_P_Sca_X_Vec(r,       r,       -alpha, q)  ! r = r - alpha q
+    call Linalg % Vec_P_Sca_X_Vec(nc, x(1:nc), x(1:nc), +alpha, p)  ! x = x + alpha p
+    call Linalg % Vec_P_Sca_X_Vec(nc, r,       r,       -alpha, q)  ! r = r - alpha q
 
     !--------------------!
     !   Check residual   !
     !--------------------!
-    call Linalg % Vec_D_Vec(res, r, r)  ! res = r * r
+    call Linalg % Vec_D_Vec(nc, res, r, r)  ! res = r * r
 
     if(mod(iter,32) .eq. 0) print '(a,i12,es12.3)', ' iter, res = ', iter, res
     if(res .lt. tol) goto 1

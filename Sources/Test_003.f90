@@ -53,8 +53,8 @@
                     N_STEPS, ' times'
   call cpu_time(ts)
   do time_step = 1, N_STEPS
-    call Linalg % Vec_P_Sca_X_Vec(c, a,  2.0, b)  ! result should be  5
-    call Linalg % Vec_P_Sca_X_Vec(d, c, -2.0, b)  ! result should be  1
+    call Linalg % Vec_P_Sca_X_Vec(n, c, a,  2.0, b)  ! result should be  5
+    call Linalg % Vec_P_Sca_X_Vec(n, d, c, -2.0, b)  ! result should be  1
   end do
   call cpu_time(te)
 

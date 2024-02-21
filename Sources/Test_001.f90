@@ -11,7 +11,7 @@
   type(Matrix_Type)  :: A
   real, allocatable  :: b(:), c(:)
   type(Grid_Type)    :: Grid
-  integer            :: time_step
+  integer            :: n, time_step
   integer, parameter :: N_STEPS = 1200  ! spend enough time on device
   real               :: ts, te
 !==============================================================================!
@@ -23,7 +23,8 @@
   print '(a)', ' # Creating a grid'
   call Grid % Load_Grid("test_001_cube.ini")
 
-  print '(a,i12)', ' # The problem size is: ', Grid % n_cells
+  n = Grid % n_cells
+  print '(a,i12)', ' # The problem size is: ', n
 
   print '(a)', ' #----------------------------------------------------'
   print '(a)', ' # Be careful with memory usage.  If you exceed the'
@@ -35,7 +36,7 @@
   print '(a)', ' # Creating a singular sparse matrix and two vectors'
   call A % Create_Matrix(Grid, b)
 
-  allocate(c(Grid % n_cells))
+  allocate(c(n))
 
   b(:) = 2.0
 
@@ -51,7 +52,7 @@
   print '(a,i6,a)', ' # Performing ', N_STEPS, ' sparse-matrix vector products'
   call cpu_time(ts)
   do time_step = 1, N_STEPS
-    call Linalg % Mat_X_Vec(c, A, b)
+    call Linalg % Mat_X_Vec(n, c, A, b)
   end do
   call cpu_time(te)
 

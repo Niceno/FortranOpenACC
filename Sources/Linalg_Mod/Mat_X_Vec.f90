@@ -1,5 +1,5 @@
 !==============================================================================!
-  subroutine Mat_X_Vec(Lin, c, A, b)
+  subroutine Mat_X_Vec(Lin, n, c, A, b)
 !------------------------------------------------------------------------------!
 !>  Front-end for calculation of sparse-matrix vector multiplication.
 !------------------------------------------------------------------------------!
@@ -7,15 +7,15 @@
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Linalg_Type) :: Lin   !! parent class
-  real               :: c(:)  !! result vector
-  type(Matrix_Type)  :: A     !! operand matrix
-  real               :: b(:)  !! operand vector
+  class(Linalg_Type)  :: Lin   !! parent class
+  integer, intent(in) :: n     !! size of vectors
+  real                :: c(n)  !! result vector
+  type(Matrix_Type)   :: A     !! operand matrix
+  real                :: b(n)  !! operand vector
 !-----------------------------------[Locals]-----------------------------------!
-  integer :: n, nz
+  integer :: nz
 !==============================================================================!
 
-  n  = size(c)
   nz = A % nonzeros
 
   call Lin % Mat_X_Vec_Acc(n,        &
