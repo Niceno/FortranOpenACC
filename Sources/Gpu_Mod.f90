@@ -3,6 +3,7 @@
 !----------------------------------[Modules]-----------------------------------!
   use Const_Mod
   use Native_Mod
+  use Field_Mod
 !------------------------------------------------------------------------------!
   implicit none
 !==============================================================================!
@@ -32,6 +33,14 @@
       procedure :: Native_Transfer_To_Device
       procedure :: Native_Destroy_On_Device
 
+      procedure :: Grid_Di_Copy_To_Device
+      procedure :: Grid_Di_Destroy_On_Device
+      procedure :: Grid_Faces_C_Copy_To_Device
+      procedure :: Grid_Faces_C_Destroy_On_Device
+
+      procedure :: Field_Grad_Matrix_Copy_To_Device
+      procedure :: Field_Grad_Matrix_Destroy_On_Device
+
   end type
 
   type(Gpu_Type) :: Gpu
@@ -51,5 +60,13 @@
     ! Procedures to copy native solver to device
 #   include "Gpu_Mod/Native/Transfer_To_Device.f90"
 #   include "Gpu_Mod/Native/Destroy_On_Device.f90"
+
+#   include "Gpu_Mod/Grid/Di_Copy_To_Device.f90"
+#   include "Gpu_Mod/Grid/Di_Destroy_On_Device.f90"
+#   include "Gpu_Mod/Grid/Faces_C_Copy_To_Device.f90"
+#   include "Gpu_Mod/Grid/Faces_C_Destroy_On_Device.f90"
+
+#   include "Gpu_Mod/Field/Grad_Matrix_Copy_To_Device.f90"
+#   include "Gpu_Mod/Field/Grad_Matrix_Destroy_On_Device.f90"
 
   end module

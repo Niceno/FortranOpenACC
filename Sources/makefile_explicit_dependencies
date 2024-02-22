@@ -9,8 +9,7 @@ Gpu_Mod/*/*.f90
 $(DIR_OBJECT)/Matrix_Mod.o:\
 Matrix_Mod/*.f90 \
 $(DIR_OBJECT)/Grid_Mod.o \
-Grid_Mod/*.f90 \
-$(DIR_OBJECT)/Const_Mod.o 
+Grid_Mod/*.f90 
 
 #-- ./Linalg_Mod.f90
 $(DIR_OBJECT)/Linalg_Mod.o:\
@@ -36,6 +35,7 @@ Linalg_Mod/*.f90
 #-- ./Linalg_Mod/Vec_D_Vec_Acc.f90
 #-- ./Field_Mod/Calculate_Grad_Matrix.f90
 #-- ./Field_Mod/Create_Field.f90
+#-- ./Field_Mod/Grad_Component.f90
 #-- ./Main.f90
 #-- ./Test_001.f90
 $(DIR_OBJECT)/Test_001.o:\
@@ -86,10 +86,12 @@ Gpu_Mod/*/*.f90
 $(DIR_OBJECT)/Gpu_Mod.o:\
 $(DIR_OBJECT)/Native_Mod.o \
 Native_Mod/*.f90 \
-Gpu_Mod/*/*.f90 
+Gpu_Mod/*/*.f90 \
+$(DIR_OBJECT)/Field_Mod.o \
+Field_Mod/*.f90 \
+$(DIR_OBJECT)/Const_Mod.o 
 
 #-- ./Matrix_Mod/Create_Matrix_From_Matrix.f90
-#-- ./Matrix_Mod/Size_In_Gb.f90
 #-- ./Matrix_Mod/Create_Matrix.f90
 #-- ./Gpu_Mod/Native/Destroy_On_Device.f90
 #-- ./Gpu_Mod/Native/Transfer_To_Device.f90
@@ -97,6 +99,12 @@ Gpu_Mod/*/*.f90
 #-- ./Gpu_Mod/Vector/Copy_To_Device.f90
 #-- ./Gpu_Mod/Vector/Copy_To_Host.f90
 #-- ./Gpu_Mod/Vector/Create_On_Device.f90
+#-- ./Gpu_Mod/Grid/Di_Copy_To_Device.f90
+#-- ./Gpu_Mod/Grid/Faces_C_Destroy_On_Device.f90
+#-- ./Gpu_Mod/Grid/Di_Destroy_On_Device.f90
+#-- ./Gpu_Mod/Grid/Faces_C_Copy_To_Device.f90
+#-- ./Gpu_Mod/Field/Grad_Matrix_Copy_To_Device.f90
+#-- ./Gpu_Mod/Field/Grad_Matrix_Destroy_On_Device.f90
 #-- ./Gpu_Mod/Matrix/Destroy_On_Device.f90
 #-- ./Gpu_Mod/Matrix/Copy_To_Device.f90
 #-- ./Const_Mod.f90

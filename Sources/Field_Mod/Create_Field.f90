@@ -6,7 +6,7 @@
   class(Field_Type), target :: Flow  !! parent flow object
   type(Grid_Type),   target :: Grid
 !-----------------------------------[Locals]-----------------------------------!
-  integer                  :: nb, nc
+  integer :: nb, nc
 !==============================================================================!
 
   ! Store the pointer to a Grid
@@ -21,6 +21,6 @@
   !----------------------------------!
   allocate(Flow % grad_c2c(6, nc));  Flow % grad_c2c(:,:) = 0.0
 
-  allocate(Flow % phi(-nb:nc)); Flow % phi = 0.
+  allocate(Flow % phi(-nb:nc)); Flow % phi(:) = 0.0
 
   end subroutine
