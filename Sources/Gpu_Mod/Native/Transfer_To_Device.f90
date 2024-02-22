@@ -19,12 +19,13 @@
   !$acc enter data create(Nat % q)
   !$acc enter data create(Nat % r)
 
-  Gpu % gb_used = Gpu % gb_used + (  real(sizeof(Nat % d_inv))  &
-                                   + real(sizeof(Nat % p))      &
-                                   + real(sizeof(Nat % q))      &
-                                   + real(sizeof(Nat % r))) / GIGABYTE
-
-  print '(a,f7.3,a)', ' # '//__FILE__//' :', Gpu % gb_used, ' GB on device'
+# if VFS_GPU == 1
+    Gpu % gb_used = Gpu % gb_used + (  real(sizeof(Nat % d_inv))  &
+                                     + real(sizeof(Nat % p))      &
+                                     + real(sizeof(Nat % q))      &
+                                     + real(sizeof(Nat % r))) / GIGABYTE
+    print '(a,f7.3,a)', ' # '//__FILE__//' :', Gpu % gb_used, ' GB on device'
+# endif
 
   end subroutine
 

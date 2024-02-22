@@ -10,10 +10,11 @@
   !$acc enter data copyin(Grid % cells_n_cells)
   !$acc enter data copyin(Grid % cells_c)
 
-  Gpu % gb_used = Gpu % gb_used + real(  sizeof(Grid % cells_n_cells)  &
-                                       + sizeof(Grid % cells_c)) / GIGABYTE
-
-  print '(a,f7.3,a)', ' # '//__FILE__//' :', Gpu % gb_used, ' GB on device'
+# if VFS_GPU == 1
+    Gpu % gb_used = Gpu % gb_used + real(  sizeof(Grid % cells_n_cells)  &
+                                         + sizeof(Grid % cells_c)) / GIGABYTE
+    print '(a,f7.3,a)', ' # '//__FILE__//' :', Gpu % gb_used, ' GB on device'
+# endif
 
   end subroutine
 

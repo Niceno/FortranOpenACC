@@ -9,9 +9,10 @@
 
   !$acc enter data copyin(Flow % grad_c2c)
 
-  Gpu % gb_used = Gpu % gb_used + real(sizeof(Flow % grad_c2c)) / GIGABYTE
-
-  print '(a,f7.3,a)', ' # '//__FILE__//' :', Gpu % gb_used, ' GB on device'
+# if VFS_GPU == 1
+    Gpu % gb_used = Gpu % gb_used + real(sizeof(Flow % grad_c2c)) / GIGABYTE
+    print '(a,f7.3,a)', ' # '//__FILE__//' :', Gpu % gb_used, ' GB on device'
+# endif
 
   end subroutine
 

@@ -8,8 +8,9 @@
 #   Default options for compilation
 #-------------------------------------
 FORTRAN ?= nvidia
-GPU     ?= yes
+ASSERT  ?= yes
 DEBUG   ?= no
+GPU     ?= yes
 
 #--------------------------
 #   Variable definitions
@@ -42,6 +43,12 @@ ifeq ($(DEBUG), yes)
   PASS_ON += -DVFS_DEBUG=1
 else
   PASS_ON += -DVFS_DEBUG=0
+endif
+
+ifeq ($(GPU), yes)
+  PASS_ON += -DVFS_GPU=1
+else
+  PASS_ON += -DVFS_GPU=0
 endif
 
 $(info #=======================================================================)
