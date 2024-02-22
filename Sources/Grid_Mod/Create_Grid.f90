@@ -17,7 +17,9 @@
   Assert(nz > 1)
 
   !-----------!
+  !           !
   !   Nodes   !
+  !           !
   !-----------!
 
   ! Allocate memory for node coordinates
@@ -36,9 +38,11 @@
     Grid % zn(k) = real(k) * ly / real(nz)
   end do
 
-  !-----------!
-  !   Cells   !
-  !-----------!
+  !---------------!
+  !               !
+  !   Cells (1)   !
+  !               !
+  !---------------!
 
   Grid % n_cells     = nx * ny * nz
   Grid % n_bnd_cells = 2 * (ny * nz + nx * nz + nx * ny)
@@ -68,8 +72,14 @@
     end do
   end do
 
+  ! Allocate memory for cells to cells connectivity
+  allocate(Grid % cells_n_cells(Grid % n_cells))
+  allocate(Grid % cells_c(6, Grid % n_cells))
+
   !-----------!
+  !           !
   !   Faces   !  (some of them are also boundary cells, in fact)
+  !           !
   !-----------!
 
   Grid % n_faces = (nx+1) * ny * nz  &
@@ -207,7 +217,43 @@
     Grid % dz(s) = Grid % zc(c2) - Grid % zc(c1)
   end do
 
-  ! Check the faces_c structure
+  !---------------!
+  !               !
+  !   Cells (2)   !
+  !               !
+  !---------------!
+  Grid % cells_n_cells(:) = 0
+  Grid % cells_c(:,:)     = 0
+  do s = 1, Grid % n_bnd_cells  ! boundary faces
+    c1 = Grid % faces_c(1,s)
+    c2 = Grid % faces_c(2,s)
+    Assert(c1 .gt. 0)
+    Assert(c2 .lt. 0)
+    Grid % cells_n_cells(c1) = Grid % cells_n_cells(c1) + 1
+    i = Grid % cells_n_cells(c1)  ! i like index, let's say
+    Grid % cells_c(i,c1) = c2
+  end do
+
+  do s = Grid % n_bnd_cells + 1, Grid % n_faces  ! inside faces
+    c1 = Grid % faces_c(1,s)
+    c2 = Grid % faces_c(2,s)
+    Assert(c1 .gt. 0)
+    Assert(c2 .gt. 0)
+    Grid % cells_n_cells(c1) = Grid % cells_n_cells(c1) + 1
+    Grid % cells_n_cells(c2) = Grid % cells_n_cells(c2) + 1
+    i = Grid % cells_n_cells(c1)  ! i like index, let's say
+    j = Grid % cells_n_cells(c2)  ! j is like, following i
+    Grid % cells_c(i,c1) = c2
+    Grid % cells_c(j,c2) = c1
+  end do
+
+  do c = 1, Grid % n_cells
+    Assert(Grid % cells_n_cells(c) .le. 6)
+  end do
+
+  !---------------------------------!
+  !   Check the faces_c structure   !
+  !---------------------------------!
 # if VFS_DEBUG == 1
     allocate(visited(Grid % n_cells));  visited(:) = 0.0
     do s = 1, Grid % n_faces

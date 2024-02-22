@@ -15,7 +15,7 @@
   real, allocatable  :: phi_x(:)        ! gradient in x direction
   real, allocatable  :: phi_y(:)        ! gradient in y direction
   real, allocatable  :: phi_z(:)        ! gradient in z direction
-  integer, parameter :: N_STEPS = 1     ! spend enough time on device
+  integer, parameter :: N_STEPS = 120   ! spend enough time on device
   real               :: ts, te
   integer            :: n, c, time_step
 !==============================================================================!
@@ -60,8 +60,8 @@
 
   ! Copy what you need for gradient calculation to the device
   call Gpu % Field_Grad_Matrix_Copy_To_Device(Flow)
-  call Gpu % Grid_Faces_C_Copy_To_Device(Grid)
-  call Gpu % Grid_Di_Copy_To_Device(Grid)
+  call Gpu % Grid_Cell_Cell_Connectivity_Copy_To_Device(Grid)
+  call Gpu % Grid_Cell_Coordinates_Copy_To_Device(Grid)
   call Gpu % Vector_Copy_To_Device(Flow % phi)
   call Gpu % Vector_Create_On_Device(phi_x)
   call Gpu % Vector_Create_On_Device(phi_y)
@@ -71,6 +71,8 @@
                     N_STEPS, ' pseudo time steps'
   call cpu_time(ts)
   do time_step = 1, N_STEPS
+    if(mod(time_step, 12) .eq. 0)  &
+      print '(a,i12,es12.3)', ' time step = ', time_step
     call Flow % Grad_Component(Grid, Flow % phi, 1, phi_x)
     call Flow % Grad_Component(Grid, Flow % phi, 2, phi_y)
     call Flow % Grad_Component(Grid, Flow % phi, 3, phi_z)
@@ -85,8 +87,8 @@
 
   ! Destroy data on the device, you don't need them anymore
   call Gpu % Field_Grad_Matrix_Destroy_On_Device(Flow)
-  call Gpu % Grid_Faces_C_Destroy_On_Device(Grid)
-  call Gpu % Grid_Di_Destroy_On_Device(Grid)
+  call Gpu % Grid_Cell_Cell_Connectivity_Destroy_On_Device(Grid)
+  call Gpu % Grid_Cell_Coordinates_Destroy_On_Device(Grid)
   call Gpu % Vector_Destroy_On_Device(Flow % phi)
   call Gpu % Vector_Destroy_On_Device(phi_x)
   call Gpu % Vector_Destroy_On_Device(phi_y)

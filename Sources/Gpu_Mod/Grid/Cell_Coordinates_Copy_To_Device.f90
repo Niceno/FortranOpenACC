@@ -1,5 +1,5 @@
 !==============================================================================!
-  subroutine Grid_Faces_C_Destroy_On_Device(Gpu, Grid)
+  subroutine Grid_Cell_Coordinates_Copy_To_Device(Gpu, Grid)
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
@@ -7,9 +7,13 @@
   type(Grid_Type) :: Grid
 !==============================================================================!
 
-  !$acc exit data delete(Grid % faces_c)
+  !$acc enter data copyin(Grid % xc)
+  !$acc enter data copyin(Grid % yc)
+  !$acc enter data copyin(Grid % zc)
 
-  Gpu % gb_used = Gpu % gb_used - real(sizeof(Grid % faces_c)) / GIGABYTE
+  Gpu % gb_used = Gpu % gb_used + (  real(sizeof(Grid % xc))  &
+                                   + real(sizeof(Grid % yc))  &
+                                   + real(sizeof(Grid % zc))) / GIGABYTE
 
   print '(a,f7.3,a)', ' # '//__FILE__//' :', Gpu % gb_used, ' GB on device'
 

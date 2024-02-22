@@ -50,6 +50,8 @@
     real    :: lx, ly, lz  ! domain size in x, y and z direction
 
     integer, allocatable :: faces_c(:,:)
+    integer, allocatable :: cells_c(:,:)
+    integer, allocatable :: cells_n_cells(:)
 
     real, allocatable :: xn(:), yn(:), zn(:)
     real, allocatable :: xc(:), yc(:), zc(:)

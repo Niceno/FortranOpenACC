@@ -31,7 +31,6 @@
 
     phii_tmp = 0.0
 
-    !$acc loop seq
     do i_cel = 1, Grid % cells_n_cells(c)
       d = Grid % cells_c(i_cel, c)
       dphi = phi(d)-phi(c)
@@ -44,11 +43,22 @@
                          + Flow % grad_c2c(MAP(i,2),c) * dy   &
                          + Flow % grad_c2c(MAP(i,3),c) * dz)
     end do
-    !$acc end loop
 
     phii(c) = phii_tmp
 
   end do
   !$acc end parallel
+
+  ! grad_component:
+  !      37, include 'Grad_Component.f90'
+  !           29, Generating NVIDIA GPU code
+  !               30, !$acc loop gang ! blockidx%x
+  !               34, !$acc loop vector(128) ! threadidx%x
+  !                   Generating implicit reduction(+:phii_tmp)
+  !           29, Generating implicit copy(phii(:)) [if not already present]
+  !               Generating implicit copyin(phi(:),flow%grad_c2c(:,:),grid,grid%zc(:),grid%cells_n_cells(:),grid%xc(:),grid%yc(:),flow,grid%cells_c(:,:)) [if not already present]
+  !           30, Generating implicit firstprivate(phii_tmp,i_cel)
+  !           34, Loop is parallelizable
+  !               Generating implicit firstprivate(d,dphi,dx,dy,i,dz)
 
   end subroutine

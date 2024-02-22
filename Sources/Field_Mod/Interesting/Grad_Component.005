@@ -51,4 +51,15 @@
   end do
   !$acc end parallel
 
+  ! grad_component:
+  !      37, include 'Grad_Component.f90'
+  !           29, Generating NVIDIA GPU code
+  !               30, !$acc loop gang, vector(128) ! blockidx%x threadidx%x
+  !               35, !$acc loop seq
+  !           29, Generating implicit copyin(phi(:)) [if not already present]
+  !               Generating implicit copy(phii(:)) [if not already present]
+  !               Generating implicit copyin(flow%grad_c2c(:,:),grid,grid%zc(:),grid%cells_n_cells(:),grid%xc(:),grid%yc(:),flow,grid%cells_c(:,:)) [if not already present]
+  !           30, Generating implicit firstprivate(phii_tmp)
+  !           35, Generating implicit firstprivate(d,dphi,dx,dy,i,dz)
+
   end subroutine

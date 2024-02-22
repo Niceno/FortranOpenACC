@@ -1,5 +1,5 @@
 !==============================================================================!
-  subroutine Grid_Di_Copy_To_Device(Gpu, Grid)
+  subroutine Grid_Cell_Cell_Connectivity_Destroy_On_Device(Gpu, Grid)
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
@@ -7,13 +7,11 @@
   type(Grid_Type) :: Grid
 !==============================================================================!
 
-  !$acc enter data copyin(Grid % dx)
-  !$acc enter data copyin(Grid % dy)
-  !$acc enter data copyin(Grid % dz)
+  !$acc exit data delete(Grid % cells_n_cells)
+  !$acc exit data delete(Grid % cells_c)
 
-  Gpu % gb_used = Gpu % gb_used + (  real(sizeof(Grid % dx))  &
-                                   + real(sizeof(Grid % dy))  &
-                                   + real(sizeof(Grid % dz))) / GIGABYTE
+  Gpu % gb_used = Gpu % gb_used - real(  sizeof(Grid % cells_n_cells)  &
+                                       + sizeof(Grid % cells_c)) / GIGABYTE
 
   print '(a,f7.3,a)', ' # '//__FILE__//' :', Gpu % gb_used, ' GB on device'
 
