@@ -8,12 +8,12 @@
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
-  type(Grid_Type)   :: Grid  !! computational grid
-  type(Matrix_Type) :: A0    !! system matrix
-  type(Matrix_Type) :: A     !! system matrix
-  type(Native_Type) :: Nat   !! linear solver suite
-  real, allocatable :: x(:)  !! solution, dependent variable
-  real, allocatable :: b(:)  !! right-hand side vector
+  type(Grid_Type)   :: Grid                   ! computational grid
+  type(Matrix_Type) :: A0                     ! system matrix
+  type(Matrix_Type) :: A                      ! system matrix
+  type(Native_Type) :: Nat                    ! linear solver suite
+  real, allocatable :: x(:)                   ! solution, dependent variable
+  real, allocatable :: b(:)                   ! right-hand side vector
   real              :: ts, te, tol = 1.0e-12
   integer           :: n
 !==============================================================================!
