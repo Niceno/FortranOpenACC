@@ -4,11 +4,12 @@
 !>  Tests matrix-vector product
 !------------------------------------------------------------------------------!
   use Linalg_Mod
+  use Process_Mod
   use Gpu_Mod
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
-  type(Matrix_Type)  :: A
+  type(Matrix_Type)  :: A0, A
   real, allocatable  :: b(:), c(:)
   type(Grid_Type)    :: Grid
   integer            :: n, time_step
@@ -34,8 +35,15 @@
   print '(a)', ' #----------------------------------------------------'
 
   print '(a)', ' # Creating a singular sparse matrix and two vectors'
-  call A % Create_Matrix(Grid, b)
+  call A0 % Create_Matrix(Grid)
 
+  ! Discretize the matrix for diffusion
+  call Process % Discretize_Diffusion(A0)
+
+  ! To see if copy works
+  call A % Create_Matrix_From_Matrix(A0)
+
+  allocate(b(n))
   allocate(c(n))
 
   b(:) = 2.0

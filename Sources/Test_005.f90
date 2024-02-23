@@ -9,8 +9,6 @@
   implicit none
 !------------------------------------------------------------------------------!
   type(Grid_Type)    :: Grid            ! computational grid
-  type(Matrix_Type)  :: A               ! system matrix
-  real, allocatable  :: b(:)            ! right hand side
   type(Field_Type)   :: Flow            ! flow field
   real, allocatable  :: phi_x(:)        ! gradient in x direction
   real, allocatable  :: phi_y(:)        ! gradient in y direction
@@ -37,8 +35,6 @@
   print '(a)', ' # matter how you wrote it, and it may even crash.'
   print '(a)', ' #----------------------------------------------------'
 
-  call A % Create_Matrix(Grid, b)
-
   print '(a)', ' # Creating a field'
   call Flow % Create_Field(Grid)
 
@@ -49,11 +45,11 @@
 
   print '(a)', ' # Initialize phi with something'
   do c = -Grid % n_bnd_cells, Grid % n_cells
-    Flow % phi(c) = 0.111111 * Grid % xc(c)  &
-                  + 0.222222 * Grid % yc(c)  &
-                  + 0.333333 * Grid % zc(c)
+    Flow % p(c) = 0.111111 * Grid % xc(c)**2  &
+                + 0.222222 * Grid % yc(c)**2  &
+                + 0.333333 * Grid % zc(c)**2
   end do
-  call Grid % Save_Vtk_Scalar("init.vtk", Flow % phi(1:Grid % n_cells))
+  call Grid % Save_Vtk_Scalar("init.vtk", Flow % p(1:Grid % n_cells))
 
   print '(a)', ' # Calculating gradient matrix for the field'
   call Flow % Calculate_Grad_Matrix()
@@ -62,7 +58,7 @@
   call Gpu % Field_Grad_Matrix_Copy_To_Device(Flow)
   call Gpu % Grid_Cell_Cell_Connectivity_Copy_To_Device(Grid)
   call Gpu % Grid_Cell_Coordinates_Copy_To_Device(Grid)
-  call Gpu % Vector_Copy_To_Device(Flow % phi)
+  call Gpu % Vector_Copy_To_Device(Flow % p)
   call Gpu % Vector_Create_On_Device(phi_x)
   call Gpu % Vector_Create_On_Device(phi_y)
   call Gpu % Vector_Create_On_Device(phi_z)
@@ -73,9 +69,9 @@
   do time_step = 1, N_STEPS
     if(mod(time_step, 12) .eq. 0)  &
       print '(a,i12,es12.3)', ' time step = ', time_step
-    call Flow % Grad_Component(Grid, Flow % phi, 1, phi_x)
-    call Flow % Grad_Component(Grid, Flow % phi, 2, phi_y)
-    call Flow % Grad_Component(Grid, Flow % phi, 3, phi_z)
+    call Flow % Grad_Component(Grid, Flow % p, 1, phi_x)
+    call Flow % Grad_Component(Grid, Flow % p, 2, phi_y)
+    call Flow % Grad_Component(Grid, Flow % p, 3, phi_z)
   end do
   call cpu_time(te)
 
@@ -89,7 +85,7 @@
   call Gpu % Field_Grad_Matrix_Destroy_On_Device(Flow)
   call Gpu % Grid_Cell_Cell_Connectivity_Destroy_On_Device(Grid)
   call Gpu % Grid_Cell_Coordinates_Destroy_On_Device(Grid)
-  call Gpu % Vector_Destroy_On_Device(Flow % phi)
+  call Gpu % Vector_Destroy_On_Device(Flow % p)
   call Gpu % Vector_Destroy_On_Device(phi_x)
   call Gpu % Vector_Destroy_On_Device(phi_y)
   call Gpu % Vector_Destroy_On_Device(phi_z)

@@ -4,12 +4,12 @@
 !>  Tests calling of the CG algorithm from the Native_Mod
 !------------------------------------------------------------------------------!
   use Native_Mod
+  use Process_Mod
   use Gpu_Mod
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
   type(Grid_Type)   :: Grid                   ! computational grid
-  type(Matrix_Type) :: A0                     ! system matrix
   type(Matrix_Type) :: A                      ! system matrix
   type(Native_Type) :: Nat                    ! linear solver suite
   real, allocatable :: x(:)                   ! solution, dependent variable
@@ -36,16 +36,16 @@
   print '(a)', ' # matter how you wrote it, and it may even crash.'
   print '(a)', ' #----------------------------------------------------'
 
-  call A0 % Create_Matrix(Grid, b)
-  call A  % Create_Matrix_From_Matrix(A0)          ! to see if copy works
+  call A % Create_Matrix(Grid)
+  allocate(b(Grid % n_cells))
+  allocate(x(-Grid % n_bnd_cells:Grid % n_cells))
+
+  call Process % Discretize_Diffusion(A, b)
 
   print '(a)', ' # Creating a native solver, system matrix and right hand side'
   call Nat % Create_Native(A)
 
-  print '(a)', ' # Creating a solution vector'
-  allocate(x(-Grid % n_bnd_cells:Grid % n_cells))
-
-  ! Initialize right-hand side, the source
+  ! Initialize solution
   x(:) = 0.0
 
   ! Copy components of the linear system to the device

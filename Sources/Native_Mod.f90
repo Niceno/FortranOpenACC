@@ -16,6 +16,9 @@
     ! Matrix for all variables except momentum
     type(Matrix_Type) :: A  !! system matrix for all variables except momentum
 
+    ! Matrix for momentum equations
+    type(Matrix_Type) :: M  !! system matrix for all variables except momentum
+
     ! Vectors used with native solvers
     real, allocatable :: d_inv(:)  !! diagonal of the preconditioner inversed
     real, allocatable :: p(:)      !! helping vector

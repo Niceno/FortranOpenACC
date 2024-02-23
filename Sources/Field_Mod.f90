@@ -5,6 +5,7 @@
 !----------------------------------[Modules]-----------------------------------!
   use Assert_Mod
   use Matrix_Mod
+  use Native_Mod
 !------------------------------------------------------------------------------!
   implicit none
 !==============================================================================!
@@ -17,8 +18,15 @@
     type(Matrix_Type), pointer :: pnt_matrix  !! pointer to the matrix
     type(Grid_Type),   pointer :: pnt_grid    !! grid for which it is defined
 
-    ! Pressure-like potential for initial velocity field
-    real, allocatable :: phi(:)
+    type(Native_Type) :: Nat
+
+    ! Three velocity components, new and old
+    real, allocatable :: u_n(:), u_o(:)
+    real, allocatable :: v_n(:), v_o(:)
+    real, allocatable :: w_n(:), w_o(:)
+
+    ! Pressure variable
+    real, allocatable :: p(:)
 
     ! Gradient matrices for cells to cells (c2c)
     real, allocatable :: grad_c2c(:,:)  !! gradient matrices [1/m^2]
