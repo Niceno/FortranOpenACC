@@ -40,7 +40,7 @@
   allocate(b(Grid % n_cells))
   allocate(x(-Grid % n_bnd_cells:Grid % n_cells))
 
-  call Process % Discretize_Diffusion(A, b)
+  call Process % Discretize_Diffusion(A, b, 1)  ! for component 1
 
   print '(a)', ' # Creating a native solver, system matrix and right hand side'
   call Nat % Create_Native(A)

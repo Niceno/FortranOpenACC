@@ -9,8 +9,8 @@
   integer       :: nx, ny, nz
   real          :: lx, ly, lz
   character(80) :: dummy
-  character(1)  :: bc_t  ! boundary condition type
-  real          :: bc_v  ! boundary condition value
+  character(1)  :: bc_t     ! boundary condition type
+  real          :: bc_v(3)  ! boundary condition values (three velocity comp.)
   integer       :: file_unit
   logical       :: file_exists
 !==============================================================================!
@@ -29,12 +29,12 @@
     lx =  1.0;  ly =  1.0;  lz =  1.0
     nx = 10;    ny = 10;    nz = 10
 
-    Grid % bc % west_t   = 'D';  Grid % bc % west_v   = -1.0
-    Grid % bc % east_t   = 'D';  Grid % bc % east_v   = +1.0
-    Grid % bc % south_t  = 'N';  Grid % bc % south_v  =  0.0
-    Grid % bc % north_t  = 'N';  Grid % bc % north_v  =  0.0
-    Grid % bc % bottom_t = 'N';  Grid % bc % bottom_v =  0.0
-    Grid % bc % top_t    = 'N';  Grid % bc % top_v    =  0.0
+    Grid % bc % w_type = 'D';  Grid % bc % w_vals(:) = -1.0
+    Grid % bc % e_type = 'D';  Grid % bc % e_vals(:) = +1.0
+    Grid % bc % s_type = 'N';  Grid % bc % s_vals(:) =  0.0
+    Grid % bc % n_type = 'N';  Grid % bc % n_vals(:) =  0.0
+    Grid % bc % b_type = 'N';  Grid % bc % b_vals(:) =  0.0
+    Grid % bc % t_type = 'N';  Grid % bc % t_vals(:) =  0.0
 
   !-----------------!
   !   File exists   !
@@ -60,40 +60,40 @@
     !-------------------------!
 
     ! West
-    read(file_unit, *) dummy, bc_t, bc_v
+    read(file_unit, *) dummy, bc_t, bc_v(1), bc_v(2), bc_v(3)
     Assert(bc_t .eq. 'D' .or. bc_t .eq. 'N')
-    Grid % bc % west_t = bc_t
-    Grid % bc % west_v = bc_v
+    Grid % bc % w_type    = bc_t
+    Grid % bc % w_vals(:) = bc_v(:)
 
     ! East
-    read(file_unit, *) dummy, bc_t, bc_v
+    read(file_unit, *) dummy, bc_t, bc_v(1), bc_v(2), bc_v(3)
     Assert(bc_t .eq. 'D' .or. bc_t .eq. 'N')
-    Grid % bc % east_t = bc_t
-    Grid % bc % east_v = bc_v
+    Grid % bc % e_type    = bc_t
+    Grid % bc % e_vals(:) = bc_v(:)
 
     ! South
-    read(file_unit, *) dummy, bc_t, bc_v
+    read(file_unit, *) dummy, bc_t, bc_v(1), bc_v(2), bc_v(3)
     Assert(bc_t .eq. 'D' .or. bc_t .eq. 'N')
-    Grid % bc % south_t = bc_t
-    Grid % bc % south_v = bc_v
+    Grid % bc % s_type    = bc_t
+    Grid % bc % s_vals(:) = bc_v(:)
 
     ! North
-    read(file_unit, *) dummy, bc_t, bc_v
+    read(file_unit, *) dummy, bc_t, bc_v(1), bc_v(2), bc_v(3)
     Assert(bc_t .eq. 'D' .or. bc_t .eq. 'N')
-    Grid % bc % north_t = bc_t
-    Grid % bc % north_v = bc_v
+    Grid % bc % n_type    = bc_t
+    Grid % bc % n_vals(:) = bc_v(:)
 
     ! Bottom
-    read(file_unit, *) dummy, bc_t, bc_v
+    read(file_unit, *) dummy, bc_t, bc_v(1), bc_v(2), bc_v(3)
     Assert(bc_t .eq. 'D' .or. bc_t .eq. 'N')
-    Grid % bc % bottom_t = bc_t
-    Grid % bc % bottom_v = bc_v
+    Grid % bc % b_type    = bc_t
+    Grid % bc % b_vals(:) = bc_v(:)
 
     ! Top
-    read(file_unit, *) dummy, bc_t, bc_v
+    read(file_unit, *) dummy, bc_t, bc_v(1), bc_v(2), bc_v(3)
     Assert(bc_t .eq. 'D' .or. bc_t .eq. 'N')
-    Grid % bc % top_t = bc_t
-    Grid % bc % top_v = bc_v
+    Grid % bc % t_type    = bc_t
+    Grid % bc % t_vals(:) = bc_v(:)
 
     close(file_unit)
   end if

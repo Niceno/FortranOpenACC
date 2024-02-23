@@ -18,20 +18,20 @@
   type Bc_Type
 
     ! Types on all sides (N will be for Neumann, D for Dirichlet)
-    character(1) :: west_t
-    character(1) :: east_t
-    character(1) :: south_t
-    character(1) :: north_t
-    character(1) :: bottom_t
-    character(1) :: top_t
+    character(1) :: w_type
+    character(1) :: e_type
+    character(1) :: s_type
+    character(1) :: n_type
+    character(1) :: b_type
+    character(1) :: t_type
 
-    ! Values on all sides
-    real :: west_v
-    real :: east_v
-    real :: south_v
-    real :: north_v
-    real :: bottom_v
-    real :: top_v
+    ! Values on all sides - three for three velocity components
+    real :: w_vals(3)
+    real :: e_vals(3)
+    real :: s_vals(3)
+    real :: n_vals(3)
+    real :: b_vals(3)
+    real :: t_vals(3)
 
   end type
 

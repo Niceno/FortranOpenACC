@@ -3,13 +3,14 @@
 #define Inc(X,Y) X = X + Y
 
 !==============================================================================!
-  subroutine Discretize_Diffusion(Proc, A, b)
+  subroutine Discretize_Diffusion(Proc, A, b, l)
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
   class(Process_Type) :: Proc
   type(Matrix_Type)   :: A                      ! system matrix
   real,      optional :: b(A % pnt_grid % n_cells)
+  integer,   optional :: l
 !-----------------------------------[Locals]-----------------------------------!
   type(Grid_Type), pointer :: Grid
   type(Bc_Type),   pointer :: bc
@@ -20,6 +21,8 @@
 !==============================================================================!
 
   Assert(associated(A % pnt_grid))
+
+  Assert(present(b) .eqv. present(l))
 
   Grid => A % pnt_grid
   bc   => Grid % bc
@@ -63,12 +66,12 @@
   ! On the left-hand side (in the matrix)
   do c = 1, Grid % n_cells
     call Grid % Cells_I_J_K(c, i, j, k)
-    if(i==1  .and. bc % west_t  =='D') Inc(A_dia(c), 2.*a_we)
-    if(i==nx .and. bc % east_t  =='D') Inc(A_dia(c), 2.*a_we)
-    if(j==1  .and. bc % south_t =='D') Inc(A_dia(c), 2.*a_sn)
-    if(j==ny .and. bc % north_t =='D') Inc(A_dia(c), 2.*a_sn)
-    if(k==1  .and. bc % bottom_t=='D') Inc(A_dia(c), 2.*a_bt)
-    if(k==nz .and. bc % top_t   =='D') Inc(A_dia(c), 2.*a_bt)
+    if(i==1  .and. bc % w_type=='D')  Inc(A_dia(c), 2.*a_we)
+    if(i==nx .and. bc % e_type=='D')  Inc(A_dia(c), 2.*a_we)
+    if(j==1  .and. bc % s_type=='D')  Inc(A_dia(c), 2.*a_sn)
+    if(j==ny .and. bc % n_type=='D')  Inc(A_dia(c), 2.*a_sn)
+    if(k==1  .and. bc % b_type=='D')  Inc(A_dia(c), 2.*a_bt)
+    if(k==nz .and. bc % t_type=='D')  Inc(A_dia(c), 2.*a_bt)
   end do
 
   ! On the right-hand side (in the source)
@@ -76,12 +79,12 @@
     b = 0.0
     do c = 1, Grid % n_cells
       call Grid % Cells_I_J_K(c, i, j, k)
-      if(i==1  .and. bc % west_t  =='D') Inc(b(c),  bc % west_v   * 2.*a_we)
-      if(i==nx .and. bc % east_t  =='D') Inc(b(c),  bc % east_v   * 2.*a_we)
-      if(j==1  .and. bc % south_t =='D') Inc(b(c),  bc % south_v  * 2.*a_sn)
-      if(j==ny .and. bc % north_t =='D') Inc(b(c),  bc % north_v  * 2.*a_sn)
-      if(k==1  .and. bc % bottom_t=='D') Inc(b(c),  bc % bottom_v * 2.*a_bt)
-      if(k==nz .and. bc % top_t   =='D') Inc(b(c),  bc % top_v    * 2.*a_bt)
+      if(i==1  .and. bc % w_type=='D')  Inc(b(c),  bc % w_vals(l) * 2.*a_we)
+      if(i==nx .and. bc % e_type=='D')  Inc(b(c),  bc % e_vals(l) * 2.*a_we)
+      if(j==1  .and. bc % s_type=='D')  Inc(b(c),  bc % s_vals(l) * 2.*a_sn)
+      if(j==ny .and. bc % n_type=='D')  Inc(b(c),  bc % n_vals(l) * 2.*a_sn)
+      if(k==1  .and. bc % b_type=='D')  Inc(b(c),  bc % b_vals(l) * 2.*a_bt)
+      if(k==nz .and. bc % t_type=='D')  Inc(b(c),  bc % t_vals(l) * 2.*a_bt)
     end do
   end if
 
