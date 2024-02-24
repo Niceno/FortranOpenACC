@@ -9,7 +9,7 @@
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Native_Type), target, intent(in)    :: Nat      !! parent class
+  class(Native_Type), target, intent(inout) :: Nat      !! parent class
   type(Matrix_Type),  target, intent(in)    :: A        !! system matrix
   real,                       intent(out)   :: x(-Nat % pnt_grid % n_bnd_cells:&
                                                   Nat % pnt_grid % n_cells)
@@ -27,11 +27,11 @@
 
   ! Take aliases
   d_inv => Nat % d_inv
-  p    => Nat % p
-  q    => Nat % q
-  r    => Nat % r
-  Grid => Nat % pnt_grid
-  nc   =  Grid % n_cells
+  p     => Nat % p
+  q     => Nat % q
+  r     => Nat % r
+  Grid  => Nat % pnt_grid
+  nc    =  Grid % n_cells
 
   !----------------!
   !   r = b - Ax   !     =-->  (q used for temporary storing Ax)

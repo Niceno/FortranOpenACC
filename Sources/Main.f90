@@ -17,27 +17,32 @@
     ! Sparse-matrix with vector product
     if(arg .eq. '1') then
       call Test_001()
-      return
+      goto 1
 
     ! Vector vector dot product
     else if(arg .eq. '2') then
       call Test_002()
-      return
+      goto 1
 
     ! Operations  c = a + s * b  and  c = a - s * b
     else if(arg .eq. '3') then
       call Test_003()
-      return
+      goto 1
 
     ! Conjugate Gradient from the native module
     else if(arg .eq. '4') then
       call Test_004()
-      return
+      goto 1
 
     ! Field creation and gradient calculation
     else if(arg .eq. '5') then
       call Test_005()
-      return
+      goto 1
+
+    ! An attempt to solve Stokes' equations
+    else if(arg .eq. '6') then
+      call Test_006()
+      goto 1
 
     end if
 
@@ -58,5 +63,8 @@
   print '(a)', '                   c = a - scalar * b'
   print '(a)', '   4 - conjugate gradient solver'
   print '(a)', '   5 - field creation and gradient calculation'
+  print '(a)', '   6 - solution of Stokes'' equations'
+
+1 continue
 
   end program
