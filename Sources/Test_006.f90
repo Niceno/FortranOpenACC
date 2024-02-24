@@ -9,10 +9,10 @@
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
-  type(Grid_Type)   :: Grid                   ! computational grid
-  type(Field_Type)  :: Flow                   ! flow field
-  real              :: ts, te, tol = 1.0e-12
-  integer           :: n, i
+  type(Grid_Type)          :: Grid                   ! computational grid
+  type(Field_Type), target :: Flow                   ! flow field
+  real                     :: ts, te, tol = 1.0e-12
+  integer                  :: n, i
 !==============================================================================!
 
   print '(a)', ' #====================================================='
@@ -37,9 +37,7 @@
   call Flow % Create_Field(Grid)
 
   call Process % Discretize_Diffusion(Grid,              &
-                                      A=Flow % Nat % M,  &
-                                      b=Flow % Nat % b,  &
-                                      comp=2)
+                                      A=Flow % Nat % M)
 
   ! Initialize solution
   Flow % u_n(:) = 0.0
@@ -49,7 +47,8 @@
   ! Copy components of the linear system to the device
   call Gpu % Matrix_Copy_To_Device(Flow % Nat % M)
   call Gpu % Vector_Copy_To_Device(Flow % u_n)
-  call Gpu % Vector_Copy_To_Device(Flow % Nat % b)
+  call Gpu % Vector_Copy_To_Device(Flow % v_n)
+  call Gpu % Vector_Copy_To_Device(Flow % w_n)
 
   ! Form preconditioning matrix on host
   ! (Must be before transferring them)
@@ -62,17 +61,37 @@
   !-----------------------------------------------!
   !   Performing a fake time loop on the device   !
   !-----------------------------------------------!
-  print '(a)', ' # Performing a demo of the preconditioned CG method'
+  print '(a)', ' # Performing a demo of the computing momentum equations'
   call cpu_time(ts)
+  call Process % Discretize_Diffusion(Grid, b=Flow % Nat % b, comp=1)
+  call Gpu % Vector_Copy_To_Device(Flow % Nat % b)
   call Flow % Nat % Cg(Flow % Nat % M,  &
                        Flow % u_n,      &
+                       Flow % Nat % b,  &
+                       n,               &
+                       tol)
+
+  call Process % Discretize_Diffusion(Grid, b=Flow % Nat % b, comp=2)
+  call Gpu % Vector_Update_Device(Flow % Nat % b)
+  call Flow % Nat % Cg(Flow % Nat % M,  &
+                       Flow % v_n,      &
+                       Flow % Nat % b,  &
+                       n,               &
+                       tol)
+
+  call Process % Discretize_Diffusion(Grid, b=Flow % Nat % b, comp=3)
+  call Gpu % Vector_Update_Device(Flow % Nat % b)
+  call Flow % Nat % Cg(Flow % Nat % M,  &
+                       Flow % w_n,      &
                        Flow % Nat % b,  &
                        n,               &
                        tol)
   call cpu_time(te)
 
   ! Copy results back to host
-  call Gpu % Vector_Copy_To_Host(Flow % u_n)
+  call Gpu % Vector_Update_Host(Flow % u_n)
+  call Gpu % Vector_Update_Host(Flow % v_n)
+  call Gpu % Vector_Update_Host(Flow % w_n)
 
   ! Destroy data on the device, you don't need them anymore
   call Gpu % Matrix_Destroy_On_Device(Flow % Nat % M)
