@@ -31,16 +31,24 @@
   ! Take some aliases
   bc => Grid % bc
 
+  ! Some abbreviations
+  dx = Grid % lx / Grid % nx
+  dy = Grid % ly / Grid % ny
+  dz = Grid % lz / Grid % nz
+
+  a_we = dy * dz / dx
+  a_sn = dz * dx / dy
+  a_bt = dx * dy / dz
+
+  nx = Grid % nx
+  ny = Grid % ny
+  nz = Grid % nz
+
   !---------------------------!
   !   Discretize the matrix   !
   !---------------------------!
   if(present(A)) then
     A_val(:) = 0.0
-
-    ! Some abbreviations
-    dx = Grid % lx/Grid % nx; dy = Grid % ly/Grid % ny; dz = Grid % lz/Grid % nz
-    a_we = dy * dz / dx; a_sn = dz*dx/dy; a_bt = dx*dy/dz
-    nx = Grid % nx; ny = Grid % ny; nz = Grid % nz
 
     do c = 1, Grid % n_cells
 
