@@ -39,6 +39,10 @@
   call Linalg % Mat_X_Vec(nc, q, A, x(1:nc))        ! Ax = A * x
   call Linalg % Vec_P_Sca_X_Vec(nc, r, b, -1.0, q)  ! r  = b - Ax
 
+  ! Check first residual
+  call Linalg % Vec_D_Vec(nc, res, r, r)  ! res = r * r
+  if(res < tol) return
+
   !---------------!
   !   z = r \ M   !    =--> (q used for z)
   !---------------!

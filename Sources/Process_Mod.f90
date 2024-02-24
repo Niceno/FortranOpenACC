@@ -16,8 +16,15 @@
   type Process_Type
 
     contains
-      procedure :: Discretize_Diffusion
-      procedure :: Inertial_Term
+
+      ! Related to momentum conservation
+      procedure :: Form_Diffusion_Matrix
+      procedure :: Insert_Diffusion_Bc
+      procedure :: Add_Inertial_Term
+
+      ! Related to pressure solution
+      procedure :: Form_Pressure_Matrix
+      procedure :: Insert_Volume_Source_For_Pressure
 
   end type
 
@@ -25,7 +32,13 @@
 
   contains
 
-#   include "Process_Mod/Discretize_Diffusion.f90"
-#   include "Process_Mod/Inertial_Term.f90"
+    ! Related to momentum conservation
+#   include "Process_Mod/Form_Diffusion_Matrix.f90"
+#   include "Process_Mod/Insert_Diffusion_Bc.f90"
+#   include "Process_Mod/Add_Inertial_Term.f90"
+
+    ! Related to pressure solution
+#   include "Process_Mod/Form_Pressure_Matrix.f90"
+#   include "Process_Mod/Insert_Volume_Source_For_Pressure.f90"
 
   end module

@@ -39,7 +39,8 @@
 
   allocate(x(-Grid % n_bnd_cells:Grid % n_cells))
 
-  call Process % Discretize_Diffusion(Grid, Nat % A, Nat % b, comp=1)
+  call Process % Form_Diffusion_Matrix(Nat % A)
+  call Process % Insert_Diffusion_Bc(Grid, Nat % b, comp=1)
 
   ! Initialize solution
   x(:) = 0.0

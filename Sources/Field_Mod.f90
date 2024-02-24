@@ -29,6 +29,9 @@
     ! Pressure variable
     type(Var_Type) :: p
 
+    ! Volume flux through faces
+    real, allocatable :: v_flux(:)
+
     ! Gradient matrices for cells to cells (c2c)
     real, allocatable :: grad_c2c(:,:)  !! gradient matrices [1/m^2]
 

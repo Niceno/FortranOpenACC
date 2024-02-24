@@ -7,7 +7,7 @@
   type(Grid_Type), target :: Grid    !! grid on which it is created
 !-----------------------------------[Locals]-----------------------------------!
   integer :: i, j, k, ni, nj, nk, non_z
-  integer :: c, w, e, s, n, b, t
+  integer :: c, w, e, s, n, b, t, c1, c2
   integer :: col_a, col_b, row_a, row_b, pos_a, pos_b
 !==============================================================================!
 
@@ -46,9 +46,11 @@
   Assert(A % n .eq. Grid % n_cells)
   allocate (A % row(Grid % n_cells+1));  A % row = 0
   allocate (A % dia(Grid % n_cells));    A % dia = 0
-  allocate (A % col(non_z));         A % col = 0
-  allocate (A % val(non_z));         A % val = 0
-  allocate (A % mir(non_z));         A % mir = 0
+  allocate (A % col(non_z));             A % col = 0
+  allocate (A % val(non_z));             A % val = 0
+  allocate (A % mir(non_z));             A % mir = 0
+  Assert(Grid % n_faces .gt. 0)
+  allocate(A % pos(2, Grid % n_faces));  A % pos = 0
 
   !--------------------------------!
   !   Form the compressed matrix   !
@@ -145,6 +147,30 @@
         end if
       end do
 2     continue
+    end do
+  end do
+
+  !---------------------------------------!
+  !   Connect faces with matrix entries   !
+  !---------------------------------------!
+  do s = Grid % n_bnd_cells + 1, Grid % n_faces
+    c1 = Grid % faces_c(1,s)
+    c2 = Grid % faces_c(2,s)
+
+    ! Where is matrix(c1,c2) and ...
+    do c = A % row(c1), A % row(c1+1)-1
+      if(A % col(c) .eq. c2) then
+        A % pos(1, s) = c
+        exit
+      end if
+    end do
+
+    ! ... where is matrix(c2,c1)
+    do c=A % row(c2),A % row(c2+1)-1
+      if(A % col(c) .eq. c1) then
+        A % pos(2, s) = c
+        exit
+      end if
     end do
   end do
 

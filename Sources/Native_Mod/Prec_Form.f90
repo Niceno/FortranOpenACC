@@ -15,9 +15,6 @@
   Grid  => A % pnt_grid
   d_inv => Nat % d_inv
 
-  PRINT *, __FILE__, __LINE__, "allocated(Nat % d_inv): ", allocated(Nat % d_inv)
-  PRINT *, __FILE__, __LINE__, "associated(d_inv):      ", associated(d_inv)
-
   ! Prepare matrix for diagonal preconditioning
   do i = 1, Grid % n_cells
     do ij = A % row(i), A % row(i+1) - 1

@@ -38,7 +38,7 @@
   call A0 % Create_Matrix(Grid)
 
   ! Discretize the matrix for diffusion
-  call Process % Discretize_Diffusion(Grid, A0)
+  call Process % Form_Diffusion_Matrix(A0)
 
   ! To see if copy works
   call A % Create_Matrix_From_Matrix(A0)

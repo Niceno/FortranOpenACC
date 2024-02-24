@@ -106,10 +106,12 @@
   allocate(Grid % sx(Grid % n_faces))
   allocate(Grid % sy(Grid % n_faces))
   allocate(Grid % sz(Grid % n_faces))
+  allocate(Grid % s (Grid % n_faces))
 
   allocate(Grid % dx(Grid % n_faces))
   allocate(Grid % dy(Grid % n_faces))
   allocate(Grid % dz(Grid % n_faces))
+  allocate(Grid % d (Grid % n_faces))
 
   s = 0
   Grid % sx(:) = 0.0
@@ -251,7 +253,7 @@
 
   print '(a,i12,a)', ' # Found a total of ', s, ' faces'
 
-  ! Form dx, dy and dz
+  ! Form dx, dy and dz, then finish s and d
   do s = 1, Grid % n_faces
     c1 = Grid % faces_c(1,s)
     c2 = Grid % faces_c(2,s)
@@ -263,6 +265,9 @@
          + Grid % dy(s) * Grid % sy(s)  &
          + Grid % dz(s) * Grid % sz(s)
     Assert(cdot > 0.0)
+
+    Grid % s(s) = sqrt(Grid % sx(s)**2 + Grid % sy(s)**2 + Grid % sz(s)**2)
+    Grid % d(s) = sqrt(Grid % dx(s)**2 + Grid % dy(s)**2 + Grid % dz(s)**2)
   end do
 
   !---------------!

@@ -6,7 +6,7 @@
   class(Field_Type), target :: Flow  !! parent flow object
   type(Grid_Type),   target :: Grid
 !-----------------------------------[Locals]-----------------------------------!
-  integer :: nb, nc
+  integer :: nb, nc, ns
 !==============================================================================!
 
   ! Store the pointer to a Grid
@@ -15,6 +15,7 @@
   ! Take some aliases
   nb = Grid % n_bnd_cells
   nc = Grid % n_cells
+  ns = Grid % n_faces
 
   !--------------------------------------------------------------!
   !   Create native solvers (matrices A, M, right hand side b,   !
@@ -39,5 +40,8 @@
 
   ! Pressure
   call Var_Mod_Create_Variable(Flow % p, Grid)
+
+  ! Volume fluxes through faces
+  allocate(Flow % v_flux(ns))
 
   end subroutine

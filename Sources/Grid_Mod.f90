@@ -58,8 +58,8 @@
     real, allocatable :: xc(:), yc(:), zc(:)
     real, allocatable :: vol(:)
 
-    real, allocatable :: dx(:), dy(:), dz(:)
-    real, allocatable :: sx(:), sy(:), sz(:)
+    real, allocatable :: dx(:), dy(:), dz(:), d(:)
+    real, allocatable :: sx(:), sy(:), sz(:), s(:)
 
     type(Bc_Type) :: bc  ! boundary conditions
 

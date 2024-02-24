@@ -9,7 +9,7 @@
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
-  integer, parameter :: N_STEPS = 120  ! spend enough time on device
+  integer, parameter :: N_STEPS = 12   ! spend enough time on device
   type(Grid_Type)          :: Grid                   ! computational grid
   type(Field_Type), target :: Flow                   ! flow field
   real                     :: ts, te, tol = 1.0e-12
@@ -39,7 +39,11 @@
   print '(a)', ' # Creating a flow field'
   call Flow % Create_Field(Grid)
 
-  call Process % Discretize_Diffusion(Grid, A=Flow % Nat % M, dt=dt)
+  ! Discretize momentum equations ...
+  call Process % Form_Diffusion_Matrix(Flow % Nat % M, dt=dt)
+
+  ! ... followed by discretization of pressure equation
+  call Process % Form_Pressure_Matrix(Flow, dt)
 
   ! Initialize solution
   Flow % u % n(:) = 0.0
@@ -48,17 +52,17 @@
 
   ! Copy components of the linear system to the device
   call Gpu % Matrix_Copy_To_Device(Flow % Nat % M)
+  call Gpu % Matrix_Copy_To_Device(Flow % Nat % A)
+  call Gpu % Vector_Copy_To_Device(Flow % p % n)
   call Gpu % Vector_Copy_To_Device(Flow % u % n)
   call Gpu % Vector_Copy_To_Device(Flow % v % n)
   call Gpu % Vector_Copy_To_Device(Flow % w % n)
-  call Gpu % Vector_Copy_To_Device(Flow % u % o)
-  call Gpu % Vector_Copy_To_Device(Flow % v % o)
-  call Gpu % Vector_Copy_To_Device(Flow % w % o)
   call Gpu % Vector_Copy_To_Device(Flow % Nat % b)
 
   ! Form preconditioning matrix on host
+  ! Note that preconditioner is formed only for pressure matrix
   ! (Must be before transferring them)
-  call Flow % Nat % Prec_Form(Flow % Nat % M)
+  call Flow % Nat % Prec_Form(Flow % Nat % A)
 
   ! Transfer vectors related to CG algorithm on the device 
   ! (Make sure preconditioner is formed on the host before)
@@ -71,7 +75,7 @@
   call cpu_time(ts)
   do time_step = 1, N_STEPS
     print '(a)',            ' #=========================='
-    print '(a,i12,es12.3)', ' # time step = ', time_step
+    print '(a,i12,es12.3)', ' # Time step = ', time_step
     print '(a)',            ' #--------------------------'
 
     ! Preparation for the new time step
@@ -79,43 +83,60 @@
     Flow % v % o = Flow % v % n
     Flow % w % o = Flow % w % n
 
-    call Process % Discretize_Diffusion(Grid, b=Flow % Nat % b, comp=1)
-    call Process % Inertial_Term(Grid, Flow % u % o, Flow % Nat % b, dt)
+    print '(a)', ' # Solving u'
+    call Process % Insert_Diffusion_Bc(Grid, Flow % Nat % b, comp=1)
+    call Process % Add_Inertial_Term(Grid, Flow % u % o, Flow % Nat % b, dt)
     call Gpu % Vector_Update_Device(Flow % Nat % b)
     call Flow % Nat % Cg(Flow % Nat % M,  &
                          Flow % u % n,    &
                          Flow % Nat % b,  &
                          n,               &
                          tol)
-
-    call Process % Discretize_Diffusion(Grid, b=Flow % Nat % b, comp=2)
-    call Process % Inertial_Term(Grid, Flow % v % o, Flow % Nat % b, dt)
+    print '(a)', ' # Solving v'
+    call Process % Insert_Diffusion_Bc(Grid, Flow % Nat % b, comp=2)
+    call Process % Add_Inertial_Term(Grid, Flow % v % o, Flow % Nat % b, dt)
     call Gpu % Vector_Update_Device(Flow % Nat % b)
     call Flow % Nat % Cg(Flow % Nat % M,  &
                          Flow % v % n,    &
                          Flow % Nat % b,  &
                          n,               &
                          tol)
-
-    call Process % Discretize_Diffusion(Grid, b=Flow % Nat % b, comp=3)
-    call Process % Inertial_Term(Grid, Flow % w % o, Flow % Nat % b, dt)
+    print '(a)', ' # Solving w'
+    call Process % Insert_Diffusion_Bc(Grid, Flow % Nat % b, comp=2)
+    call Process % Add_Inertial_Term(Grid, Flow % w % o, Flow % Nat % b, dt)
     call Gpu % Vector_Update_Device(Flow % Nat % b)
     call Flow % Nat % Cg(Flow % Nat % M,  &
                          Flow % w % n,    &
                          Flow % Nat % b,  &
                          n,               &
                          tol)
+
+    ! Copy velocities back to host
+    call Gpu % Vector_Update_Host(Flow % u % n)
+    call Gpu % Vector_Update_Host(Flow % v % n)
+    call Gpu % Vector_Update_Host(Flow % w % n)
+
+    print '(a)', ' # Solving p'
+    call Process % Insert_Volume_Source_For_Pressure(Flow, dt)
+    call Gpu % Vector_Update_Device(Flow % Nat % b)
+    call Flow % Nat % Cg(Flow % Nat % A,  &
+                         Flow % p % n,    &
+                         Flow % Nat % b,  &
+                         n,               &
+                         tol)
+
+    ! Copy pressure back to host (although it is not needed yet)
+    call Gpu % Vector_Update_Host(Flow % p % n)
   end do
   call cpu_time(te)
 
-  ! Copy results back to host
-  call Gpu % Vector_Update_Host(Flow % u % n)
-  call Gpu % Vector_Update_Host(Flow % v % n)
-  call Gpu % Vector_Update_Host(Flow % w % n)
-
   ! Destroy data on the device, you don't need them anymore
   call Gpu % Matrix_Destroy_On_Device(Flow % Nat % M)
+  call Gpu % Matrix_Destroy_On_Device(Flow % Nat % A)
+  call Gpu % Vector_Destroy_On_Device(Flow % p % n)
   call Gpu % Vector_Destroy_On_Device(Flow % u % n)
+  call Gpu % Vector_Destroy_On_Device(Flow % v % n)
+  call Gpu % Vector_Destroy_On_Device(Flow % w % n)
   call Gpu % Vector_Destroy_On_Device(Flow % Nat % b)
 
   call Gpu % Native_Destroy_On_Device(Flow % Nat)

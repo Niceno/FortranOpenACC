@@ -51,6 +51,7 @@
     integer, allocatable :: row(:)    !! column positions
     integer, allocatable :: dia(:)    !! diagonal positions
     integer, allocatable :: mir(:)    !! position of the mirror entry
+    integer, allocatable :: pos(:,:)  !! position of the ...
 
     contains
       procedure :: Create_Matrix
