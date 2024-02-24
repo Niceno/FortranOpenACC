@@ -65,7 +65,7 @@
   call cpu_time(te)
 
   ! Copy results back to host
-  call Gpu % Vector_Copy_To_Host(c)
+  call Gpu % Vector_Update_Host(c)
 
   ! Destroy data on the device, you don't need them anymore
   call Gpu % Matrix_Destroy_On_Device(A)

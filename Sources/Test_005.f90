@@ -76,9 +76,9 @@
   call cpu_time(te)
 
   ! Copy results back to host
-  call Gpu % Vector_Copy_To_Host(phi_x)
-  call Gpu % Vector_Copy_To_Host(phi_y)
-  call Gpu % Vector_Copy_To_Host(phi_z)
+  call Gpu % Vector_Update_Host(phi_x)
+  call Gpu % Vector_Update_Host(phi_y)
+  call Gpu % Vector_Update_Host(phi_z)
   call Grid % Save_Vtk_Vector("grad_0.vtk", phi_x(1), phi_y(1), phi_z(1))
 
   ! Destroy data on the device, you don't need them anymore

@@ -23,9 +23,10 @@
 
       ! Procedures to copy vectors to device
       procedure :: Vector_Copy_To_Device
-      procedure :: Vector_Copy_To_Host
       procedure :: Vector_Create_On_Device
       procedure :: Vector_Destroy_On_Device
+      procedure :: Vector_Update_Device
+      procedure :: Vector_Update_Host
 
       ! Procedures to copy matrices to device
       procedure :: Matrix_Copy_To_Device
@@ -52,9 +53,10 @@
 
     ! Procedures to copy vectors to device
 #   include "Gpu_Mod/Vector/Copy_To_Device.f90"
-#   include "Gpu_Mod/Vector/Copy_To_Host.f90"
 #   include "Gpu_Mod/Vector/Create_On_Device.f90"
 #   include "Gpu_Mod/Vector/Destroy_On_Device.f90"
+#   include "Gpu_Mod/Vector/Update_Device.f90"
+#   include "Gpu_Mod/Vector/Update_Host.f90"
 
     ! Procedures to copy vectors to device
 #   include "Gpu_Mod/Matrix/Copy_To_Device.f90"

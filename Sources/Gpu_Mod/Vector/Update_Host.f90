@@ -1,5 +1,5 @@
 !==============================================================================!
-  subroutine Vector_Copy_To_Host(Gpu, a)
+  subroutine Vector_Update_Host(Gpu, a)
 !------------------------------------------------------------------------------!
 !>  Copy a vector from GPU back to CPU, but do not destroy it on GPU, useful
 !>  when fetching results from GPUs for saving and post-processing.
