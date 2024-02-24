@@ -44,13 +44,14 @@
   A % nonzeros = non_z
   A % n = ni * nj * nk
   Assert(A % n .eq. Grid % n_cells)
-  allocate (A % row(Grid % n_cells+1));  A % row = 0
-  allocate (A % dia(Grid % n_cells));    A % dia = 0
-  allocate (A % col(non_z));             A % col = 0
-  allocate (A % val(non_z));             A % val = 0
-  allocate (A % mir(non_z));             A % mir = 0
+  allocate(A % row(Grid % n_cells+1));   A % row = 0
+  allocate(A % dia(Grid % n_cells));     A % dia = 0
+  allocate(A % col(non_z));              A % col = 0
+  allocate(A % val(non_z));              A % val = 0
+  allocate(A % mir(non_z));              A % mir = 0
   Assert(Grid % n_faces .gt. 0)
   allocate(A % pos(2, Grid % n_faces));  A % pos = 0
+  allocate(A % d_inv(Grid % n_cells));   A % d_inv = 0
 
   !--------------------------------!
   !   Form the compressed matrix   !
