@@ -9,12 +9,13 @@
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
-  type(Matrix_Type)  :: A0, A
-  real, allocatable  :: b(:), c(:)
-  type(Grid_Type)    :: Grid
-  integer            :: n, time_step
-  integer, parameter :: N_STEPS = 1200  ! spend enough time on device
-  real               :: ts, te
+  type(Matrix_Type), pointer :: A
+  real, allocatable          :: b(:), c(:)
+  type(Grid_Type)            :: Grid
+  type(Field_Type),   target :: Flow                   ! flow field
+  integer                    :: n, time_step
+  integer,         parameter :: N_STEPS = 1200  ! spend enough time on device
+  real                       :: ts, te
 !==============================================================================!
 
   print '(a)', ' #===================================================='
@@ -34,14 +35,14 @@
   print '(a)', ' # matter how you wrote it, and it may even crash.'
   print '(a)', ' #----------------------------------------------------'
 
-  print '(a)', ' # Creating a singular sparse matrix and two vectors'
-  call A0 % Create_Matrix(Grid)
+  print '(a)', ' # Creating a grid'
+  call Flow % Create_Field(Grid)
 
   ! Discretize the matrix for diffusion
-  call Process % Form_Diffusion_Matrix(A0)
+  call Process % Form_Diffusion_Matrix(Flow)
 
-  ! To see if copy works
-  call A % Create_Matrix_From_Matrix(A0)
+  ! Take the alias now
+  A => Flow % Nat % M
 
   allocate(b(n))
   allocate(c(n))

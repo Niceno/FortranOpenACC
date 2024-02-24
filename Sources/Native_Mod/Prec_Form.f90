@@ -13,7 +13,7 @@
 
   ! Take aliases
   Grid  => A % pnt_grid
-  d_inv => Nat % d_inv
+  d_inv => A % d_inv
 
   ! Prepare matrix for diagonal preconditioning
   do i = 1, Grid % n_cells

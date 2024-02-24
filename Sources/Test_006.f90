@@ -9,9 +9,12 @@
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
-  integer, parameter :: N_STEPS = 12   ! spend enough time on device
-  type(Grid_Type)          :: Grid                   ! computational grid
-  type(Field_Type), target :: Flow                   ! flow field
+  integer, parameter       :: N_STEPS = 12   ! spend enough time on device
+  type(Grid_Type)          :: Grid           ! computational grid
+  type(Field_Type), target :: Flow           ! flow field
+  real,       allocatable  :: phi_x(:)       ! gradient in x direction
+  real,       allocatable  :: phi_y(:)       ! gradient in y direction
+  real,       allocatable  :: phi_z(:)       ! gradient in z direction
   real                     :: ts, te, tol = 1.0e-12
   real                     :: dt
   integer                  :: n, time_step
@@ -39,11 +42,24 @@
   print '(a)', ' # Creating a flow field'
   call Flow % Create_Field(Grid)
 
+  print '(a)', ' # Allocating and initializing arrays for gradients'
+  allocate(phi_x(-Grid % n_bnd_cells:Grid % n_cells));  phi_x(:) = 0.0
+  allocate(phi_y(-Grid % n_bnd_cells:Grid % n_cells));  phi_y(:) = 0.0
+  allocate(phi_z(-Grid % n_bnd_cells:Grid % n_cells));  phi_z(:) = 0.0
+
   ! Discretize momentum equations ...
-  call Process % Form_Diffusion_Matrix(Flow % Nat % M, dt=dt)
+  call Process % Form_Diffusion_Matrix(Flow, dt=dt)
 
   ! ... followed by discretization of pressure equation
   call Process % Form_Pressure_Matrix(Flow, dt)
+
+  ! Form preconditioning matrices on host
+  ! (Must be before transferring them)
+  call Flow % Nat % Prec_Form(Flow % Nat % M)
+  call Flow % Nat % Prec_Form(Flow % Nat % A)
+
+  print '(a)', ' # Calculating gradient matrix for the field'
+  call Flow % Calculate_Grad_Matrix()
 
   ! Initialize solution
   Flow % u % n(:) = 0.0
@@ -53,19 +69,24 @@
   ! Copy components of the linear system to the device
   call Gpu % Matrix_Copy_To_Device(Flow % Nat % M)
   call Gpu % Matrix_Copy_To_Device(Flow % Nat % A)
+  call Gpu % Vector_Copy_To_Device(Flow % Nat % b)
   call Gpu % Vector_Copy_To_Device(Flow % p % n)
   call Gpu % Vector_Copy_To_Device(Flow % u % n)
   call Gpu % Vector_Copy_To_Device(Flow % v % n)
   call Gpu % Vector_Copy_To_Device(Flow % w % n)
-  call Gpu % Vector_Copy_To_Device(Flow % Nat % b)
 
-  ! Form preconditioning matrix on host
-  ! Note that preconditioner is formed only for pressure matrix
-  ! (Must be before transferring them)
-  call Flow % Nat % Prec_Form(Flow % Nat % A)
+  ! Things needed for calculation of gradients
+  call Gpu % Field_Grad_Matrix_Copy_To_Device(Flow)
+  call Gpu % Grid_Cell_Cell_Connectivity_Copy_To_Device(Grid)
+  call Gpu % Grid_Cell_Coordinates_Copy_To_Device(Grid)
+  call Gpu % Grid_Face_Cell_Connectivity_Copy_To_Device(Grid)
+
+  ! Create space for gradients on the device
+  call Gpu % Vector_Create_On_Device(phi_x)
+  call Gpu % Vector_Create_On_Device(phi_y)
+  call Gpu % Vector_Create_On_Device(phi_z)
 
   ! Transfer vectors related to CG algorithm on the device 
-  ! (Make sure preconditioner is formed on the host before)
   call Gpu % Native_Transfer_To_Device(Flow % Nat)
 
   !-----------------------------------------------!
@@ -124,21 +145,42 @@
                          Flow % Nat % b,  &
                          n,               &
                          tol)
+    call Flow % Grad_Pressure(Grid, phi_x, phi_y, phi_z)
 
     ! Copy pressure back to host (although it is not needed yet)
     call Gpu % Vector_Update_Host(Flow % p % n)
   end do
   call cpu_time(te)
 
+  ! Update gradients to host to plot them
+  call Gpu % Vector_Update_Host(phi_x)
+  call Gpu % Vector_Update_Host(phi_y)
+  call Gpu % Vector_Update_Host(phi_z)
+  call Grid % Save_Vtk_Vector("pressure_gradient.vtk", phi_x(1:n),  &
+                                                       phi_y(1:n),  &
+                                                       phi_z(1:n))
+
   ! Destroy data on the device, you don't need them anymore
   call Gpu % Matrix_Destroy_On_Device(Flow % Nat % M)
   call Gpu % Matrix_Destroy_On_Device(Flow % Nat % A)
+  call Gpu % Vector_Destroy_On_Device(Flow % Nat % b)
   call Gpu % Vector_Destroy_On_Device(Flow % p % n)
   call Gpu % Vector_Destroy_On_Device(Flow % u % n)
   call Gpu % Vector_Destroy_On_Device(Flow % v % n)
   call Gpu % Vector_Destroy_On_Device(Flow % w % n)
-  call Gpu % Vector_Destroy_On_Device(Flow % Nat % b)
 
+  ! Things needed to compute gradients
+  call Gpu % Field_Grad_Matrix_Destroy_On_Device(Flow)
+  call Gpu % Grid_Cell_Cell_Connectivity_Destroy_On_Device(Grid)
+  call Gpu % Grid_Cell_Coordinates_Destroy_On_Device(Grid)
+  call Gpu % Grid_Face_Cell_Connectivity_Destroy_On_Device(Grid)
+
+  ! Space which was used to hold gradients on device
+  call Gpu % Vector_Destroy_On_Device(phi_x)
+  call Gpu % Vector_Destroy_On_Device(phi_y)
+  call Gpu % Vector_Destroy_On_Device(phi_z)
+
+  ! Helping vectors which were used with native solver
   call Gpu % Native_Destroy_On_Device(Flow % Nat)
 
   ! Save results
@@ -147,6 +189,6 @@
                                               Flow % v % n(1:n),  &
                                               Flow % w % n(1:n))
 
-  print '(a,f12.3,a)', ' # Time elapsed for TEST 4: ', te-ts, ' [s]'
+  print '(a,f12.3,a)', ' # Time elapsed for TEST 6: ', te-ts, ' [s]'
 
   end subroutine

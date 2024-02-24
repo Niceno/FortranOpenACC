@@ -9,9 +9,11 @@
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
+  type(Matrix_Type), pointer :: A
   type(Grid_Type)   :: Grid                   ! computational grid
-  type(Native_Type) :: Nat                    ! linear solver suite
+  type(Field_Type),   target :: Flow                   ! flow field
   real, allocatable :: x(:)                   ! solution, dependent variable
+  real,     pointer :: b(:)
   real              :: ts, te, tol = 1.0e-12
   integer           :: n
 !==============================================================================!
@@ -24,7 +26,7 @@
   call Grid % Load_Grid("test_004_cube.ini")
 
   n = Grid % n_cells
-  print '(a, i12)',   ' # The problem size is: ', n
+  print '(a,i12)',    ' # The problem size is: ', n
   print '(a,es12.3)', ' # Solver tolerace is : ', tol
 
   print '(a)', ' #----------------------------------------------------'
@@ -34,44 +36,52 @@
   print '(a)', ' # matter how you wrote it, and it may even crash.'
   print '(a)', ' #----------------------------------------------------'
 
-  print '(a)', ' # Creating a native solver, system matrix and right hand side'
-  call Nat % Create_Native(Grid)
+  print '(a)', ' # Creating a field'
+  call Flow % Create_Field(Grid)
+
+  ! Discretize the matrix for diffusion
+  call Process % Form_Diffusion_Matrix(Flow)
+
+  ! Take the aliases now
+  A => Flow % Nat % M
+  b => Flow % Nat % b
 
   allocate(x(-Grid % n_bnd_cells:Grid % n_cells))
 
-  call Process % Form_Diffusion_Matrix(Nat % A)
-  call Process % Insert_Diffusion_Bc(Grid, Nat % b, comp=1)
+  call Process % Form_Diffusion_Matrix(Flow)
+  call Process % Insert_Diffusion_Bc(Grid, b, comp=1)
 
   ! Initialize solution
   x(:) = 0.0
 
-  ! Copy components of the linear system to the device
-  call Gpu % Matrix_Copy_To_Device(Nat % A)
-  call Gpu % Vector_Copy_To_Device(x)
-  call Gpu % Vector_Copy_To_Device(Nat % b)
+  ! Before copying matrix components, create a preconditioning diagonal
+  call Flow % Nat % Prec_Form(A)
 
-  call Nat % Prec_Form(Nat % A)
+  ! Copy components of the linear system to the device
+  call Gpu % Matrix_Copy_To_Device(A)
+  call Gpu % Vector_Copy_To_Device(x)
+  call Gpu % Vector_Copy_To_Device(b)
 
   ! Allocate vectors related to CG algorithm on the device
-  call Gpu % Native_Transfer_To_Device(Nat)
+  call Gpu % Native_Transfer_To_Device(Flow % Nat)
 
   !-----------------------------------------------!
   !   Performing a fake time loop on the device   !
   !-----------------------------------------------!
   print '(a)', ' # Performing a demo of the preconditioned CG method'
   call cpu_time(ts)
-  call Nat % Cg(Nat % A, x, Nat % b, n, tol)
+  call Flow % Nat % Cg(A, x, b, n, tol)
   call cpu_time(te)
 
   ! Copy results back to host
   call Gpu % Vector_Update_Host(x)
 
   ! Destroy data on the device, you don't need them anymore
-  call Gpu % Matrix_Destroy_On_Device(Nat % A)
+  call Gpu % Matrix_Destroy_On_Device(A)
   call Gpu % Vector_Destroy_On_Device(x)
-  call Gpu % Vector_Destroy_On_Device(Nat % b)
+  call Gpu % Vector_Destroy_On_Device(b)
 
-  call Gpu % Native_Destroy_On_Device(Nat)
+  call Gpu % Native_Destroy_On_Device(Flow % Nat)
 
   ! Print result
   print '(a,es12.3)', ' vector x(1  ):', x(1)

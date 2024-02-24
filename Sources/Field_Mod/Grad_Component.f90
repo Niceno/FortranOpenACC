@@ -3,11 +3,11 @@
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Field_Type), intent(in)    :: Flow  !! parent flow object
-  type(Grid_Type),   intent(in)    :: Grid  !! grid object
-  real,              intent(inout) :: phi (-Grid % n_bnd_cells:Grid % n_cells)
-  integer,           intent(in)    :: i     !! gradient component (1 to 3)
-  real,              intent(out)   :: phii(-Grid % n_bnd_cells:Grid % n_cells)
+  class(Field_Type), intent(in)  :: Flow  !! parent flow object
+  type(Grid_Type),   intent(in)  :: Grid  !! grid object
+  real,              intent(in)  :: phi (-Grid % n_bnd_cells:Grid % n_cells)
+  integer,           intent(in)  :: i     !! gradient component (1 to 3)
+  real,              intent(out) :: phii(-Grid % n_bnd_cells:Grid % n_cells)
 !-----------------------------------[Locals]-----------------------------------!
   integer :: c, d, i_cel
   real    :: dphi, dx, dy, dz, phii_tmp

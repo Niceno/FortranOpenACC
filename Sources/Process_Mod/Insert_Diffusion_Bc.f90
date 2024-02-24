@@ -14,7 +14,7 @@
 !-----------------------------------[Locals]-----------------------------------!
   type(Bc_Type),   pointer :: bc
   real                     :: dx, dy, dz, a_we, a_sn, a_bt
-  integer                  :: nx, ny, nz, i, j, k, c, d, ij
+  integer                  :: nx, ny, nz, i, j, k, c
 !------------------------[Avoid unused parent warning]-------------------------!
   Unused(Proc)
 !==============================================================================!

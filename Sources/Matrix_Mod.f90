@@ -35,6 +35,27 @@
 !   A % dia = [   1   5   9  12 ]                                              !
 !==============================================================================!
 
+  !-----------------------------!
+  !                             !
+  !   Connectivit Matrix Type   !
+  !                             !
+  !-----------------------------!
+  type Connectivity_Matrix_Type
+
+    type(Grid_Type), pointer :: pnt_grid  !! pointer to grid
+
+    integer              :: n
+    integer              :: nonzeros  !! number of nonzero entries
+    integer, allocatable :: row(:)    !! column positions
+    integer, allocatable :: col(:)    !! beginning of each row
+    integer, allocatable :: dia(:)    !! diagonal positions
+    integer, allocatable :: mir(:)    !! position of the mirror entry
+    integer, allocatable :: pos(:,:)  !! face-based position in the matrix
+
+  end type
+
+  type(Connectivity_Matrix_Type), target :: Conn
+
   !-----------------!
   !                 !
   !   Matrix Type   !
@@ -44,14 +65,15 @@
 
     type(Grid_Type), pointer :: pnt_grid  !! pointer to grid
 
-    integer              :: n
-    integer              :: nonzeros  !! number of nonzero entries
-    real,    allocatable :: val(:)    !! value
-    integer, allocatable :: col(:)    !! beginning of each row
-    integer, allocatable :: row(:)    !! column positions
-    integer, allocatable :: dia(:)    !! diagonal positions
-    integer, allocatable :: mir(:)    !! position of the mirror entry
-    integer, allocatable :: pos(:,:)  !! position of the ...
+    integer,             pointer :: n
+    integer,             pointer :: nonzeros  !! number of nonzero entries
+    integer, contiguous, pointer :: row(:)    !! column positions
+    integer, contiguous, pointer :: col(:)    !! beginning of each row
+    integer, contiguous, pointer :: dia(:)    !! diagonal positions
+    integer, contiguous, pointer :: mir(:)    !! position of the mirror entry
+    integer, contiguous, pointer :: pos(:,:)  !! face-based position in matrix
+    real,            allocatable :: val(:)    !! value
+    real,            allocatable :: d_inv(:)  !! inverse dia. for preconditioner
 
     contains
       procedure :: Create_Matrix

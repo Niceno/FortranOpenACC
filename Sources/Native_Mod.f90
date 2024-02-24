@@ -23,7 +23,6 @@
     real, allocatable :: b(:)
 
     ! Vectors used with native solvers
-    real, allocatable :: d_inv(:)  !! diagonal of the preconditioner inversed
     real, allocatable :: p(:)      !! helping vector
     real, allocatable :: q(:)      !! helping vector
     real, allocatable :: r(:)      !! residual vector

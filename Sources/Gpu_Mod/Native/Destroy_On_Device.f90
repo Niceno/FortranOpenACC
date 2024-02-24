@@ -16,14 +16,12 @@
 # endif
 !==============================================================================!
 
-  !$acc exit data delete(Nat % d_inv)
   !$acc exit data delete(Nat % r)
   !$acc exit data delete(Nat % p)
   !$acc exit data delete(Nat % q)
 
 # if VFS_GPU == 1
-    Gpu % gb_used = Gpu % gb_used - (  real(sizeof(Nat % d_inv))  &
-                                     + real(sizeof(Nat % p))      &
+    Gpu % gb_used = Gpu % gb_used - (  real(sizeof(Nat % p))      &
                                      + real(sizeof(Nat % q))      &
                                      + real(sizeof(Nat % r))) / GIGABYTE
     print '(a,f7.3,a)', ' # '//__FILE__//' :', Gpu % gb_used, ' GB on device'

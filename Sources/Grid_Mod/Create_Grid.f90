@@ -87,8 +87,8 @@
   end do
 
   ! Allocate memory for cells to cells connectivity
-  allocate(Grid % cells_n_cells(Grid % n_cells))
-  allocate(Grid % cells_c(6, Grid % n_cells))
+  allocate(Grid % cells_n_cells(-Grid % n_bnd_cells:Grid % n_cells))
+  allocate(Grid % cells_c(6,    -Grid % n_bnd_cells:Grid % n_cells))
 
   !-----------!
   !           !
@@ -285,6 +285,8 @@
     Grid % cells_n_cells(c1) = Grid % cells_n_cells(c1) + 1
     i = Grid % cells_n_cells(c1)  ! i like index, let's say
     Grid % cells_c(i,c1) = c2
+    Grid % cells_n_cells(c2) = 1
+    Grid % cells_c(1,c2) = c1
   end do
 
   do s = Grid % n_bnd_cells + 1, Grid % n_faces  ! inside faces
