@@ -8,6 +8,11 @@
 !---------------------------------[Arguments]----------------------------------!
   class(Gpu_Type) :: Gpu   !! parent class
   real            :: a(:)  !! vector to copy
+!-----------------------[Avoid unused argument warning]------------------------!
+# if VFS_GPU == 0
+    Unused(Gpu)
+    Unused(a)
+# endif
 !==============================================================================!
 
   !$acc update host(a)

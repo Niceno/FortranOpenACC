@@ -9,6 +9,11 @@
 !---------------------------------[Arguments]----------------------------------!
   class(Gpu_Type)   :: Gpu !! parent class
   type(Matrix_Type) :: A   !! matrix to destroy
+!-----------------------[Avoid unused argument warning]------------------------!
+# if VFS_GPU == 0
+    Unused(Gpu)
+    Unused(A)
+# endif
 !==============================================================================!
 
   !$acc exit data delete(A % val)

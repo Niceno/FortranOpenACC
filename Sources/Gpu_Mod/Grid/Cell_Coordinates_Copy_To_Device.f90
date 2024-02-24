@@ -5,6 +5,11 @@
 !---------------------------------[Arguments]----------------------------------!
   class(Gpu_Type) :: Gpu   !! parent class
   type(Grid_Type) :: Grid
+!-----------------------[Avoid unused argument warning]------------------------!
+# if VFS_GPU == 0
+    Unused(Gpu)
+    Unused(Grid)
+# endif
 !==============================================================================!
 
   !$acc enter data copyin(Grid % xc)

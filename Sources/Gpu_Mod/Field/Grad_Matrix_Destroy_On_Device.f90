@@ -7,6 +7,11 @@
 !---------------------------------[Arguments]----------------------------------!
   class(Gpu_Type)  :: Gpu   !! parent class
   type(Field_Type) :: Flow  !! field whose grad matrix to destroy
+!-----------------------[Avoid unused argument warning]------------------------!
+# if VFS_GPU == 0
+    Unused(Gpu)
+    Unused(Flow)
+# endif
 !==============================================================================!
 
   !$acc exit data delete(Flow % grad_c2c)

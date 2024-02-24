@@ -9,6 +9,11 @@
 !---------------------------------[Arguments]----------------------------------!
   class(Gpu_Type)   :: Gpu  !! parent class
   type(Native_Type) :: Nat  !! native solver to destroy
+!-----------------------[Avoid unused argument warning]------------------------!
+# if VFS_GPU == 0
+    Unused(Gpu)
+    Unused(Nat)
+# endif
 !==============================================================================!
 
   !$acc exit data delete(Nat % d_inv)

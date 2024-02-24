@@ -7,6 +7,11 @@
 !---------------------------------[Arguments]----------------------------------!
   class(Gpu_Type) :: Gpu   !! parent class
   real            :: a(:)  !! vector to create
+!-----------------------[Avoid unused argument warning]------------------------!
+# if VFS_GPU == 0
+    Unused(Gpu)
+    Unused(a)
+# endif
 !==============================================================================!
 
   !$acc enter data create(a)
