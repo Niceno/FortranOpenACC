@@ -3,13 +3,14 @@
 #define Inc(X,Y) X = X + Y
 
 !==============================================================================!
-  subroutine Discretize_Diffusion(Proc, Grid, A, b, comp)
+  subroutine Discretize_Diffusion(Proc, Grid, A, b, dt, comp)
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
   class(Process_Type)         :: Proc
   type(Grid_Type),     target :: Grid
-  type(Matrix_Type), optional :: A                      ! system matrix
+  type(Matrix_Type), optional :: A                  !! system matrix
+  real,              optional :: dt                 !! time step
   real,              optional :: b(Grid % n_cells)
   integer,           optional :: comp
 !-----------------------------------[Locals]-----------------------------------!
@@ -23,6 +24,11 @@
   ! Make checks for when matrix is present
   if(present(A)) then
     Assert(associated(A % pnt_grid))
+  end if
+
+  ! If dt is present, so must be the matrix
+  if(present(dt)) then
+    Assert(present(dt) .eqv. present(A))
   end if
 
   ! If b is present, so must be the component
@@ -84,6 +90,15 @@
       if(k==1  .and. bc % b_type=='D')  Inc(A_dia(c), 2.*a_bt)
       if(k==nz .and. bc % t_type=='D')  Inc(A_dia(c), 2.*a_bt)
     end do
+
+    !------------------------------------!
+    !   Take care of the unsteady term   !
+    !------------------------------------!
+    if(present(dt)) then
+      do c = 1, Grid % n_cells
+        Inc(A_dia(c), Grid % vol(c) / dt)
+      end do
+    end if
   end if
 
   !-----------------------------------------------------------------------!

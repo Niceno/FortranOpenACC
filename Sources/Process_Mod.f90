@@ -17,6 +17,7 @@
 
     contains
       procedure :: Discretize_Diffusion
+      procedure :: Inertial_Term
 
   end type
 
@@ -25,5 +26,6 @@
   contains
 
 #   include "Process_Mod/Discretize_Diffusion.f90"
+#   include "Process_Mod/Inertial_Term.f90"
 
   end module

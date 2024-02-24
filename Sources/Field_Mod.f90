@@ -6,6 +6,7 @@
   use Assert_Mod
   use Matrix_Mod
   use Native_Mod
+  use Var_mod
 !------------------------------------------------------------------------------!
   implicit none
 !==============================================================================!
@@ -21,12 +22,12 @@
     type(Native_Type) :: Nat
 
     ! Three velocity components, new and old
-    real, allocatable :: u_n(:), u_o(:)
-    real, allocatable :: v_n(:), v_o(:)
-    real, allocatable :: w_n(:), w_o(:)
+    type(Var_Type) :: u
+    type(Var_Type) :: v
+    type(Var_Type) :: w
 
     ! Pressure variable
-    real, allocatable :: p(:)
+    type(Var_Type) :: p
 
     ! Gradient matrices for cells to cells (c2c)
     real, allocatable :: grad_c2c(:,:)  !! gradient matrices [1/m^2]

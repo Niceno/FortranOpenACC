@@ -39,7 +39,7 @@
 
   allocate(x(-Grid % n_bnd_cells:Grid % n_cells))
 
-  call Process % Discretize_Diffusion(Grid, Nat % A, Nat % b, 1)  ! component 1
+  call Process % Discretize_Diffusion(Grid, Nat % A, Nat % b, comp=1)
 
   ! Initialize solution
   x(:) = 0.0

@@ -54,8 +54,12 @@
     integer, allocatable :: cells_n_cells(:)
 
     real, allocatable :: xn(:), yn(:), zn(:)
+
     real, allocatable :: xc(:), yc(:), zc(:)
+    real, allocatable :: vol(:)
+
     real, allocatable :: dx(:), dy(:), dz(:)
+    real, allocatable :: sx(:), sy(:), sz(:)
 
     type(Bc_Type) :: bc  ! boundary conditions
 

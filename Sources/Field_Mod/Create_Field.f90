@@ -33,15 +33,11 @@
   !------------------------!
 
   ! Momentum equations
-  allocate(Flow % u_n(-nb:nc)); Flow % u_n(:) = 0.0
-  allocate(Flow % v_n(-nb:nc)); Flow % v_n(:) = 0.0
-  allocate(Flow % w_n(-nb:nc)); Flow % w_n(:) = 0.0
-
-  allocate(Flow % u_o(-nb:nc)); Flow % u_o(:) = 0.0
-  allocate(Flow % v_o(-nb:nc)); Flow % v_o(:) = 0.0
-  allocate(Flow % w_o(-nb:nc)); Flow % w_o(:) = 0.0
+  call Var_Mod_Create_Variable(Flow % u, Grid)
+  call Var_Mod_Create_Variable(Flow % v, Grid)
+  call Var_Mod_Create_Variable(Flow % w, Grid)
 
   ! Pressure
-  allocate(Flow % p(-nb:nc)); Flow % p(:) = 0.0
+  call Var_Mod_Create_Variable(Flow % p, Grid)
 
   end subroutine

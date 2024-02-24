@@ -45,11 +45,11 @@
 
   print '(a)', ' # Initialize phi with something'
   do c = -Grid % n_bnd_cells, Grid % n_cells
-    Flow % p(c) = 0.111111 * Grid % xc(c)**2  &
-                + 0.222222 * Grid % yc(c)**2  &
-                + 0.333333 * Grid % zc(c)**2
+    Flow % p % n(c) = 0.111111 * Grid % xc(c)**2  &
+                    + 0.222222 * Grid % yc(c)**2  &
+                    + 0.333333 * Grid % zc(c)**2
   end do
-  call Grid % Save_Vtk_Scalar("init.vtk", Flow % p(1:Grid % n_cells))
+  call Grid % Save_Vtk_Scalar("init.vtk", Flow % p % n(1:Grid % n_cells))
 
   print '(a)', ' # Calculating gradient matrix for the field'
   call Flow % Calculate_Grad_Matrix()
@@ -58,7 +58,7 @@
   call Gpu % Field_Grad_Matrix_Copy_To_Device(Flow)
   call Gpu % Grid_Cell_Cell_Connectivity_Copy_To_Device(Grid)
   call Gpu % Grid_Cell_Coordinates_Copy_To_Device(Grid)
-  call Gpu % Vector_Copy_To_Device(Flow % p)
+  call Gpu % Vector_Copy_To_Device(Flow % p % n)
   call Gpu % Vector_Create_On_Device(phi_x)
   call Gpu % Vector_Create_On_Device(phi_y)
   call Gpu % Vector_Create_On_Device(phi_z)
@@ -69,9 +69,9 @@
   do time_step = 1, N_STEPS
     if(mod(time_step, 12) .eq. 0)  &
       print '(a,i12,es12.3)', ' time step = ', time_step
-    call Flow % Grad_Component(Grid, Flow % p, 1, phi_x)
-    call Flow % Grad_Component(Grid, Flow % p, 2, phi_y)
-    call Flow % Grad_Component(Grid, Flow % p, 3, phi_z)
+    call Flow % Grad_Component(Grid, Flow % p % n, 1, phi_x)
+    call Flow % Grad_Component(Grid, Flow % p % n, 2, phi_y)
+    call Flow % Grad_Component(Grid, Flow % p % n, 3, phi_z)
   end do
   call cpu_time(te)
 
@@ -85,7 +85,7 @@
   call Gpu % Field_Grad_Matrix_Destroy_On_Device(Flow)
   call Gpu % Grid_Cell_Cell_Connectivity_Destroy_On_Device(Grid)
   call Gpu % Grid_Cell_Coordinates_Destroy_On_Device(Grid)
-  call Gpu % Vector_Destroy_On_Device(Flow % p)
+  call Gpu % Vector_Destroy_On_Device(Flow % p % n)
   call Gpu % Vector_Destroy_On_Device(phi_x)
   call Gpu % Vector_Destroy_On_Device(phi_y)
   call Gpu % Vector_Destroy_On_Device(phi_z)
