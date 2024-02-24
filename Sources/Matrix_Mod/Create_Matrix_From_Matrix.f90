@@ -17,18 +17,12 @@
 
   print '(a)', ' # Creating a sparse matrix from another matrix'
 
-  ! Establish symbolic links to connectivity
-  A % pnt_grid => Conn % pnt_grid
-  A % n        => Conn % n
-  A % nonzeros => Conn % nonzeros
-  A % row      => Conn % row
-  A % col      => Conn % col
-  A % dia      => Conn % dia
-  A % mir      => Conn % mir
-  A % pos      => Conn % pos
-
-  ! Make physical coppies of the real fields
-  allocate (A % val(A % nonzeros));       A % val(:)   = B % val(:)
-  allocate (A % d_inv(Grid % n_cells));   A % d_inv(:) = B % d_inv(:)
+  ! Copy all significant fields from the matrix
+  A % nonzeros = B % nonzeros
+  allocate (A % row(Grid % n_cells+1));  A % row(:) = B % row(:)
+  allocate (A % dia(Grid % n_cells));    A % dia(:) = B % dia(:)
+  allocate (A % col(A % nonzeros));      A % col(:) = B % col(:)
+  allocate (A % val(A % nonzeros));      A % val(:) = B % val(:)
+  allocate (A % mir(A % nonzeros));      A % mir(:) = B % mir(:)
 
   end subroutine
