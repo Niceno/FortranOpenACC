@@ -96,6 +96,10 @@ ifeq ($(FORTRAN), intel)
   else
     OPT_COMP = -module $(DIR_MODULE) -cpp -r8 -O3
   endif
+
+  # Disable suggestion to use new version of Fortran compiler
+  OPT_COMP += -diag-disable=10448
+
   OPT_LINK = $(OPT_COMP)
 
   $(info # Using Intel Fortran compiler with options: $(OPT_COMP))
