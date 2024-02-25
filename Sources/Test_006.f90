@@ -9,7 +9,7 @@
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
-  integer, parameter       :: N_STEPS = 60 ! spend enough time on device
+  integer, parameter       :: N_STEPS =  6 ! spend enough time on device
   integer, parameter       :: N_ITERS =  6 ! spend enough time on device
   type(Grid_Type)          :: Grid         ! computational grid
   type(Field_Type), target :: Flow         ! flow field
@@ -136,9 +136,7 @@
       call Process % Compute_Pressure(Flow, dt)
       call Grid % Save_Vtk_Scalar(name_pp, Flow % pp % n(1:n))
   
-      call Flow % Grad_Pressure(Grid, Flow % pp, Flow % pp % x,  &
-                                                 Flow % pp % y,  &
-                                                 Flow % pp % z)
+      call Flow % Grad_Pressure(Grid, Flow % pp)
 
       ! Copy pressure gradients back to the host
       call Gpu % Vector_Update_Host(Flow % pp % x)
@@ -149,10 +147,8 @@
       call Process % Correct_Velocity(Flow)
       call Grid % Save_Vtk_Scalar(name_p, Flow % p % n(1:n))
 
-      call Flow % Grad_Pressure(Grid, Flow % p, Flow % p % x,  &
-                                                Flow % p % y,  &
-                                                Flow % p % z)
-
+      ! Compute pressure gradients for next iteration
+      call Flow % Grad_Pressure(Grid, Flow % p)
     end do
 
   end do
