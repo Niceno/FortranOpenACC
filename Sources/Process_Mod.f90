@@ -6,6 +6,7 @@
 !------------------------------------------------------------------------------!
   use Assert_Mod
   use Field_Mod
+  use Gpu_Mod
 !------------------------------------------------------------------------------!
   implicit none
 !==============================================================================!
@@ -18,11 +19,15 @@
     contains
 
       ! Related to momentum conservation
+      procedure :: Compute_Momentum
       procedure :: Form_Diffusion_Matrix
       procedure :: Insert_Diffusion_Bc
       procedure :: Add_Inertial_Term
+      procedure :: Add_Pressure_Term
+      procedure :: Correct_Velocity
 
       ! Related to pressure solution
+      procedure :: Compute_Pressure
       procedure :: Form_Pressure_Matrix
       procedure :: Insert_Volume_Source_For_Pressure
 
@@ -33,11 +38,15 @@
   contains
 
     ! Related to momentum conservation
+#   include "Process_Mod/Compute_Momentum.f90"
 #   include "Process_Mod/Form_Diffusion_Matrix.f90"
 #   include "Process_Mod/Insert_Diffusion_Bc.f90"
 #   include "Process_Mod/Add_Inertial_Term.f90"
+#   include "Process_Mod/Add_Pressure_Term.f90"
+#   include "Process_Mod/Correct_Velocity.f90"
 
     ! Related to pressure solution
+#   include "Process_Mod/Compute_Pressure.f90"
 #   include "Process_Mod/Form_Pressure_Matrix.f90"
 #   include "Process_Mod/Insert_Volume_Source_For_Pressure.f90"
 

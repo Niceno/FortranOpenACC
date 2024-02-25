@@ -50,8 +50,9 @@
   allocate(A % val(non_z));              A % val = 0
   allocate(A % mir(non_z));              A % mir = 0
   Assert(Grid % n_faces .gt. 0)
-  allocate(A % pos(2, Grid % n_faces));  A % pos = 0
+  allocate(A % pos(2, Grid % n_faces));  A % pos   = 0
   allocate(A % d_inv(Grid % n_cells));   A % d_inv = 0
+  allocate(A % v_m  (Grid % n_cells));   A % v_m   = 0
 
   !--------------------------------!
   !   Form the compressed matrix   !

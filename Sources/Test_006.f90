@@ -9,15 +9,18 @@
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
-  integer, parameter       :: N_STEPS = 12   ! spend enough time on device
-  type(Grid_Type)          :: Grid           ! computational grid
-  type(Field_Type), target :: Flow           ! flow field
-  real,       allocatable  :: phi_x(:)       ! gradient in x direction
-  real,       allocatable  :: phi_y(:)       ! gradient in y direction
-  real,       allocatable  :: phi_z(:)       ! gradient in z direction
-  real                     :: ts, te, tol = 1.0e-12
+  integer, parameter       :: N_STEPS = 60 ! spend enough time on device
+  integer, parameter       :: N_ITERS =  6 ! spend enough time on device
+  type(Grid_Type)          :: Grid         ! computational grid
+  type(Field_Type), target :: Flow         ! flow field
+  real                     :: ts, te
   real                     :: dt
-  integer                  :: n, time_step
+  integer                  :: n, time_step, iter
+  character(15)            :: name_vel     = 'TTT_III_vel.vtk'
+  character(14)            :: name_pp      = 'TTT_III_pp.vtk'
+  character(13)            :: name_p       = 'TTT_III_p.vtk'
+  character(19)            :: name_pp_grad = 'TTT_III_pp_grad.vtk'
+  character(18)            :: name_p_grad  = 'TTT_III_p_grad.vtk'
 !==============================================================================!
 
   print '(a)', ' #====================================================='
@@ -29,8 +32,8 @@
 
   n = Grid % n_cells
   print '(a, i12)',   ' # The problem size is: ', n
-  print '(a,es12.3)', ' # Solver tolerace is : ', tol
-  dt = 0.01
+  print '(a,es12.3)', ' # Solver tolerace is : ', PICO
+  dt = 0.001
 
   print '(a)', ' #----------------------------------------------------'
   print '(a)', ' # Be careful with memory usage.  If you exceed the'
@@ -42,16 +45,11 @@
   print '(a)', ' # Creating a flow field'
   call Flow % Create_Field(Grid)
 
-  print '(a)', ' # Allocating and initializing arrays for gradients'
-  allocate(phi_x(-Grid % n_bnd_cells:Grid % n_cells));  phi_x(:) = 0.0
-  allocate(phi_y(-Grid % n_bnd_cells:Grid % n_cells));  phi_y(:) = 0.0
-  allocate(phi_z(-Grid % n_bnd_cells:Grid % n_cells));  phi_z(:) = 0.0
-
   ! Discretize momentum equations ...
   call Process % Form_Diffusion_Matrix(Flow, dt=dt)
 
   ! ... followed by discretization of pressure equation
-  call Process % Form_Pressure_Matrix(Flow, dt)
+  call Process % Form_Pressure_Matrix(Flow)
 
   ! Form preconditioning matrices on host
   ! (Must be before transferring them)
@@ -70,7 +68,7 @@
   call Gpu % Matrix_Copy_To_Device(Flow % Nat % M)
   call Gpu % Matrix_Copy_To_Device(Flow % Nat % A)
   call Gpu % Vector_Copy_To_Device(Flow % Nat % b)
-  call Gpu % Vector_Copy_To_Device(Flow % p % n)
+  call Gpu % Vector_Copy_To_Device(Flow % pp % n)
   call Gpu % Vector_Copy_To_Device(Flow % u % n)
   call Gpu % Vector_Copy_To_Device(Flow % v % n)
   call Gpu % Vector_Copy_To_Device(Flow % w % n)
@@ -82,9 +80,9 @@
   call Gpu % Grid_Face_Cell_Connectivity_Copy_To_Device(Grid)
 
   ! Create space for gradients on the device
-  call Gpu % Vector_Create_On_Device(phi_x)
-  call Gpu % Vector_Create_On_Device(phi_y)
-  call Gpu % Vector_Create_On_Device(phi_z)
+  call Gpu % Vector_Create_On_Device(Flow % pp % x)
+  call Gpu % Vector_Create_On_Device(Flow % pp % y)
+  call Gpu % Vector_Create_On_Device(Flow % pp % z)
 
   ! Transfer vectors related to CG algorithm on the device 
   call Gpu % Native_Transfer_To_Device(Flow % Nat)
@@ -104,67 +102,75 @@
     Flow % v % o = Flow % v % n
     Flow % w % o = Flow % w % n
 
-    print '(a)', ' # Solving u'
-    call Process % Insert_Diffusion_Bc(Grid, Flow % Nat % b, comp=1)
-    call Process % Add_Inertial_Term(Grid, Flow % u % o, Flow % Nat % b, dt)
-    call Gpu % Vector_Update_Device(Flow % Nat % b)
-    call Flow % Nat % Cg(Flow % Nat % M,  &
-                         Flow % u % n,    &
-                         Flow % Nat % b,  &
-                         n,               &
-                         tol)
-    print '(a)', ' # Solving v'
-    call Process % Insert_Diffusion_Bc(Grid, Flow % Nat % b, comp=2)
-    call Process % Add_Inertial_Term(Grid, Flow % v % o, Flow % Nat % b, dt)
-    call Gpu % Vector_Update_Device(Flow % Nat % b)
-    call Flow % Nat % Cg(Flow % Nat % M,  &
-                         Flow % v % n,    &
-                         Flow % Nat % b,  &
-                         n,               &
-                         tol)
-    print '(a)', ' # Solving w'
-    call Process % Insert_Diffusion_Bc(Grid, Flow % Nat % b, comp=2)
-    call Process % Add_Inertial_Term(Grid, Flow % w % o, Flow % Nat % b, dt)
-    call Gpu % Vector_Update_Device(Flow % Nat % b)
-    call Flow % Nat % Cg(Flow % Nat % M,  &
-                         Flow % w % n,    &
-                         Flow % Nat % b,  &
-                         n,               &
-                         tol)
+    write(name_vel    (1:3), '(i3.3)') , time_step
+    write(name_pp     (1:3), '(i3.3)') , time_step
+    write(name_p      (1:3), '(i3.3)') , time_step
+    write(name_pp_grad(1:3), '(i3.3)') , time_step
+    write(name_p_grad (1:3), '(i3.3)') , time_step
 
-    ! Copy velocities back to host
-    call Gpu % Vector_Update_Host(Flow % u % n)
-    call Gpu % Vector_Update_Host(Flow % v % n)
-    call Gpu % Vector_Update_Host(Flow % w % n)
+    do iter = 1, N_ITERS
 
-    print '(a)', ' # Solving p'
-    call Process % Insert_Volume_Source_For_Pressure(Flow, dt)
-    call Gpu % Vector_Update_Device(Flow % Nat % b)
-    call Flow % Nat % Cg(Flow % Nat % A,  &
-                         Flow % p % n,    &
-                         Flow % Nat % b,  &
-                         n,               &
-                         tol)
-    call Flow % Grad_Pressure(Grid, phi_x, phi_y, phi_z)
+      Flow % pp % n = 0.0
 
-    ! Copy pressure back to host (although it is not needed yet)
-    call Gpu % Vector_Update_Host(Flow % p % n)
+      write(name_vel    (5:7), '(i3.3)') , iter
+      write(name_pp     (5:7), '(i3.3)') , iter
+      write(name_p      (5:7), '(i3.3)') , iter
+      write(name_pp_grad(5:7), '(i3.3)') , iter
+      write(name_p_grad (5:7), '(i3.3)') , iter
+
+      print '(a)', ' # Solving u'
+      call Process % Compute_Momentum(Flow, dt, comp=1)
+  
+      print '(a)', ' # Solving v'
+      call Process % Compute_Momentum(Flow, dt, comp=2)
+  
+      print '(a)', ' # Solving w'
+      call Process % Compute_Momentum(Flow, dt, comp=3)
+  
+      ! Copy velocities back to host
+      call Gpu % Vector_Update_Host(Flow % u % n)
+      call Gpu % Vector_Update_Host(Flow % v % n)
+      call Gpu % Vector_Update_Host(Flow % w % n)
+  
+      print '(a)', ' # Solving pp'
+      call Process % Compute_Pressure(Flow, dt)
+      call Grid % Save_Vtk_Scalar(name_pp, Flow % pp % n(1:n))
+  
+      call Flow % Grad_Pressure(Grid, Flow % pp, Flow % pp % x,  &
+                                                 Flow % pp % y,  &
+                                                 Flow % pp % z)
+
+      ! Copy pressure gradients back to the host
+      call Gpu % Vector_Update_Host(Flow % pp % x)
+      call Gpu % Vector_Update_Host(Flow % pp % y)
+      call Gpu % Vector_Update_Host(Flow % pp % z)
+
+      print '(a)', ' # Correcting velocity'
+      call Process % Correct_Velocity(Flow)
+      call Grid % Save_Vtk_Scalar(name_p, Flow % p % n(1:n))
+
+      call Flow % Grad_Pressure(Grid, Flow % p, Flow % p % x,  &
+                                                Flow % p % y,  &
+                                                Flow % p % z)
+
+    end do
+
   end do
   call cpu_time(te)
 
   ! Update gradients to host to plot them
-  call Gpu % Vector_Update_Host(phi_x)
-  call Gpu % Vector_Update_Host(phi_y)
-  call Gpu % Vector_Update_Host(phi_z)
-  call Grid % Save_Vtk_Vector("pressure_gradient.vtk", phi_x(1:n),  &
-                                                       phi_y(1:n),  &
-                                                       phi_z(1:n))
+  call Grid % Save_Vtk_Vector("pp_gradient.vtk", Flow % pp % x(1:n),  &
+                                                 Flow % pp % y(1:n),  &
+                                                 Flow % pp % z(1:n))
+  call Grid % Save_Vtk_Vector("q_gradient.vtk",  Flow % p % x(1:n),  &
+                                                 Flow % p % y(1:n),  &
+                                                 Flow % p % z(1:n))
 
   ! Destroy data on the device, you don't need them anymore
   call Gpu % Matrix_Destroy_On_Device(Flow % Nat % M)
   call Gpu % Matrix_Destroy_On_Device(Flow % Nat % A)
   call Gpu % Vector_Destroy_On_Device(Flow % Nat % b)
-  call Gpu % Vector_Destroy_On_Device(Flow % p % n)
+  call Gpu % Vector_Destroy_On_Device(Flow % pp % n)
   call Gpu % Vector_Destroy_On_Device(Flow % u % n)
   call Gpu % Vector_Destroy_On_Device(Flow % v % n)
   call Gpu % Vector_Destroy_On_Device(Flow % w % n)
@@ -176,15 +182,14 @@
   call Gpu % Grid_Face_Cell_Connectivity_Destroy_On_Device(Grid)
 
   ! Space which was used to hold gradients on device
-  call Gpu % Vector_Destroy_On_Device(phi_x)
-  call Gpu % Vector_Destroy_On_Device(phi_y)
-  call Gpu % Vector_Destroy_On_Device(phi_z)
+  call Gpu % Vector_Destroy_On_Device(Flow % pp % x)
+  call Gpu % Vector_Destroy_On_Device(Flow % pp % y)
+  call Gpu % Vector_Destroy_On_Device(Flow % pp % z)
 
   ! Helping vectors which were used with native solver
   call Gpu % Native_Destroy_On_Device(Flow % Nat)
 
   ! Save results
-  call Grid % Save_Vtk_Scalar("pressure.vtk", Flow % p % n(1:n))
   call Grid % Save_Vtk_Vector("velocity.vtk", Flow % u % n(1:n),  &
                                               Flow % v % n(1:n),  &
                                               Flow % w % n(1:n))

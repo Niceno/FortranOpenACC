@@ -26,5 +26,6 @@
   allocate (A % mir(A % nonzeros));       A % mir(:)   = B % mir(:)
   allocate (A % pos(2, Grid % n_faces));  A % pos(:,:) = B % pos(:,:)
   allocate (A % d_inv(Grid % n_cells));   A % d_inv(:) = B % d_inv(:)
+  allocate (A % v_m  (Grid % n_cells));   A % v_m  (:) = B % v_m  (:)
 
   end subroutine

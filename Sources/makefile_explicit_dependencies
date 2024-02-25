@@ -45,6 +45,7 @@ Grid_Mod/*.f90
 #-- ./Field_Mod/Calculate_Grad_Matrix.f90
 #-- ./Field_Mod/Create_Field.f90
 #-- ./Field_Mod/Grad_Component.f90
+#-- ./Field_Mod/Grad_Pressure.f90
 #-- ./Main.f90
 #-- ./Test_001.f90
 $(DIR_OBJECT)/Test_001.o:\
@@ -61,11 +62,17 @@ Native_Mod/*.f90 \
 $(DIR_OBJECT)/Linalg_Mod.o \
 Linalg_Mod/*.f90 
 
-#-- ./Process_Mod/Discretize_Diffusion.f90
-#-- ./Process_Mod/Inertial_Term.f90
+#-- ./Process_Mod/Form_Pressure_Matrix.f90
+#-- ./Process_Mod/Add_Inertial_Term.f90
+#-- ./Process_Mod/Insert_Volume_Source_For_Pressure.f90
+#-- ./Process_Mod/Insert_Diffusion_Bc.f90
+#-- ./Process_Mod/Compute_Momentum.f90
+#-- ./Process_Mod/Form_Diffusion_Matrix.f90
 #-- ./Process_Mod.f90
 $(DIR_OBJECT)/Process_Mod.o:\
 Process_Mod/*.f90 \
+$(DIR_OBJECT)/Gpu_Mod.o \
+Gpu_Mod/*/*.f90 \
 $(DIR_OBJECT)/Field_Mod.o \
 Field_Mod/*/Grad_Component.005 \
 Field_Mod/*/Grad_Component.004 \
@@ -159,8 +166,10 @@ $(DIR_OBJECT)/Const_Mod.o
 #-- ./Gpu_Mod/Vector/Create_On_Device.f90
 #-- ./Gpu_Mod/Vector/Update_Host.f90
 #-- ./Gpu_Mod/Grid/Cell_Coordinates_Destroy_On_Device.f90
+#-- ./Gpu_Mod/Grid/Face_Cell_Connectivity_Copy_To_Device.f90
 #-- ./Gpu_Mod/Grid/Cell_Coordinates_Copy_To_Device.f90
 #-- ./Gpu_Mod/Grid/Cell_Cell_Connectivity_Copy_To_Device.f90
+#-- ./Gpu_Mod/Grid/Face_Cell_Connectivity_Destroy_On_Device.f90
 #-- ./Gpu_Mod/Grid/Cell_Cell_Connectivity_Destroy_On_Device.f90
 #-- ./Gpu_Mod/Field/Grad_Matrix_Copy_To_Device.f90
 #-- ./Gpu_Mod/Field/Grad_Matrix_Destroy_On_Device.f90

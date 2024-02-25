@@ -27,7 +27,8 @@
     type(Var_Type) :: w
 
     ! Pressure variable
-    type(Var_Type) :: p
+    type(Var_Type) :: pp  ! pressure correction term
+    type(Var_Type) :: p   ! pressure
 
     ! Volume flux through faces
     real, allocatable :: v_flux(:)

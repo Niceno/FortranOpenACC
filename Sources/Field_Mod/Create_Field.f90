@@ -39,7 +39,8 @@
   call Var_Mod_Create_Variable(Flow % w, Grid)
 
   ! Pressure
-  call Var_Mod_Create_Variable(Flow % p, Grid)
+  call Var_Mod_Create_Variable(Flow % pp, Grid)  ! pressure correction
+  call Var_Mod_Create_Variable(Flow % p,  Grid)  ! pressure
 
   ! Volume fluxes through faces
   allocate(Flow % v_flux(ns))

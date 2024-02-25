@@ -18,6 +18,10 @@
 
     real, allocatable :: n(:)   !! new value (current time step)
     real, allocatable :: o(:)   !! old value (previous time step)
+
+    real, allocatable :: x(:)   !! gradient in x direction
+    real, allocatable :: y(:)   !! gradient in x direction
+    real, allocatable :: z(:)   !! gradient in x direction
   end type
 
   contains

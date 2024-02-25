@@ -14,7 +14,7 @@
   type(Field_Type),   target :: Flow                   ! flow field
   real, allocatable :: x(:)                   ! solution, dependent variable
   real,     pointer :: b(:)
-  real              :: ts, te, tol = 1.0e-12
+  real              :: ts, te
   integer           :: n
 !==============================================================================!
 
@@ -27,7 +27,7 @@
 
   n = Grid % n_cells
   print '(a,i12)',    ' # The problem size is: ', n
-  print '(a,es12.3)', ' # Solver tolerace is : ', tol
+  print '(a,es12.3)', ' # Solver tolerace is : ', PICO
 
   print '(a)', ' #----------------------------------------------------'
   print '(a)', ' # Be careful with memory usage.  If you exceed the'
@@ -49,7 +49,7 @@
   allocate(x(-Grid % n_bnd_cells:Grid % n_cells))
 
   call Process % Form_Diffusion_Matrix(Flow)
-  call Process % Insert_Diffusion_Bc(Grid, b, comp=1)
+  call Process % Insert_Diffusion_Bc(Flow, comp=1)
 
   ! Initialize solution
   x(:) = 0.0
@@ -70,7 +70,7 @@
   !-----------------------------------------------!
   print '(a)', ' # Performing a demo of the preconditioned CG method'
   call cpu_time(ts)
-  call Flow % Nat % Cg(A, x, b, n, tol)
+  call Flow % Nat % Cg(A, x, b, n, PICO)
   call cpu_time(te)
 
   ! Copy results back to host

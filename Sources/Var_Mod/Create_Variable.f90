@@ -14,4 +14,9 @@
   allocate (phi % n(-Grid % n_bnd_cells:Grid % n_cells));  phi % n = 0.0
   allocate (phi % o(-Grid % n_bnd_cells:Grid % n_cells));  phi % o = 0.0
 
+  ! Gradient components
+  allocate (phi % x(-Grid % n_bnd_cells:Grid % n_cells));  phi % x = 0.0
+  allocate (phi % y(-Grid % n_bnd_cells:Grid % n_cells));  phi % y = 0.0
+  allocate (phi % z(-Grid % n_bnd_cells:Grid % n_cells));  phi % z = 0.0
+
   end subroutine

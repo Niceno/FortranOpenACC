@@ -53,6 +53,7 @@
     integer, allocatable :: mir(:)    !! position of the mirror entry
     integer, allocatable :: pos(:,:)  !! position of the ...
     real,    allocatable :: d_inv(:)  !! inverse dia. for preconditioner
+    real,    allocatable :: v_m(:)    !! cell volume over momentum diagonal
 
     contains
       procedure :: Create_Matrix

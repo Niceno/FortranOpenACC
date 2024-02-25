@@ -3,16 +3,17 @@
 #define Inc(X,Y) X = X + Y
 
 !==============================================================================!
-  subroutine Insert_Diffusion_Bc(Proc, Grid, b, comp)
+  subroutine Insert_Diffusion_Bc(Proc, Flow, comp)
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
-  class(Process_Type)     :: Proc
-  type(Grid_Type), target :: Grid
-  real                    :: b(Grid % n_cells)
-  integer                 :: comp
+  class(Process_Type)      :: Proc
+  type(Field_Type), target :: Flow
+  integer                  :: comp
 !-----------------------------------[Locals]-----------------------------------!
+  type(Grid_Type), pointer :: Grid
   type(Bc_Type),   pointer :: bc
+  real,            pointer :: b(:)
   real                     :: dx, dy, dz, a_we, a_sn, a_bt
   integer                  :: nx, ny, nz, i, j, k, c
 !------------------------[Avoid unused parent warning]-------------------------!
@@ -20,7 +21,9 @@
 !==============================================================================!
 
   ! Take some aliases
-  bc => Grid % bc
+  Grid => Flow % pnt_grid
+  bc   => Grid % bc
+  b    => Flow % Nat % b
 
   ! Some abbreviations
   dx = Grid % lx / Grid % nx
