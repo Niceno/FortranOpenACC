@@ -41,6 +41,8 @@
       procedure :: Grid_Cell_Cell_Connectivity_Destroy_On_Device
       procedure :: Grid_Cell_Coordinates_Copy_To_Device
       procedure :: Grid_Cell_Coordinates_Destroy_On_Device
+      procedure :: Grid_Cell_Volumes_Copy_To_Device
+      procedure :: Grid_Cell_Volumes_Destroy_On_Device
       procedure :: Grid_Face_Cell_Connectivity_Copy_To_Device
       procedure :: Grid_Face_Cell_Connectivity_Destroy_On_Device
 
@@ -73,6 +75,8 @@
 #   include "Gpu_Mod/Grid/Cell_Cell_Connectivity_Destroy_On_Device.f90"
 #   include "Gpu_Mod/Grid/Cell_Coordinates_Copy_To_Device.f90"
 #   include "Gpu_Mod/Grid/Cell_Coordinates_Destroy_On_Device.f90"
+#   include "Gpu_Mod/Grid/Cell_Volumes_Copy_To_Device.f90"
+#   include "Gpu_Mod/Grid/Cell_Volumes_Destroy_On_Device.f90"
 #   include "Gpu_Mod/Grid/Face_Cell_Connectivity_Copy_To_Device.f90"
 #   include "Gpu_Mod/Grid/Face_Cell_Connectivity_Destroy_On_Device.f90"
 
