@@ -133,7 +133,7 @@
       call Gpu % Vector_Update_Host(Flow % w % n)
   
       print '(a)', ' # Solving pp'
-      call Process % Compute_Pressure(Flow, dt)
+      call Process % Compute_Pressure(Flow)
       call Grid % Save_Vtk_Scalar(name_pp, Flow % pp % n(1:n))
   
       call Flow % Grad_Pressure(Grid, Flow % pp)

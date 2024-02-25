@@ -1,9 +1,5 @@
-#define A_val(X) A % val(X)
-#define A_dia(X) A % val(A % dia(X))
-#define Inc(X,Y) X = X + Y
-
 !==============================================================================!
-  subroutine Insert_Volume_Source_For_Pressure(Proc, Flow, dt)
+  subroutine Insert_Volume_Source_For_Pressure(Proc, Flow)
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
@@ -48,20 +44,31 @@
 !     p % x, p % y, p % z   [kg/(m^2 s^2)]                                     !
 !     b                     [m^3/s]                                            !
 !------------------------------------------------------------------------------!
-  class(Process_Type) :: Proc
-  type(Field_Type)    :: Flow
-  real                :: dt
+  class(Process_Type)      :: Proc
+  type(Field_Type), target :: Flow
 !-----------------------------------[Locals]-----------------------------------!
-  type(Grid_Type), pointer :: Grid
-  real, save, allocatable  :: v_m(:)
-  real                     :: a12
-  real                     :: u_f, v_f, w_f
-  integer                  :: s, c1, c2, c
+  type(Grid_Type),   pointer :: Grid
+  type(Matrix_Type), pointer :: M
+  type(Var_Type),    pointer :: u, v, w, pp, p
+  real,              pointer :: b(:)
+  real,              pointer :: v_flux(:)
+  real,   save, allocatable  :: v_m(:)
+  real                       :: a12
+  real                       :: u_f, v_f, w_f
+  integer                    :: s, c1, c2, c
 !------------------------[Avoid unused parent warning]-------------------------!
   Unused(Proc)
 !==============================================================================!
 
-  Grid => Flow % pnt_grid
+  Grid   => Flow % pnt_grid
+  b      => Flow % Nat % b
+  M      => Flow % Nat % M
+  pp     => Flow % pp
+  p      => Flow % p
+  u      => Flow % u
+  v      => Flow % v
+  w      => Flow % w
+  v_flux => Flow % v_flux
 
   !--------------------------------------!
   !   Store Grid % vol(c) / M % sav(c)   !
@@ -69,11 +76,11 @@
   ! Units here: m^3 s / kg
   if(.not. allocated(v_m)) allocate(v_m(Grid % n_cells))
   do c = 1, Grid % n_cells
-    v_m(c) = Grid % vol(c) / Flow % Nat % M % val(Flow % Nat % M % dia(c))
+    v_m(c) = Grid % vol(c) / M % val(M % dia(c))
   end do
 
   ! Nullify the volume source
-  Flow % Nat % b(:) = 0.0
+  b(:) = 0.0
 
   ! Calculate volume fluxes through faces
   do s = Grid % n_bnd_cells + 1, Grid % n_faces
@@ -87,12 +94,12 @@
     ! M      [kg/s]
     ! vol    [m^3]
     ! dp/dx * vol / M   [kg/(m^2 s^2) * m^3 * s/kg = m/s]
-    u_f = 0.5 * (  Flow % u % n(c1) + Flow % p % x(c1) * Grid % vol(c1) / Flow % Nat % M % val(Flow % Nat % M % dia(c1))  &
-                 + Flow % u % n(c2) + Flow % p % x(c2) * Grid % vol(c2) / Flow % Nat % M % val(Flow % Nat % M % dia(c2))  )
-    v_f = 0.5 * (  Flow % v % n(c1) + Flow % p % y(c1) * Grid % vol(c1) / Flow % Nat % M % val(Flow % Nat % M % dia(c1))   &
-                 + Flow % v % n(c2) + Flow % p % y(c2) * Grid % vol(c2) / Flow % Nat % M % val(Flow % Nat % M % dia(c2))  )
-    w_f = 0.5 * (  Flow % w % n(c1) + Flow % p % z(c1) * Grid % vol(c1) / Flow % Nat % M % val(Flow % Nat % M % dia(c1))   &
-                 + Flow % w % n(c2) + Flow % p % z(c2) * Grid % vol(c2) / Flow % Nat % M % val(Flow % Nat % M % dia(c2))  )
+    u_f = 0.5 * (  u % n(c1) + p % x(c1) * Grid % vol(c1) / M % val(M % dia(c1))  &
+                 + u % n(c2) + p % x(c2) * Grid % vol(c2) / M % val(M % dia(c2))  )
+    v_f = 0.5 * (  v % n(c1) + p % y(c1) * Grid % vol(c1) / M % val(M % dia(c1))   &
+                 + v % n(c2) + p % y(c2) * Grid % vol(c2) / M % val(M % dia(c2))  )
+    w_f = 0.5 * (  w % n(c1) + p % z(c1) * Grid % vol(c1) / M % val(M % dia(c1))   &
+                 + w % n(c2) + p % z(c2) * Grid % vol(c2) / M % val(M % dia(c2))  )
 
     ! This is a bit of a code repetition, the
     ! same thing is in the Form_Pressure_Matrix
@@ -102,19 +109,19 @@
 
     ! Volume flux without the cell-centered pressure gradient
     ! Unit for the last term:  m^4 s / kg * kg / (m s^2) = m^3 / s
-    Flow % v_flux(s) = u_f * Grid % sx(s)  &
+    v_flux(s) = u_f * Grid % sx(s)  &
                      + v_f * Grid % sy(s)  &
                      + w_f * Grid % sz(s)  &
-                     + a12 * (Flow % p % n(c1) - Flow % p % n(c2))
+                     + a12 * (p % n(c1) - p % n(c2))
 
     ! This is naive interpolation, and it does not work, should not work
-    ! u_f = 0.5 * (  Flow % u % n(c1)  &
-    !              + Flow % u % n(c2))
-    ! v_f = 0.5 * (  Flow % v % n(c1)  &
-    !              + Flow % v % n(c2))
-    ! w_f = 0.5 * (  Flow % w % n(c1)  &
-    !              + Flow % w % n(c2))
-    ! Flow % v_flux(s) = u_f * Grid % sx(s)  &
+    ! u_f = 0.5 * (  u % n(c1)  &
+    !              + u % n(c2))
+    ! v_f = 0.5 * (  v % n(c1)  &
+    !              + v % n(c2))
+    ! w_f = 0.5 * (  w % n(c1)  &
+    !              + w % n(c2))
+    ! v_flux(s) = u_f * Grid % sx(s)  &
     !                  + v_f * Grid % sy(s)  &
     !                  + w_f * Grid % sz(s)
   end do
@@ -126,10 +133,10 @@
     c1 = Grid % faces_c(1,s)
     c2 = Grid % faces_c(2,s)
 
-    Flow % Nat % b(c1) = Flow % Nat % b(c1) - Flow % v_flux(s)
-    Flow % Nat % b(c2) = Flow % Nat % b(c2) + Flow % v_flux(s)
+    b(c1) = b(c1) - v_flux(s)
+    b(c2) = b(c2) + v_flux(s)
   end do
 
-  PRINT *, 'MAX VOLUME BALANCE ERROR: ', maxval(abs(Flow % Nat % b))
+  PRINT *, 'MAX VOLUME BALANCE ERROR: ', maxval(abs(b))
 
   end subroutine

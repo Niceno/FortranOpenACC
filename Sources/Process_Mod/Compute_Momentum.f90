@@ -35,7 +35,8 @@
   call Process % Add_Inertial_Term  (Flow, dt, comp=comp)
   call Process % Add_Pressure_Term  (Flow,     comp=comp)
 
-  call Gpu % Vector_Update_Device   (Flow % Nat % b)
+  ! Send the r.h.s. to device
+  call Gpu % Vector_Update_Device(b)
 
   ! Call linear solver
   call Flow % Nat % Cg(M, ui, b, n, PICO)

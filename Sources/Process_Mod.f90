@@ -1,6 +1,10 @@
 #include "Assert.h90"
 #include "Unused.h90"
 
+! A couple of macros to shorten the syntax a bit
+#define Inc(X,Y) X = X + Y
+#define Dec(X,Y) X = X - Y
+
 !==============================================================================!
   module Process_Mod
 !------------------------------------------------------------------------------!

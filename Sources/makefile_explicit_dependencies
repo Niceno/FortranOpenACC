@@ -65,8 +65,11 @@ Linalg_Mod/*.f90
 #-- ./Process_Mod/Form_Pressure_Matrix.f90
 #-- ./Process_Mod/Add_Inertial_Term.f90
 #-- ./Process_Mod/Insert_Volume_Source_For_Pressure.f90
+#-- ./Process_Mod/Compute_Pressure.f90
+#-- ./Process_Mod/Correct_Velocity.f90
 #-- ./Process_Mod/Insert_Diffusion_Bc.f90
 #-- ./Process_Mod/Compute_Momentum.f90
+#-- ./Process_Mod/Add_Pressure_Term.f90
 #-- ./Process_Mod/Form_Diffusion_Matrix.f90
 #-- ./Process_Mod.f90
 $(DIR_OBJECT)/Process_Mod.o:\

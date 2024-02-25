@@ -1,8 +1,3 @@
-#define A_val(X) A % val(X)
-#define A_dia(X) A % val(A % dia(X))
-#define Inc(X,Y) X = X + Y
-#define Dec(X,Y) X = X - Y
-
 !==============================================================================!
   subroutine Add_Pressure_Term(Proc, Flow, comp)
 !------------------------------------------------------------------------------!
@@ -22,6 +17,7 @@
   integer                  :: comp
 !-----------------------------------[Locals]-----------------------------------!
   type(Grid_Type), pointer :: Grid
+  type(Var_Type),  pointer :: p
   real,            pointer :: b(:)
   integer                  :: c
 !------------------------[Avoid unused parent warning]-------------------------!
@@ -31,18 +27,19 @@
   ! Take some aliases
   Grid => Flow % pnt_grid
   b    => Flow % Nat % b
+  p    => Flow % p
 
   if(comp .eq. 1) then
     do c = 1, Grid % n_cells
-      b(c) = b(c) - Flow % p % x(c) * Grid % vol(c)
+      b(c) = b(c) - p % x(c) * Grid % vol(c)
     end do
   else if(comp .eq. 2) then
     do c = 1, Grid % n_cells
-      b(c) = b(c) - Flow % p % y(c) * Grid % vol(c)
+      b(c) = b(c) - p % y(c) * Grid % vol(c)
     end do
   else if(comp .eq. 3) then
     do c = 1, Grid % n_cells
-      b(c) = b(c) - Flow % p % z(c) * Grid % vol(c)
+      b(c) = b(c) - p % z(c) * Grid % vol(c)
     end do
   end if
 
