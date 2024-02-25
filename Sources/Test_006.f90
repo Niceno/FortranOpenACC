@@ -16,11 +16,11 @@
   real                     :: ts, te
   real                     :: dt
   integer                  :: n, time_step, iter
-  character(15)            :: name_vel     = 'TTT_III_vel.vtk'
-  character(14)            :: name_pp      = 'TTT_III_pp.vtk'
-  character(13)            :: name_p       = 'TTT_III_p.vtk'
-  character(19)            :: name_pp_grad = 'TTT_III_pp_grad.vtk'
-  character(18)            :: name_p_grad  = 'TTT_III_p_grad.vtk'
+!@character(15)            :: name_vel     = 'TTT_III_vel.vtk'
+!@character(14)            :: name_pp      = 'TTT_III_pp.vtk'
+!@character(13)            :: name_p       = 'TTT_III_p.vtk'
+!@character(19)            :: name_pp_grad = 'TTT_III_pp_grad.vtk'
+!@character(18)            :: name_p_grad  = 'TTT_III_p_grad.vtk'
 !==============================================================================!
 
   print '(a)', ' #====================================================='
@@ -33,7 +33,7 @@
   n = Grid % n_cells
   print '(a, i12)',   ' # The problem size is: ', n
   print '(a,es12.3)', ' # Solver tolerace is : ', PICO
-  dt = 0.001
+  dt = 0.0001
 
   print '(a)', ' #----------------------------------------------------'
   print '(a)', ' # Be careful with memory usage.  If you exceed the'
@@ -102,50 +102,55 @@
     Flow % v % o = Flow % v % n
     Flow % w % o = Flow % w % n
 
-    write(name_vel    (1:3), '(i3.3)') , time_step
-    write(name_pp     (1:3), '(i3.3)') , time_step
-    write(name_p      (1:3), '(i3.3)') , time_step
-    write(name_pp_grad(1:3), '(i3.3)') , time_step
-    write(name_p_grad (1:3), '(i3.3)') , time_step
+!@  write(name_vel    (1:3), '(i3.3)') , time_step
+!@  write(name_pp     (1:3), '(i3.3)') , time_step
+!@  write(name_p      (1:3), '(i3.3)') , time_step
+!@  write(name_pp_grad(1:3), '(i3.3)') , time_step
+!@  write(name_p_grad (1:3), '(i3.3)') , time_step
 
     do iter = 1, N_ITERS
 
       Flow % pp % n = 0.0
 
-      write(name_vel    (5:7), '(i3.3)') , iter
-      write(name_pp     (5:7), '(i3.3)') , iter
-      write(name_p      (5:7), '(i3.3)') , iter
-      write(name_pp_grad(5:7), '(i3.3)') , iter
-      write(name_p_grad (5:7), '(i3.3)') , iter
+!@    write(name_vel    (5:7), '(i3.3)') , iter
+!@    write(name_pp     (5:7), '(i3.3)') , iter
+!@    write(name_p      (5:7), '(i3.3)') , iter
+!@    write(name_pp_grad(5:7), '(i3.3)') , iter
+!@    write(name_p_grad (5:7), '(i3.3)') , iter
 
       print '(a)', ' # Solving u'
       call Process % Compute_Momentum(Flow, dt, comp=1)
-  
+
       print '(a)', ' # Solving v'
       call Process % Compute_Momentum(Flow, dt, comp=2)
-  
+
       print '(a)', ' # Solving w'
       call Process % Compute_Momentum(Flow, dt, comp=3)
-  
-      ! Copy velocities back to host
+
+      ! OK, rationale here is as follows.  Velocity components were computed
+      ! on the device, but Process % Compute_Pressure still works on the
+      ! host, so it might need the velocity components locally, on the host
       call Gpu % Vector_Update_Host(Flow % u % n)
       call Gpu % Vector_Update_Host(Flow % v % n)
       call Gpu % Vector_Update_Host(Flow % w % n)
-  
+
       print '(a)', ' # Solving pp'
       call Process % Compute_Pressure(Flow)
-      call Grid % Save_Vtk_Scalar(name_pp, Flow % pp % n(1:n))
-  
+
+      ! This will plot nothing, since solutions to pressure
+      ! corrections are on the device, and not on the host
+      ! call Grid % Save_Vtk_Scalar(name_pp, Flow % pp % n(1:n))
+
+      ! Pressure gradient is computed on the device
       call Flow % Grad_Pressure(Grid, Flow % pp)
 
-      ! Copy pressure gradients back to the host
-      call Gpu % Vector_Update_Host(Flow % pp % x)
-      call Gpu % Vector_Update_Host(Flow % pp % y)
-      call Gpu % Vector_Update_Host(Flow % pp % z)
+      ! Copy pressure gradients back to the host so
+      ! that correction of velocity works properly
+      call Gpu % Vector_Update_Host(Flow % pp % n)
 
       print '(a)', ' # Correcting velocity'
       call Process % Correct_Velocity(Flow)
-      call Grid % Save_Vtk_Scalar(name_p, Flow % p % n(1:n))
+      ! call Grid % Save_Vtk_Scalar(name_p, Flow % p % n(1:n))
 
       ! Compute pressure gradients for next iteration
       call Flow % Grad_Pressure(Grid, Flow % p)
@@ -158,7 +163,7 @@
   call Grid % Save_Vtk_Vector("pp_gradient.vtk", Flow % pp % x(1:n),  &
                                                  Flow % pp % y(1:n),  &
                                                  Flow % pp % z(1:n))
-  call Grid % Save_Vtk_Vector("q_gradient.vtk",  Flow % p % x(1:n),  &
+  call Grid % Save_Vtk_Vector("p_gradient.vtk",  Flow % p % x(1:n),  &
                                                  Flow % p % y(1:n),  &
                                                  Flow % p % z(1:n))
 
