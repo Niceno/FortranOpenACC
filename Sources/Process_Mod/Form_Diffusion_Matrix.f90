@@ -83,4 +83,12 @@
     end do
   end if
 
+  !---------------------------------------------------------!
+  !   Store volume divided by central coeff. for momentum   !
+  !   That is a novelty here, it doesn't exist in T-Flows   !
+  !---------------------------------------------------------!
+  do c = 1, Grid % n_cells
+    M % v_m(c) = Grid % vol(c) / M % val(M % dia(c))
+  end do
+
   end subroutine

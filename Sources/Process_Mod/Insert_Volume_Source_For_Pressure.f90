@@ -3,46 +3,29 @@
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
+!   Discreetized system of momentum conservation equations:                    !
 !                                                                              !
-!   Momentum conservaton equation                                              !
-!                                                                              !
-!     /             /              /               /             /             !
-!    |     du      |              |               |             |              !
-!    | rho -- dV + | rho u u dS = | mu DIV u dS - | GRAD p dV + | f dV         !
-!    |     dt      |              |               |             |              !
-!   /             /              /               /             /               !
-!                                                                              !
-!   Dimension of the system under consideration                                !
-!                                                                              !
-!     [M]{u} = {b}   [kgm/s^2]   [N]                                           !
+!     [M]{u} = {b}   [kg m/s^2]   [N]                                          !
 !                                                                              !
 !   Dimensions of certain variables:                                           !
 !                                                                              !
-!     M              [kg/s]                                                    !
-!     u, v, w        [m/s]                                                     !
-!     bu, bv, bw     [kg m/s^2]      [N]                                       !
-!     p, pp          [kg/(m s^2)]   [N/m^2]                                    !
-!     v_flux         [m^3/s]                                                   !
+!     M               [kg/s]                                                   !
+!     u, v, w         [m/s]                                                    !
+!     b               [kg m/s^2]     [N]                                       !
+!     p, pp           [kg/(m s^2)]   [N/m^2]                                   !
+!     p%x, p%y, p%z   [kg/(m^2 s^2)]                                           !
+!     v_flux          [m^3/s]                                                  !
 !------------------------------------------------------------------------------!
-!                                                                              !
-!   Presssure Poisson equation:                                                !
-!                                                                              !
-!      /           /                                                           !
-!     |           |                                                            !
-!     | u dS = dt | GRAD pp dS                                                 !
-!     |           |                                                            !
-!    /           /                                                             !
-!                                                                              !
-!   Dimension of the system under consideration                                !
+!   Discretized pressure-Poisson equation reads:                               !
 !                                                                              !
 !     [A] {pp} = {b}     [m^3/s]                                               !
 !                                                                              !
-!   Dimensions of certain variables                                            !
+!   Dimensions of certain variables:                                           !
 !                                                                              !
-!     A                     [m^4 s/kg]                                         !
-!     pp                    [kg/(m s^2)]                                       !
-!     p % x, p % y, p % z   [kg/(m^2 s^2)]                                     !
-!     b                     [m^3/s]                                            !
+!     A               [m^4 s/kg]                                               !
+!     pp              [kg/(m s^2)]                                             !
+!     p%x, p%y, p%z   [kg/(m^2 s^2)]                                           !
+!     b               [m^3/s]                                                  !
 !------------------------------------------------------------------------------!
   class(Process_Type)      :: Proc
   type(Field_Type), target :: Flow
@@ -52,7 +35,6 @@
   type(Var_Type),    pointer :: u, v, w, pp, p
   real,              pointer :: b(:)
   real,              pointer :: v_flux(:)
-  real,   save, allocatable  :: v_m(:)
   real                       :: a12
   real                       :: u_f, v_f, w_f
   integer                    :: s, c1, c2, c
@@ -70,15 +52,6 @@
   w      => Flow % w
   v_flux => Flow % v_flux
 
-  !--------------------------------------!
-  !   Store Grid % vol(c) / M % sav(c)   !
-  !--------------------------------------!
-  ! Units here: m^3 s / kg
-  if(.not. allocated(v_m)) allocate(v_m(Grid % n_cells))
-  do c = 1, Grid % n_cells
-    v_m(c) = Grid % vol(c) / M % val(M % dia(c))
-  end do
-
   ! Nullify the volume source
   b(:) = 0.0
 
@@ -89,41 +62,27 @@
     c2 = Grid % faces_c(2,s)
 
     ! Velocity plus the cell-centered pressure gradient
-    ! u      [m/s]
-    ! dp/dx  [kg/(m^2 s^2)]
-    ! M      [kg/s]
-    ! vol    [m^3]
-    ! dp/dx * vol / M   [kg/(m^2 s^2) * m^3 * s/kg = m/s]
-    u_f = 0.5 * (  u % n(c1) + p % x(c1) * Grid % vol(c1) / M % val(M % dia(c1))  &
-                 + u % n(c2) + p % x(c2) * Grid % vol(c2) / M % val(M % dia(c2))  )
-    v_f = 0.5 * (  v % n(c1) + p % y(c1) * Grid % vol(c1) / M % val(M % dia(c1))   &
-                 + v % n(c2) + p % y(c2) * Grid % vol(c2) / M % val(M % dia(c2))  )
-    w_f = 0.5 * (  w % n(c1) + p % z(c1) * Grid % vol(c1) / M % val(M % dia(c1))   &
-                 + w % n(c2) + p % z(c2) * Grid % vol(c2) / M % val(M % dia(c2))  )
+    ! Units: kg / (m^2 s^2) * m^3 * s / kg = m / s
+    u_f = 0.5 * (  u % n(c1) + p % x(c1) * M % v_m(c1)  &
+                 + u % n(c2) + p % x(c2) * M % v_m(c2)  )
+    v_f = 0.5 * (  v % n(c1) + p % y(c1) * M % v_m(c1)   &
+                 + v % n(c2) + p % y(c2) * M % v_m(c2)  )
+    w_f = 0.5 * (  w % n(c1) + p % z(c1) * M % v_m(c1)   &
+                 + w % n(c2) + p % z(c2) * M % v_m(c2)  )
 
     ! This is a bit of a code repetition, the
     ! same thing is in the Form_Pressure_Matrix
     ! Anyhow, units are given here are
     !  m^2 / m * m^3 s / kg = m^4 s / kg
-    a12 = Grid % s(s) / Grid % d(s) * 0.5 * (v_m(c1) + v_m(c2))
+    a12 = Grid % s(s) / Grid % d(s) * 0.5 * (M % v_m(c1) + M % v_m(c2))
 
     ! Volume flux without the cell-centered pressure gradient
+    ! but with the staggered pressure difference
     ! Unit for the last term:  m^4 s / kg * kg / (m s^2) = m^3 / s
     v_flux(s) = u_f * Grid % sx(s)  &
-                     + v_f * Grid % sy(s)  &
-                     + w_f * Grid % sz(s)  &
-                     + a12 * (p % n(c1) - p % n(c2))
-
-    ! This is naive interpolation, and it does not work, should not work
-    ! u_f = 0.5 * (  u % n(c1)  &
-    !              + u % n(c2))
-    ! v_f = 0.5 * (  v % n(c1)  &
-    !              + v % n(c2))
-    ! w_f = 0.5 * (  w % n(c1)  &
-    !              + w % n(c2))
-    ! v_flux(s) = u_f * Grid % sx(s)  &
-    !                  + v_f * Grid % sy(s)  &
-    !                  + w_f * Grid % sz(s)
+              + v_f * Grid % sy(s)  &
+              + w_f * Grid % sz(s)  &
+              + a12 * (p % n(c1) - p % n(c2))
   end do
 
   !----------------------------------------------------!
