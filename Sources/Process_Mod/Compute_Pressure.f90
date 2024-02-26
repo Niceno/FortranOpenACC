@@ -24,6 +24,6 @@
 
   call Process % Insert_Volume_Source_For_Pressure(Flow)
   call Gpu % Vector_Update_Device(b)
-  call Flow % Nat % Cg(A, pp, b, n, PICO)
+  call Flow % Nat % Cg(A, pp, b, n, FEMTO)
 
   end subroutine

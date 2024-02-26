@@ -69,7 +69,9 @@
     b(c1) = b(c1) - v_flux(s)
     b(c2) = b(c2) + v_flux(s)
   end do
-  PRINT *, 'MAX VOLUME BALANCE ERROR: ', maxval(abs(b))
+
+  print '(a,es12.3)', ' # Max. volume balance error '//  &
+                      'after correction: ', maxval(abs(b))
 
   !-----------------------------------!
   !     Update the pressure field     !

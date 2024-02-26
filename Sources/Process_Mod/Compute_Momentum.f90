@@ -39,6 +39,6 @@
   call Gpu % Vector_Update_Device(b)
 
   ! Call linear solver
-  call Flow % Nat % Cg(M, ui, b, n, PICO)
+  call Flow % Nat % Cg(M, ui, b, n, MICRO)
 
   end subroutine
