@@ -16,7 +16,7 @@
   real                     :: ts, te
   real                     :: dt
   integer                  :: n, time_step, iter
-!@character(15)            :: name_vel     = 'TTT_III_vel.vtk'
+  character(15)            :: name_vel     = 'TTT_III_vel.vtk'
 !@character(14)            :: name_pp      = 'TTT_III_pp.vtk'
 !@character(13)            :: name_p       = 'TTT_III_p.vtk'
 !@character(19)            :: name_pp_grad = 'TTT_III_pp_grad.vtk'
@@ -81,11 +81,17 @@
     Flow % v % o = Flow % v % n
     Flow % w % o = Flow % w % n
 
-!@  write(name_vel    (1:3), '(i3.3)') , time_step
+    write(name_vel    (1:3), '(i3.3)') , time_step
 !@  write(name_pp     (1:3), '(i3.3)') , time_step
 !@  write(name_p      (1:3), '(i3.3)') , time_step
 !@  write(name_pp_grad(1:3), '(i3.3)') , time_step
 !@  write(name_p_grad (1:3), '(i3.3)') , time_step
+
+    if(mod(time_step,60) .eq. 0) then
+      call Grid % Save_Vtk_Vector(name_vel, Flow % u % n(1:n),  &
+                                            Flow % v % n(1:n),  &
+                                            Flow % w % n(1:n))
+    end if
 
     do iter = 1, N_ITERS
 
