@@ -16,6 +16,9 @@
   implicit none
 !==============================================================================!
 
+  real, parameter :: DENS = 1.0
+  real, parameter :: VISC = 0.001
+
   !------------------!
   !   Process type   !
   !------------------!
@@ -27,6 +30,7 @@
       procedure :: Compute_Momentum
       procedure :: Form_Diffusion_Matrix
       procedure :: Insert_Diffusion_Bc
+      procedure :: Add_Advection_Term
       procedure :: Add_Inertial_Term
       procedure :: Add_Pressure_Term
       procedure :: Correct_Velocity
@@ -46,6 +50,7 @@
 #   include "Process_Mod/Compute_Momentum.f90"
 #   include "Process_Mod/Form_Diffusion_Matrix.f90"
 #   include "Process_Mod/Insert_Diffusion_Bc.f90"
+#   include "Process_Mod/Add_Advection_Term.f90"
 #   include "Process_Mod/Add_Inertial_Term.f90"
 #   include "Process_Mod/Add_Pressure_Term.f90"
 #   include "Process_Mod/Correct_Velocity.f90"

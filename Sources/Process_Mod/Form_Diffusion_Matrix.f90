@@ -28,9 +28,9 @@
   dy = Grid % ly / Grid % ny
   dz = Grid % lz / Grid % nz
 
-  a_we = dy * dz / dx
-  a_sn = dz * dx / dy
-  a_bt = dx * dy / dz
+  a_we = (dy * dz / dx) * VISC
+  a_sn = (dz * dx / dy) * VISC
+  a_bt = (dx * dy / dz) * VISC
 
   nx = Grid % nx
   ny = Grid % ny
@@ -81,7 +81,7 @@
   !------------------------------------!
   if(present(dt)) then
     do c = 1, Grid % n_cells
-      M % val(M % dia(c)) = M % val(M % dia(c)) + Grid % vol(c) / dt
+      M % val(M % dia(c)) = M % val(M % dia(c)) + DENS * Grid % vol(c) / dt
     end do
   end if
 

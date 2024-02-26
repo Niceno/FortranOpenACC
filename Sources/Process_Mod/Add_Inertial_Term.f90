@@ -27,15 +27,15 @@
 
   if(comp .eq. 1) then
     do c = 1, Grid % n_cells
-      b(c) = b(c) + u % o(c) * Grid % vol(c) / dt
+      b(c) = b(c) + DENS * u % o(c) * Grid % vol(c) / dt
     end do
   else if(comp .eq. 2) then
     do c = 1, Grid % n_cells
-      b(c) = b(c) + v % o(c) * Grid % vol(c) / dt
+      b(c) = b(c) + DENS * v % o(c) * Grid % vol(c) / dt
     end do
   else if(comp .eq. 3) then
     do c = 1, Grid % n_cells
-      b(c) = b(c) + w % o(c) * Grid % vol(c) / dt
+      b(c) = b(c) + DENS * w % o(c) * Grid % vol(c) / dt
     end do
   end if
 
