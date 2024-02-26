@@ -24,6 +24,8 @@
   Unused(Proc)
 !==============================================================================!
 
+  call Profiler % Start('Add_Pressure_Term')
+
   ! Take some aliases
   Grid => Flow % pnt_grid
   b    => Flow % Nat % b
@@ -42,5 +44,7 @@
       b(c) = b(c) - p % z(c) * Grid % vol(c)
     end do
   end if
+
+  call Profiler % Stop('Add_Pressure_Term')
 
   end subroutine

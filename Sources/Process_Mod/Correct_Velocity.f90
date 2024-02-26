@@ -25,6 +25,8 @@
   Unused(Proc)
 !==============================================================================!
 
+  call Profiler % Start('Correct_Velocity')
+
   ! Take some aliases
   Grid   => Flow % pnt_grid
   b      => Flow % Nat % b
@@ -80,5 +82,7 @@
   do c = 1, Grid % n_cells
     p % n(c) = p % n(c) + 0.2 * pp % n(c)
   end do
+
+  call Profiler % Stop('Correct_Velocity')
 
   end subroutine

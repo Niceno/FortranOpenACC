@@ -27,6 +27,8 @@
   print '(a)', ' # TEST 6: Call Conjugate Gradient from Native_Mod'
   print '(a)', ' #====================================================='
 
+  call Profiler % Start('Test_006')
+
   print '(a)', ' # Creating a grid'
   call Grid % Load_Grid("test_006_cube.ini")
 
@@ -196,5 +198,9 @@
                                               Flow % w % n(1:n))
 
   print '(a,f12.3,a)', ' # Time elapsed for TEST 6: ', te-ts, ' [s]'
+
+  call Profiler % Stop('Test_006')
+
+  call Profiler % Statistics(indent=1)
 
   end subroutine

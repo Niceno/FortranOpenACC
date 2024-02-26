@@ -17,6 +17,8 @@
   Unused(Proc)
 !==============================================================================!
 
+  call Profiler % Start('Compute_Momentum')
+
   Assert(comp .ge. 1)
   Assert(comp .le. 3)
 
@@ -35,10 +37,11 @@
   call Process % Add_Inertial_Term  (Flow, dt, comp=comp)
   call Process % Add_Pressure_Term  (Flow,     comp=comp)
 
-  ! Send the r.h.s. to device
-  call Gpu % Vector_Update_Device(b)
-
   ! Call linear solver
+  call Profiler % Start('CG_for_Momentum')
   call Flow % Nat % Cg(M, ui, b, n, MICRO)
+  call Profiler % Stop('CG_for_Momentum')
+
+  call Profiler % Stop('Compute_Momentum')
 
   end subroutine

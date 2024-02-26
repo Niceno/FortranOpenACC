@@ -15,6 +15,8 @@
   Unused(Proc)
 !==============================================================================!
 
+  call Profiler % Start('Compute_Pressure')
+
   ! Take some aliases
   Grid => Flow % pnt_grid
   A    => Flow % Nat % A
@@ -23,7 +25,12 @@
   n    =  Grid % n_cells
 
   call Process % Insert_Volume_Source_For_Pressure(Flow)
-  call Gpu % Vector_Update_Device(b)
+
+  ! Call linear solver
+  call Profiler % Start('CG_for_Pressure')
   call Flow % Nat % Cg(A, pp, b, n, FEMTO)
+  call Profiler % Stop('CG_for_Pressure')
+
+  call Profiler % Stop('Compute_Pressure')
 
   end subroutine

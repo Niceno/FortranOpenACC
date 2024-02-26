@@ -32,11 +32,13 @@
 !-----------------------------------[Locals]-----------------------------------!
   type(Grid_Type),   pointer :: Grid
   type(Matrix_Type), pointer :: A, M
-  integer                    :: s, c1, c2, c
+  integer                    :: s, c1, c2
   real                       :: a12
 !------------------------[Avoid unused parent warning]-------------------------!
   Unused(Proc)
 !==============================================================================!
+
+  call Profiler % Start('Form_Pressure_Matrix')
 
   ! Take some aliases
   Grid => Flow % pnt_grid
@@ -58,5 +60,7 @@
     A % val(A % dia(c1))  = A % val(A % dia(c1)) +  a12
     A % val(A % dia(c2))  = A % val(A % dia(c2)) +  a12
   end do
+
+  call Profiler % Stop('Form_Pressure_Matrix')
 
   end subroutine

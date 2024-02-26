@@ -32,16 +32,27 @@ $(DIR_OBJECT)/Grid_Mod.o \
 Grid_Mod/*.f90 
 
 #-- ./Var_Mod/Create_Variable.f90
+#-- ./Linalg_Mod/Vec_P_Vec_X_Vec_Acc.f90
+#-- ./Linalg_Mod/Vec_M_Vec_X_Vec.f90
 #-- ./Linalg_Mod/Mat_X_Vec.f90
 #-- ./Linalg_Mod/Vec_Copy.f90
 #-- ./Linalg_Mod/Vec_X_Vec.f90
+#-- ./Linalg_Mod/Vec_P_Vec_X_Vec.f90
 #-- ./Linalg_Mod/Vec_D_Vec.f90
 #-- ./Linalg_Mod/Vec_X_Vec_Acc.f90
+#-- ./Linalg_Mod/Vec_M_Vec_X_Vec_Acc.f90
 #-- ./Linalg_Mod/Vec_P_Sca_X_Vec.f90
 #-- ./Linalg_Mod/Mat_X_Vec_Acc.f90
 #-- ./Linalg_Mod/Vec_Copy_Acc.f90
 #-- ./Linalg_Mod/Vec_P_Sca_X_Vec_Acc.f90
 #-- ./Linalg_Mod/Vec_D_Vec_Acc.f90
+#-- ./Profiler_Mod.f90
+$(DIR_OBJECT)/Profiler_Mod.o:\
+Profiler_Mod/*.f90 \
+$(DIR_OBJECT)/Const_Mod.o \
+$(DIR_OBJECT)/Assert_Mod.o \
+Assert_Mod/*.f90 
+
 #-- ./Field_Mod/Calculate_Grad_Matrix.f90
 #-- ./Field_Mod/Create_Field.f90
 #-- ./Field_Mod/Grad_Component.f90
@@ -73,6 +84,8 @@ Linalg_Mod/*.f90
 #-- ./Process_Mod/Form_Diffusion_Matrix.f90
 #-- ./Process_Mod.f90
 $(DIR_OBJECT)/Process_Mod.o:\
+$(DIR_OBJECT)/Profiler_Mod.o \
+Profiler_Mod/*.f90 \
 Process_Mod/*.f90 \
 $(DIR_OBJECT)/Gpu_Mod.o \
 Gpu_Mod/*/*.f90 \
@@ -172,6 +185,8 @@ $(DIR_OBJECT)/Const_Mod.o
 #-- ./Gpu_Mod/Grid/Face_Cell_Connectivity_Copy_To_Device.f90
 #-- ./Gpu_Mod/Grid/Cell_Coordinates_Copy_To_Device.f90
 #-- ./Gpu_Mod/Grid/Cell_Cell_Connectivity_Copy_To_Device.f90
+#-- ./Gpu_Mod/Grid/Cell_Volumes_Destroy_On_Device.f90
+#-- ./Gpu_Mod/Grid/Cell_Volumes_Copy_To_Device.f90
 #-- ./Gpu_Mod/Grid/Face_Cell_Connectivity_Destroy_On_Device.f90
 #-- ./Gpu_Mod/Grid/Cell_Cell_Connectivity_Destroy_On_Device.f90
 #-- ./Gpu_Mod/Field/Grad_Matrix_Copy_To_Device.f90
@@ -188,3 +203,7 @@ Assert_Mod/*.f90
 #-- ./Native_Mod/Create_Native.f90
 #-- ./Native_Mod/Cg.f90
 #-- ./Native_Mod/Cg_Avoids_If.f90
+#-- ./Profiler_Mod/Stop.f90
+#-- ./Profiler_Mod/Statistics.f90
+#-- ./Profiler_Mod/Update_By_Rank.f90
+#-- ./Profiler_Mod/Start.f90

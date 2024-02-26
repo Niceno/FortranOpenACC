@@ -11,6 +11,8 @@
   real                      :: jac, g_inv(6)
 !==============================================================================!
 
+  call Profiler % Start('Calculate_Grad_Matrix')
+
   ! Take alias
   Grid => Flow % pnt_grid
 
@@ -115,5 +117,7 @@
     Flow % grad_c2c(5,c) = g_inv(5)
     Flow % grad_c2c(6,c) = g_inv(6)
   end do
+
+  call Profiler % Stop('Calculate_Grad_Matrix')
 
   end subroutine

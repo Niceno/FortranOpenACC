@@ -16,6 +16,8 @@
   Unused(Proc)
 !==============================================================================!
 
+  call Profiler % Start('Add_Inertial_Term')
+
   ! Take some aliases
   Grid => Flow % pnt_grid
   b    => Flow % Nat % b
@@ -36,5 +38,7 @@
       b(c) = b(c) + w % o(c) * Grid % vol(c) / dt
     end do
   end if
+
+  call Profiler % Stop('Add_Inertial_Term')
 
   end subroutine

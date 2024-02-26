@@ -16,6 +16,8 @@
   Unused(Proc)
 !==============================================================================!
 
+  call Profiler % Start('Form_Diffusion_Matrix')
+
   ! Take some aliases
   Grid => Flow % pnt_grid
   M    => Flow % Nat % M
@@ -90,5 +92,7 @@
   do c = 1, Grid % n_cells
     M % v_m(c) = Grid % vol(c) / M % val(M % dia(c))
   end do
+
+  call Profiler % Stop('Form_Diffusion_Matrix')
 
   end subroutine

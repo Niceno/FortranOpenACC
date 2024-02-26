@@ -16,6 +16,8 @@
   Unused(Proc)
 !==============================================================================!
 
+  call Profiler % Start('Insert_Diffusion_Bc')
+
   ! Take some aliases
   Grid => Flow % pnt_grid
   bc   => Grid % bc
@@ -47,5 +49,7 @@
     if(k==1  .and. bc % b_type=='D')  b(c) = b(c) + bc % b_vals(comp) * 2.*a_bt
     if(k==nz .and. bc % t_type=='D')  b(c) = b(c) + bc % t_vals(comp) * 2.*a_bt
   end do
+
+  call Profiler % Stop('Insert_Diffusion_Bc')
 
   end subroutine

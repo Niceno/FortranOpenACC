@@ -37,10 +37,12 @@
   real,              pointer :: v_flux(:)
   real                       :: a12
   real                       :: u_f, v_f, w_f
-  integer                    :: s, c1, c2, c
+  integer                    :: s, c1, c2
 !------------------------[Avoid unused parent warning]-------------------------!
   Unused(Proc)
 !==============================================================================!
+
+  call Profiler % Start('Insert_Volume_Source_For_Pressure')
 
   Grid   => Flow % pnt_grid
   b      => Flow % Nat % b
@@ -98,5 +100,7 @@
 
   print '(a,es12.3)', ' # Max. volume balance error '//  &
                       'before correction: ', maxval(abs(b))
+
+  call Profiler % Stop('Insert_Volume_Source_For_Pressure')
 
   end subroutine

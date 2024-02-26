@@ -14,6 +14,8 @@
   real    :: dx, dy, dz
 !==============================================================================!
 
+  call Profiler % Start('Grad_Pressure')
+
   ! All or nothing must be present
   Assert(present(phi_x) .eqv. present(phi_y))
   Assert(present(phi_y) .eqv. present(phi_z))
@@ -99,5 +101,7 @@
     end if
 
   end do
+
+  call Profiler % Stop('Grad_Pressure')
 
   end subroutine
