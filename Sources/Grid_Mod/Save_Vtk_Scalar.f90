@@ -10,6 +10,8 @@
   integer :: i, j, k, c, fu
 !==============================================================================!
 
+  call Profiler % Start('Save_Vtk_Scalar')
+
   ! Open file
   fu = 10
   open(unit=fu, file=file_name, status='replace', action='write')
@@ -57,5 +59,7 @@
 
   ! Close file
   close(unit=fu)
+
+  call Profiler % Stop('Save_Vtk_Scalar')
 
   end subroutine
