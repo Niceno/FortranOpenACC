@@ -26,10 +26,20 @@
 
   call Process % Insert_Volume_Source_For_Pressure(Flow)
 
+  ! Understandable enough, before calling the CG, whose components
+  ! are on the device, the source should be sent there too.  Unlike
+  ! momentum conservation equations, whose components changed during
+  ! the velocity correction, pressure corrections did not change since
+  ! the last call, and they don't have to be updated.
+  call Gpu % Vector_Update_Device(Flow % Nat % b)
+
   ! Call linear solver
   call Profiler % Start('CG_for_Pressure')
   call Flow % Nat % Cg(A, pp, b, n, PICO)
   call Profiler % Stop('CG_for_Pressure')
+
+  ! Solver done: retreive what was computed
+  call Gpu % Vector_Update_Host(Flow % pp % n)
 
   call Profiler % Stop('Compute_Pressure')
 

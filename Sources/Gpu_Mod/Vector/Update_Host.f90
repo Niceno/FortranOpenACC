@@ -15,7 +15,11 @@
 # endif
 !==============================================================================!
 
+  call Profiler % Start('Update_Host')
+
   !$acc update host(a)
+
+  call Profiler % Stop('Update_Host')
 
   end subroutine
 

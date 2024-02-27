@@ -8,8 +8,8 @@
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
-  integer, parameter       :: N_STEPS = 600 ! spend enough time on device
-  integer, parameter       :: N_ITERS =   6 ! spend enough time on device
+  integer, parameter       :: N_STEPS =   3                    ! <- GPU_1
+  integer, parameter       :: N_ITERS =   3                    ! <- GPU_1
   type(Grid_Type)          :: Grid          ! computational grid
   type(Field_Type), target :: Flow          ! flow field
   real                     :: ts, te
@@ -25,7 +25,7 @@
   call Profiler % Start('Test_006')
 
   print '(a)', ' #====================================================='
-  print '(a)', ' # TEST 6: Call Conjugate Gradient from Native_Mod'
+  print '(a)', ' # TEST 6: Solution of Navier-Stokes equations'
   print '(a)', ' #====================================================='
 
   print '(a)', ' # Creating a grid'
@@ -34,7 +34,7 @@
   n = Grid % n_cells
   print '(a, i12)',   ' # The problem size is: ', n
   print '(a,es12.3)', ' # Solver tolerace is : ', PICO
-  dt = 0.025
+  dt = 1.0 / 200.0                                             ! <- GPU_1
 
   print '(a)', ' #----------------------------------------------------'
   print '(a)', ' # Be careful with memory usage.  If you exceed the'
@@ -64,6 +64,43 @@
   Flow % u % n(:) = 0.0
   Flow % v % n(:) = 0.0
   Flow % w % n(:) = 0.0
+
+  ! OK, once you formed the preconditioners, you               ! <- GPU_1
+  ! will want to keep these matrices on the device             ! <- GPU_1
+  call Gpu % Sparse_Copy_To_Device(Flow % Nat % M)             ! <- GPU_1
+  call Gpu % Sparse_Copy_To_Device(Flow % Nat % A)             ! <- GPU_1
+
+  ! and that bloody right-hand-side vector too                 ! <- GPU_1
+  call Gpu % Vector_Copy_To_Device(Flow % Nat % b)             ! <- GPU_1
+
+  ! In addition to system matrices of your discretized         ! <- GPU_1
+  ! equations, you will want to have gradient matrices, as     ! <- GPU_1
+  ! well as cell connectivity and cell coordinates on the      ! <- GPU_1
+  ! device (they are all needed for gradients), ...            ! <- GPU_1
+  call Gpu % Matrix_Copy_To_Device(Flow % grad_c2c)            ! <- GPU_1
+  call Gpu % Grid_Cell_Cell_Connectivity_Copy_To_Device(Grid)  ! <- GPU_1
+  call Gpu % Grid_Cell_Coordinates_Copy_To_Device(Grid)        ! <- GPU_1
+                                                               ! <- GPU_1
+  ! ... and the vectors of the native suite of solvers         ! <- GPU_1
+  call Gpu % Native_Transfer_To_Device(Flow % Nat)             ! <- GPU_1
+
+  ! OK, fine, now you have all sort of matrices and supporting ! <- GPU_1
+  ! data on the device, but you will also need variables sol-  ! <- GPU_1
+  ! ved for (pp % n, u % n, v % n and w % n), universal source ! <- GPU_1
+  ! for them all (b) and the variables whose gradients are     ! <- GPU_1
+  ! being computed (pp % n and p % n) as well as gradient com- ! <- GPU_1
+  ! ponents (pp % x, pp % y, pp % z, p % x, p % y and p % z)   ! <- GPU_1
+  call Gpu % Vector_Copy_To_Device(Flow % pp % n)              ! <- GPU_1
+  call Gpu % Vector_Copy_To_Device(Flow % p % n)               ! <- GPU_1
+  call Gpu % Vector_Copy_To_Device(Flow % u % n)               ! <- GPU_1
+  call Gpu % Vector_Copy_To_Device(Flow % v % n)               ! <- GPU_1
+  call Gpu % Vector_Copy_To_Device(Flow % w % n)               ! <- GPU_1
+  call Gpu % Vector_Copy_To_Device(Flow % pp % x)              ! <- GPU_1
+  call Gpu % Vector_Copy_To_Device(Flow % pp % y)              ! <- GPU_1
+  call Gpu % Vector_Copy_To_Device(Flow % pp % z)              ! <- GPU_1
+  call Gpu % Vector_Copy_To_Device(Flow % p % x)               ! <- GPU_1
+  call Gpu % Vector_Copy_To_Device(Flow % p % y)               ! <- GPU_1
+  call Gpu % Vector_Copy_To_Device(Flow % p % z)               ! <- GPU_1
 
   !-----------------------------------------------!
   !   Performing a fake time loop on the device   !

@@ -15,7 +15,11 @@
 # endif
 !==============================================================================!
 
+  call Profiler % Start('Update_Device')
+
   !$acc update device(a)
+
+  call Profiler % Stop('Update_Device')
 
   end subroutine
 
