@@ -1,6 +1,8 @@
 !==============================================================================!
   subroutine Add_Advection_Term(Proc, Flow, comp)
 !------------------------------------------------------------------------------!
+!   Thoroughly re-vamped for the GPU_2                                         !
+!------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
 !   Dimension of the system under consideration                                !
@@ -10,11 +12,14 @@
   type(Field_Type), target :: Flow
   integer                  :: comp
 !-----------------------------------[Locals]-----------------------------------!
-  type(Grid_Type), pointer :: Grid
-  type(Var_Type),  pointer :: ui
-  real,            pointer :: b(:)
-  real,            pointer :: v_flux(:)
-  integer                  :: s, c1, c2
+  type(Grid_Type),     pointer :: Grid
+  real,    contiguous, pointer :: ui_n(:)
+  real,    contiguous, pointer :: b(:)
+  real,    contiguous, pointer :: v_flux(:)
+  integer, contiguous, pointer :: cells_n_cells(:)
+  integer,             pointer :: cells_c(:,:), cells_f(:,:)
+  real                         :: b_tmp, den_v_u1, den_v_u2
+  integer                      :: s, c1, c2, i_cel, n
 !------------------------[Avoid unused parent warning]-------------------------!
   Unused(Proc)
 !==============================================================================!
@@ -22,36 +27,56 @@
   call Profiler % Start('Add_Advection_Term')
 
   ! Take some aliases
-  Grid   => Flow % pnt_grid
-  b      => Flow % Nat % b
-  v_flux => Flow % v_flux
+  Grid          => Flow % pnt_grid
+  b             => Flow % Nat % b
+  v_flux        => Flow % v_flux
+  cells_n_cells => Grid % cells_n_cells
+  cells_c       => Grid % cells_c
+  cells_f       => Grid % cells_f
+  n             =  Grid % n_cells
 
   ! Still on aliases
-  if(comp .eq. 1) ui => Flow % u
-  if(comp .eq. 2) ui => Flow % v
-  if(comp .eq. 3) ui => Flow % w
+  if(comp .eq. 1) ui_n => Flow % u % n
+  if(comp .eq. 2) ui_n => Flow % v % n
+  if(comp .eq. 3) ui_n => Flow % w % n
 
   !-------------------------------------------!
-  !   Browse through all the interior faces   !
-  !   (This creates race conditions on GPU)   !
+  !   Browse through all the interior cells   !
+  !      (This can be accelerted on GPU)      !
   !-------------------------------------------!
-  do s = Grid % n_bnd_cells + 1, Grid % n_faces
-    c1 = Grid % faces_c(1, s)
-    c2 = Grid % faces_c(2, s)
 
-    ! Flux goes from c1 to c2 (kg/m^3 * m^3/s * m/s = kg m/s^2 - OK)
-    if(v_flux(s) .gt. 0) then
-      b(c1) = b(c1) - DENS * v_flux(s) * ui % n(c1)
-      b(c2) = b(c2) + DENS * v_flux(s) * ui % n(c1)
-    end if
+  ! Update device with what is needed for updating right-hand side (b)
+  call Gpu % Vector_Update_Device(b)
+  call Gpu % Vector_Update_Device(v_flux)
+  call Gpu % Vector_Update_Device(ui_n)
 
-    ! Flux goes from c2 to c1 (kg/m^3 * m^3/s * m/s = kg m/s^2 - OK)
-    if(v_flux(s) .lt. 0) then
-      b(c1) = b(c1) - DENS * v_flux(s) * ui % n(c2)
-      b(c2) = b(c2) + DENS * v_flux(s) * ui % n(c2)
-    end if
+  !$acc parallel loop
+  do c1 = 1, n
+
+    b_tmp = b(c1)
+
+    !$acc loop seq
+    do i_cel = 1, cells_n_cells(c1)
+      c2 = cells_c(i_cel, c1)
+      s  = cells_f(i_cel, c1)
+      if(c2 .gt. 0) then
+        den_v_u1 = DENS * v_flux(s) * ui_n(c1)
+        den_v_u2 = DENS * v_flux(s) * ui_n(c2)
+        b_tmp = b_tmp - den_v_u1 * max(v_flux(s), 0.0) * merge(1,0, c1.lt.c2)
+        b_tmp = b_tmp - den_v_u2 * min(v_flux(s), 0.0) * merge(1,0, c1.lt.c2)
+        b_tmp = b_tmp + den_v_u2 * max(v_flux(s), 0.0) * merge(1,0, c1.gt.c2)
+        b_tmp = b_tmp + den_v_u1 * min(v_flux(s), 0.0) * merge(1,0, c1.gt.c2)
+      end if
+    end do
+    !$acc end loop
+
+    b(c1) = b_tmp
 
   end do
+  !$acc end parallel
+
+  ! Update host with the new right-hand side (b)
+  call Gpu % Vector_Update_Host(b)
 
   call Profiler % Stop('Add_Advection_Term')
 

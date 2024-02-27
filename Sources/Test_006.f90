@@ -80,6 +80,7 @@
   call Gpu % Matrix_Real_Copy_To_Device(Flow % grad_c2c)       ! <- GPU_1
   call Gpu % Vector_Int_Copy_To_Device(Grid % cells_n_cells)   ! <- GPU_1
   call Gpu % Matrix_Int_Copy_To_Device(Grid % cells_c)         ! <- GPU_1
+  call Gpu % Matrix_Int_Copy_To_Device(Grid % cells_f)         ! <- GPU_2
   call Gpu % Vector_Real_Copy_To_Device(Grid % xc)             ! <- GPU_1
   call Gpu % Vector_Real_Copy_To_Device(Grid % yc)             ! <- GPU_1
   call Gpu % Vector_Real_Copy_To_Device(Grid % zc)             ! <- GPU_1
@@ -104,6 +105,7 @@
   call Gpu % Vector_Real_Copy_To_Device(Flow % p % x)          ! <- GPU_1
   call Gpu % Vector_Real_Copy_To_Device(Flow % p % y)          ! <- GPU_1
   call Gpu % Vector_Real_Copy_To_Device(Flow % p % z)          ! <- GPU_1
+  call Gpu % Vector_Real_Copy_To_Device(Flow % v_flux)         ! <- GPU_2
 
   !-----------------------------------------------!
   !   Performing a fake time loop on the device   !
@@ -167,6 +169,7 @@
   call cpu_time(te)
 
   ! Save results
+  goto 1
   call Grid % Save_Vtk_Scalar("p.vtk",  Flow % p  % n(1:n))
   call Grid % Save_Vtk_Scalar("pp.vtk", Flow % pp % n(1:n))
   call Grid % Save_Vtk_Vector("velocity.vtk", Flow % u % n(1:n),  &
@@ -182,7 +185,7 @@
 
   print '(a,f12.3,a)', ' # Time elapsed for TEST 6: ', te-ts, ' [s]'
 
-  call Profiler % Stop('Test_006')
+1 call Profiler % Stop('Test_006')
 
   call Profiler % Statistics(indent=1)
 
