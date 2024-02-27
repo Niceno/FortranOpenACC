@@ -5,7 +5,6 @@
 !------------------------------------------------------------------------------!
   use Native_Mod
   use Process_Mod
-!@use Gpu_Mod
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
@@ -23,11 +22,11 @@
 !@character(18)            :: name_p_grad  = 'TTT_III_p_grad.vtk'
 !==============================================================================!
 
+  call Profiler % Start('Test_006')
+
   print '(a)', ' #====================================================='
   print '(a)', ' # TEST 6: Call Conjugate Gradient from Native_Mod'
   print '(a)', ' #====================================================='
-
-  call Profiler % Start('Test_006')
 
   print '(a)', ' # Creating a grid'
   call Grid % Load_Grid("test_006_cube.ini")
@@ -95,8 +94,6 @@
 
     do iter = 1, N_ITERS
 
-      Flow % pp % n = 0.0
-
 !@    write(name_vel    (5:7), '(i3.3)') , iter
 !@    write(name_pp     (5:7), '(i3.3)') , iter
 !@    write(name_p      (5:7), '(i3.3)') , iter
@@ -114,10 +111,6 @@
 
       print '(a)', ' # Solving pp'
       call Process % Compute_Pressure(Flow)
-
-      ! This will plot nothing, since solutions to pressure
-      ! corrections are on the device, and not on the host
-      ! call Grid % Save_Vtk_Scalar(name_pp, Flow % pp % n(1:n))
 
       ! Pressure gradient is computed on the device
       call Flow % Grad_Pressure(Grid, Flow % pp)
