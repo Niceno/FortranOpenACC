@@ -9,7 +9,7 @@
   integer                  :: comp
 !-----------------------------------[Locals]-----------------------------------!
   type(Grid_Type),   pointer :: Grid
-  type(Matrix_Type), pointer :: M
+  type(Sparse_Type), pointer :: M
   real,              pointer :: ui_n(:)
   real,              pointer :: b(:)
   integer                    :: n

@@ -4,7 +4,7 @@
   implicit none
 !---------------------------------[Arguments]----------------------------------!
   class(Native_Type), target, intent(in) :: Nat  !! parent, Native_Type object
-  type(Matrix_Type),  target, intent(in) :: A    !! an existing matrix
+  type(Sparse_Type),  target, intent(in) :: A    !! an existing matrix
 !-----------------------------------[Locals]-----------------------------------!
   type(Grid_Type),   pointer :: Grid
   real, contiguous,  pointer :: d_inv(:)

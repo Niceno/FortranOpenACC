@@ -1,7 +1,7 @@
 #include "Assert.h90"
 
 !==============================================================================!
-  module Matrix_Mod
+  module Sparse_Mod
 !------------------------------------------------------------------------------!
 !----------------------------------[Modules]-----------------------------------!
   use Grid_Mod
@@ -37,10 +37,10 @@
 
   !-----------------!
   !                 !
-  !   Matrix Type   !
+  !   Sparse type   !
   !                 !
   !-----------------!
-  type Matrix_Type
+  type Sparse_Type
 
     type(Grid_Type), pointer :: pnt_grid  !! pointer to grid
 
@@ -56,13 +56,13 @@
     real,    allocatable :: v_m(:)    !! cell volume over momentum diagonal
 
     contains
-      procedure :: Create_Matrix
-      procedure :: Create_Matrix_From_Matrix
+      procedure :: Create_Sparse
+      procedure :: Create_Sparse_From_Sparse
 
   end type
 
   contains
-#   include "Matrix_Mod/Create_Matrix.f90"
-#   include "Matrix_Mod/Create_Matrix_From_Matrix.f90"
+#   include "Sparse_Mod/Create_Sparse.f90"
+#   include "Sparse_Mod/Create_Sparse_From_Sparse.f90"
 
   end module

@@ -141,12 +141,12 @@ SRC_MOD = Const_Mod.f90		\
           Assert_Mod.f90	\
           Profiler_Mod.f90	\
           Grid_Mod.f90		\
-          Matrix_Mod.f90	\
+          Sparse_Mod.f90	\
           Linalg_Mod.f90	\
           Native_Mod.f90	\
           Var_Mod.f90		\
-          Field_Mod.f90		\
           Gpu_Mod.f90		\
+          Field_Mod.f90		\
           Process_Mod.f90
 
 #---------------

@@ -4,9 +4,10 @@
   module Field_Mod
 !----------------------------------[Modules]-----------------------------------!
   use Assert_Mod
-  use Matrix_Mod
+  use Sparse_Mod
   use Native_Mod
   use Var_mod
+  use Gpu_mod
   use Profiler_mod
 !------------------------------------------------------------------------------!
   implicit none
@@ -17,7 +18,7 @@
   !----------------!
   type Field_Type
 
-    type(Matrix_Type), pointer :: pnt_matrix  !! pointer to the matrix
+    type(Sparse_Type), pointer :: pnt_matrix  !! pointer to the matrix
     type(Grid_Type),   pointer :: pnt_grid    !! grid for which it is defined
 
     type(Native_Type) :: Nat

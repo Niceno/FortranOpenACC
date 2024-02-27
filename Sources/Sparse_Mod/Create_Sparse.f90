@@ -1,9 +1,9 @@
 !==============================================================================!
-  subroutine Create_Matrix(A, Grid)
+  subroutine Create_Sparse(A, Grid)
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Matrix_Type)      :: A       !! parent class
+  class(Sparse_Type)      :: A       !! parent class
   type(Grid_Type), target :: Grid    !! grid on which it is created
 !-----------------------------------[Locals]-----------------------------------!
   integer :: i, j, k, ni, nj, nk, non_z

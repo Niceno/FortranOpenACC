@@ -31,7 +31,7 @@
   type(Field_Type), target :: Flow
 !-----------------------------------[Locals]-----------------------------------!
   type(Grid_Type),   pointer :: Grid
-  type(Matrix_Type), pointer :: A, M
+  type(Sparse_Type), pointer :: A, M
   integer                    :: s, c1, c2
   real                       :: a12
 !------------------------[Avoid unused parent warning]-------------------------!

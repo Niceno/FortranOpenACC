@@ -8,7 +8,7 @@
   real,              optional :: dt                 !! time step
 !-----------------------------------[Locals]-----------------------------------!
   type(Grid_Type),   pointer :: Grid
-  type(Matrix_Type), pointer :: M
+  type(Sparse_Type), pointer :: M
   type(Bc_Type),     pointer :: bc
   real                       :: dx, dy, dz, a_we, a_sn, a_bt
   integer                    :: nx, ny, nz, i, j, k, c, d, ij

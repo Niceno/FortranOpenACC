@@ -1,10 +1,10 @@
 !==============================================================================!
-  subroutine Create_Matrix_From_Matrix(A, B)
+  subroutine Create_Sparse_From_Sparse(A, B)
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Matrix_Type)        :: A
-  type(Matrix_Type), target :: B
+  class(Sparse_Type)        :: A
+  type(Sparse_Type), target :: B
 !-----------------------------------[Locals]-----------------------------------!
   type(Grid_Type), pointer :: Grid
 !==============================================================================!

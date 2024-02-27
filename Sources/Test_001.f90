@@ -9,7 +9,7 @@
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
-  type(Matrix_Type), pointer :: A
+  type(Sparse_Type), pointer :: A
   real, allocatable          :: b(:), c(:)
   type(Grid_Type)            :: Grid
   type(Field_Type),   target :: Flow                   ! flow field
@@ -51,7 +51,7 @@
 
   ! Copy operand matrix and vector to the device ...
   ! ... and reserve memory for result vector on device
-  call Gpu % Matrix_Copy_To_Device(A)
+  call Gpu % Sparse_Copy_To_Device(A)
   call Gpu % Vector_Copy_To_Device(b)
   call Gpu % Vector_Create_On_Device(c)
 
@@ -69,7 +69,7 @@
   call Gpu % Vector_Update_Host(c)
 
   ! Destroy data on the device, you don't need them anymore
-  call Gpu % Matrix_Destroy_On_Device(A)
+  call Gpu % Sparse_Destroy_On_Device(A)
   call Gpu % Vector_Destroy_On_Device(b)
   call Gpu % Vector_Destroy_On_Device(c)
 

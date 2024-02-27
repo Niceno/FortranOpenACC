@@ -8,7 +8,7 @@
   implicit none
 !---------------------------------[Arguments]----------------------------------!
   class(Native_Type), target, intent(inout) :: Nat      !! parent class
-  type(Matrix_Type),  target, intent(in)    :: A        !! system matrix
+  type(Sparse_Type),  target, intent(in)    :: A        !! system matrix
   real,                       intent(out)   :: x(-Nat % pnt_grid % n_bnd_cells:&
                                                   Nat % pnt_grid % n_cells)
     !! unknown vector, the solution of the linear system

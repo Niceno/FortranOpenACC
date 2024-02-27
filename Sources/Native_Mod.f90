@@ -14,10 +14,10 @@
     type(Grid_Type), pointer :: pnt_grid  !! pointer to the numerical grid
 
     ! Matrix for all variables except momentum
-    type(Matrix_Type) :: A  !! system matrix for all variables except momentum
+    type(Sparse_Type) :: A  !! system matrix for all variables except momentum
 
     ! Matrix for momentum equations
-    type(Matrix_Type) :: M  !! system matrix for all variables except momentum
+    type(Sparse_Type) :: M  !! system matrix for all variables except momentum
 
     ! Right-hand side vector for all variables
     real, allocatable :: b(:)

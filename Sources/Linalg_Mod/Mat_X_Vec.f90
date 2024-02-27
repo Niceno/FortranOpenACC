@@ -10,7 +10,7 @@
   class(Linalg_Type)  :: Lin   !! parent class
   integer, intent(in) :: n     !! size of vectors
   real                :: c(n)  !! result vector
-  type(Matrix_Type)   :: A     !! operand matrix
+  type(Sparse_Type)   :: A     !! operand matrix
   real                :: b(n)  !! operand vector
 !-----------------------------------[Locals]-----------------------------------!
   integer :: nz

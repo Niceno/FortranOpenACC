@@ -55,7 +55,7 @@
   call Flow % Calculate_Grad_Matrix()
 
   ! Copy what you need for gradient calculation to the device
-  call Gpu % Field_Grad_Matrix_Copy_To_Device(Flow)
+  call Gpu % Matrix_Copy_To_Device(Flow % grad_c2c)
   call Gpu % Grid_Cell_Cell_Connectivity_Copy_To_Device(Grid)
   call Gpu % Grid_Cell_Coordinates_Copy_To_Device(Grid)
   call Gpu % Vector_Copy_To_Device(Flow % p % n)
@@ -82,7 +82,7 @@
   call Grid % Save_Vtk_Vector("grad_0.vtk", phi_x(1), phi_y(1), phi_z(1))
 
   ! Destroy data on the device, you don't need them anymore
-  call Gpu % Field_Grad_Matrix_Destroy_On_Device(Flow)
+  call Gpu % Matrix_Destroy_On_Device(Flow % grad_c2c)
   call Gpu % Grid_Cell_Cell_Connectivity_Destroy_On_Device(Grid)
   call Gpu % Grid_Cell_Coordinates_Destroy_On_Device(Grid)
   call Gpu % Vector_Destroy_On_Device(Flow % p % n)

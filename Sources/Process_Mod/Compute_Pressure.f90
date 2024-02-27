@@ -7,7 +7,7 @@
   type(Field_Type), target :: Flow
 !-----------------------------------[Locals]-----------------------------------!
   type(Grid_Type),   pointer :: Grid
-  type(Matrix_Type), pointer :: A
+  type(Sparse_Type), pointer :: A
   real,              pointer :: pp(:)
   real,              pointer :: b(:)
   integer                    :: n

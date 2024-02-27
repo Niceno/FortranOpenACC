@@ -31,7 +31,7 @@
   type(Field_Type), target :: Flow
 !-----------------------------------[Locals]-----------------------------------!
   type(Grid_Type),   pointer :: Grid
-  type(Matrix_Type), pointer :: M
+  type(Sparse_Type), pointer :: M
   type(Var_Type),    pointer :: u, v, w, pp, p
   real,              pointer :: b(:)
   real,              pointer :: v_flux(:)
