@@ -59,8 +59,8 @@
 
   ! Copy components of the linear system to the device
   call Gpu % Sparse_Copy_To_Device(A)
-  call Gpu % Vector_Copy_To_Device(x)
-  call Gpu % Vector_Copy_To_Device(b)
+  call Gpu % Vector_Real_Copy_To_Device(x)
+  call Gpu % Vector_Real_Copy_To_Device(b)
 
   ! Allocate vectors related to CG algorithm on the device
   call Gpu % Native_Transfer_To_Device(Flow % Nat)
@@ -78,8 +78,8 @@
 
   ! Destroy data on the device, you don't need them anymore
   call Gpu % Sparse_Destroy_On_Device(A)
-  call Gpu % Vector_Destroy_On_Device(x)
-  call Gpu % Vector_Destroy_On_Device(b)
+  call Gpu % Vector_Real_Destroy_On_Device(x)
+  call Gpu % Vector_Real_Destroy_On_Device(b)
 
   call Gpu % Native_Destroy_On_Device(Flow % Nat)
 

@@ -1,7 +1,7 @@
 !==============================================================================!
-  subroutine Vector_Create_On_Device(Gpu, a)
+  subroutine Vector_Real_Create_On_Device(Gpu, a)
 !------------------------------------------------------------------------------!
-!>  Create memory for a vector on GPU.
+!>  Create memory for a real vector on GPU.
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!

@@ -1,14 +1,14 @@
 !==============================================================================!
-  subroutine Vector_Destroy_On_Device(Gpu, a)
+  subroutine Matrix_Int_Destroy_On_Device(Gpu, a)
 !------------------------------------------------------------------------------!
-!>  Destroys a vector on the GPU, without copying it back to CPU.
+!>  Destroys an integer matrix on the GPU, without copying it back to CPU.
 !------------------------------------------------------------------------------!
 !   Note: if you wanted to copy it before destroying, change delete to copyout !
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Gpu_Type) :: Gpu   !! parent class
-  real            :: a(:)  !! vector to destroy
+  class(Gpu_Type) :: Gpu     !! parent class
+  integer         :: a(:,:)  !! matrix to destroy
 !-----------------------[Avoid unused argument warning]------------------------!
 # if VFS_GPU == 0
     Unused(Gpu)

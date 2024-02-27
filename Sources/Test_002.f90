@@ -37,8 +37,8 @@
   b(:) = 2.0
 
   ! Copy vectors to the device
-  call Gpu % Vector_Copy_To_Device(a)
-  call Gpu % Vector_Copy_To_Device(b)
+  call Gpu % Vector_Real_Copy_To_Device(a)
+  call Gpu % Vector_Real_Copy_To_Device(b)
 
   !-----------------------------------------------!
   !   Performing a fake time loop on the device   !
@@ -53,8 +53,8 @@
   call cpu_time(te)
 
   ! Destroy data on the device, you don't need them anymore
-  call Gpu % Vector_Destroy_On_Device(a)
-  call Gpu % Vector_Destroy_On_Device(b)
+  call Gpu % Vector_Real_Destroy_On_Device(a)
+  call Gpu % Vector_Real_Destroy_On_Device(b)
 
   ! Print result
   print '(a,es12.3)', ' Dot product is: ', dot

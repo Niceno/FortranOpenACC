@@ -1,12 +1,12 @@
 !==============================================================================!
-  subroutine Vector_Copy_To_Device(Gpu, a)
+  subroutine Vector_Int_Copy_To_Device(Gpu, a)
 !------------------------------------------------------------------------------!
-!>  Copy a vector from CPU to GPU.
+!>  Copy an integer vector from CPU to GPU.
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
   class(Gpu_Type) :: Gpu   !! parent class
-  real            :: a(:)  !! vector to copy
+  integer         :: a(:)  !! vector to copy
 !-----------------------[Avoid unused argument warning]------------------------!
 # if VFS_GPU == 0
     Unused(Gpu)

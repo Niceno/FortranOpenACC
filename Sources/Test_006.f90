@@ -71,15 +71,18 @@
   call Gpu % Sparse_Copy_To_Device(Flow % Nat % A)             ! <- GPU_1
 
   ! and that bloody right-hand-side vector too                 ! <- GPU_1
-  call Gpu % Vector_Copy_To_Device(Flow % Nat % b)             ! <- GPU_1
+  call Gpu % Vector_Real_Copy_To_Device(Flow % Nat % b)             ! <- GPU_1
 
   ! In addition to system matrices of your discretized         ! <- GPU_1
   ! equations, you will want to have gradient matrices, as     ! <- GPU_1
   ! well as cell connectivity and cell coordinates on the      ! <- GPU_1
   ! device (they are all needed for gradients), ...            ! <- GPU_1
-  call Gpu % Matrix_Copy_To_Device(Flow % grad_c2c)            ! <- GPU_1
-  call Gpu % Grid_Cell_Cell_Connectivity_Copy_To_Device(Grid)  ! <- GPU_1
-  call Gpu % Grid_Cell_Coordinates_Copy_To_Device(Grid)        ! <- GPU_1
+  call Gpu % Matrix_Real_Copy_To_Device(Flow % grad_c2c)       ! <- GPU_1
+  call Gpu % Vector_Int_Copy_To_Device(Grid % cells_n_cells)   ! <- GPU_1
+  call Gpu % Matrix_Int_Copy_To_Device(Grid % cells_c)         ! <- GPU_1
+  call Gpu % Vector_Real_Copy_To_Device(Grid % xc)             ! <- GPU_1
+  call Gpu % Vector_Real_Copy_To_Device(Grid % yc)             ! <- GPU_1
+  call Gpu % Vector_Real_Copy_To_Device(Grid % zc)             ! <- GPU_1
                                                                ! <- GPU_1
   ! ... and the vectors of the native suite of solvers         ! <- GPU_1
   call Gpu % Native_Transfer_To_Device(Flow % Nat)             ! <- GPU_1
@@ -90,17 +93,17 @@
   ! for them all (b) and the variables whose gradients are     ! <- GPU_1
   ! being computed (pp % n and p % n) as well as gradient com- ! <- GPU_1
   ! ponents (pp % x, pp % y, pp % z, p % x, p % y and p % z)   ! <- GPU_1
-  call Gpu % Vector_Copy_To_Device(Flow % pp % n)              ! <- GPU_1
-  call Gpu % Vector_Copy_To_Device(Flow % p % n)               ! <- GPU_1
-  call Gpu % Vector_Copy_To_Device(Flow % u % n)               ! <- GPU_1
-  call Gpu % Vector_Copy_To_Device(Flow % v % n)               ! <- GPU_1
-  call Gpu % Vector_Copy_To_Device(Flow % w % n)               ! <- GPU_1
-  call Gpu % Vector_Copy_To_Device(Flow % pp % x)              ! <- GPU_1
-  call Gpu % Vector_Copy_To_Device(Flow % pp % y)              ! <- GPU_1
-  call Gpu % Vector_Copy_To_Device(Flow % pp % z)              ! <- GPU_1
-  call Gpu % Vector_Copy_To_Device(Flow % p % x)               ! <- GPU_1
-  call Gpu % Vector_Copy_To_Device(Flow % p % y)               ! <- GPU_1
-  call Gpu % Vector_Copy_To_Device(Flow % p % z)               ! <- GPU_1
+  call Gpu % Vector_Real_Copy_To_Device(Flow % pp % n)         ! <- GPU_1
+  call Gpu % Vector_Real_Copy_To_Device(Flow % p % n)          ! <- GPU_1
+  call Gpu % Vector_Real_Copy_To_Device(Flow % u % n)          ! <- GPU_1
+  call Gpu % Vector_Real_Copy_To_Device(Flow % v % n)          ! <- GPU_1
+  call Gpu % Vector_Real_Copy_To_Device(Flow % w % n)          ! <- GPU_1
+  call Gpu % Vector_Real_Copy_To_Device(Flow % pp % x)         ! <- GPU_1
+  call Gpu % Vector_Real_Copy_To_Device(Flow % pp % y)         ! <- GPU_1
+  call Gpu % Vector_Real_Copy_To_Device(Flow % pp % z)         ! <- GPU_1
+  call Gpu % Vector_Real_Copy_To_Device(Flow % p % x)          ! <- GPU_1
+  call Gpu % Vector_Real_Copy_To_Device(Flow % p % y)          ! <- GPU_1
+  call Gpu % Vector_Real_Copy_To_Device(Flow % p % z)          ! <- GPU_1
 
   !-----------------------------------------------!
   !   Performing a fake time loop on the device   !

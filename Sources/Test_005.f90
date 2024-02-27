@@ -55,13 +55,16 @@
   call Flow % Calculate_Grad_Matrix()
 
   ! Copy what you need for gradient calculation to the device
-  call Gpu % Matrix_Copy_To_Device(Flow % grad_c2c)
-  call Gpu % Grid_Cell_Cell_Connectivity_Copy_To_Device(Grid)
-  call Gpu % Grid_Cell_Coordinates_Copy_To_Device(Grid)
-  call Gpu % Vector_Copy_To_Device(Flow % p % n)
-  call Gpu % Vector_Create_On_Device(phi_x)
-  call Gpu % Vector_Create_On_Device(phi_y)
-  call Gpu % Vector_Create_On_Device(phi_z)
+  call Gpu % Matrix_Real_Copy_To_Device(Flow % grad_c2c)
+  call Gpu % Vector_Int_Copy_To_Device(Grid % cells_n_cells)
+  call Gpu % Matrix_Int_Copy_To_Device(Grid % cells_c)
+  call Gpu % Vector_Real_Copy_To_Device(Grid % xc)
+  call Gpu % Vector_Real_Copy_To_Device(Grid % yc)
+  call Gpu % Vector_Real_Copy_To_Device(Grid % zc)
+  call Gpu % Vector_Real_Copy_To_Device(Flow % p % n)
+  call Gpu % Vector_Real_Create_On_Device(phi_x)
+  call Gpu % Vector_Real_Create_On_Device(phi_y)
+  call Gpu % Vector_Real_Create_On_Device(phi_z)
 
   print '(a,i6,a)', ' # Calculating gradients of the field over ',  &
                     N_STEPS, ' pseudo time steps'
@@ -82,13 +85,16 @@
   call Grid % Save_Vtk_Vector("grad_0.vtk", phi_x(1), phi_y(1), phi_z(1))
 
   ! Destroy data on the device, you don't need them anymore
-  call Gpu % Matrix_Destroy_On_Device(Flow % grad_c2c)
-  call Gpu % Grid_Cell_Cell_Connectivity_Destroy_On_Device(Grid)
-  call Gpu % Grid_Cell_Coordinates_Destroy_On_Device(Grid)
-  call Gpu % Vector_Destroy_On_Device(Flow % p % n)
-  call Gpu % Vector_Destroy_On_Device(phi_x)
-  call Gpu % Vector_Destroy_On_Device(phi_y)
-  call Gpu % Vector_Destroy_On_Device(phi_z)
+  call Gpu % Matrix_Real_Destroy_On_Device(Flow % grad_c2c)
+  call Gpu % Vector_Int_Destroy_On_Device(Grid % cells_n_cells)
+  call Gpu % Matrix_Int_Destroy_On_Device(Grid % cells_c)
+  call Gpu % Vector_Real_Destroy_On_Device(Grid % xc)
+  call Gpu % Vector_Real_Destroy_On_Device(Grid % yc)
+  call Gpu % Vector_Real_Destroy_On_Device(Grid % zc)
+  call Gpu % Vector_Real_Destroy_On_Device(Flow % p % n)
+  call Gpu % Vector_Real_Destroy_On_Device(phi_x)
+  call Gpu % Vector_Real_Destroy_On_Device(phi_y)
+  call Gpu % Vector_Real_Destroy_On_Device(phi_z)
 
   print '(a,f12.3,a)', ' # Time elapsed for TEST 5: ', te-ts, ' [s]'
 

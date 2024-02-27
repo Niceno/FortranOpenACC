@@ -1,25 +1,25 @@
 !==============================================================================!
-  subroutine Grid_Cell_Coordinates_Copy_To_Device(Gpu, Grid)
+  subroutine Matrix_Real_Destroy_On_Device(Gpu, a)
+!------------------------------------------------------------------------------!
+!>  Destroys a real matrix on the GPU, without copying it back to CPU.
+!------------------------------------------------------------------------------!
+!   Note: if you wanted to copy it before destroying, change delete to copyout !
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Gpu_Type) :: Gpu   !! parent class
-  type(Grid_Type) :: Grid
+  class(Gpu_Type) :: Gpu     !! parent class
+  real            :: a(:,:)  !! matrix to destroy
 !-----------------------[Avoid unused argument warning]------------------------!
 # if VFS_GPU == 0
     Unused(Gpu)
-    Unused(Grid)
+    Unused(a)
 # endif
 !==============================================================================!
 
-  !$acc enter data copyin(Grid % xc)
-  !$acc enter data copyin(Grid % yc)
-  !$acc enter data copyin(Grid % zc)
+  !$acc exit data delete(a)
 
 # if VFS_GPU == 1
-    Gpu % gb_used = Gpu % gb_used + (  real(sizeof(Grid % xc))  &
-                                     + real(sizeof(Grid % yc))  &
-                                     + real(sizeof(Grid % zc))) / GIGABYTE
+    Gpu % gb_used = Gpu % gb_used - real(sizeof(a)) / GIGABYTE
     print '(a,f7.3,a)', ' # '//__FILE__//' :', Gpu % gb_used, ' GB on device'
 # endif
 

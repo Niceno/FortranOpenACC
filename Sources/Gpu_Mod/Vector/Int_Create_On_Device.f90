@@ -1,21 +1,23 @@
 !==============================================================================!
-  subroutine Grid_Cell_Volumes_Destroy_On_Device(Gpu, Grid)
+  subroutine Vector_Int_Create_On_Device(Gpu, a)
+!------------------------------------------------------------------------------!
+!>  Create memory for an integer vector on GPU.
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
   class(Gpu_Type) :: Gpu   !! parent class
-  type(Grid_Type) :: Grid
+  integer         :: a(:)  !! vector to create
 !-----------------------[Avoid unused argument warning]------------------------!
 # if VFS_GPU == 0
     Unused(Gpu)
-    Unused(Grid)
+    Unused(a)
 # endif
 !==============================================================================!
 
-  !$acc exit data delete(Grid % vol)
+  !$acc enter data create(a)
 
 # if VFS_GPU == 1
-    Gpu % gb_used = Gpu % gb_used - (real(sizeof(Grid % vol))) / GIGABYTE
+    Gpu % gb_used = Gpu % gb_used + real(sizeof(a)) / GIGABYTE
     print '(a,f7.3,a)', ' # '//__FILE__//' :', Gpu % gb_used, ' GB on device'
 # endif
 

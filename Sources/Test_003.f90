@@ -41,10 +41,10 @@
   b(:) = 2.0
 
   ! Copy vectors and create on the device
-  call Gpu % Vector_Copy_To_Device(a)
-  call Gpu % Vector_Copy_To_Device(b)
-  call Gpu % Vector_Create_On_Device(c)
-  call Gpu % Vector_Create_On_Device(d)
+  call Gpu % Vector_Real_Copy_To_Device(a)
+  call Gpu % Vector_Real_Copy_To_Device(b)
+  call Gpu % Vector_Real_Create_On_Device(c)
+  call Gpu % Vector_Real_Create_On_Device(d)
 
   !-----------------------------------------------!
   !   Performing a fake time loop on the device   !
@@ -63,10 +63,10 @@
   call Gpu % Vector_Update_Host(d)
 
   ! Destroy data on the device, you don't need them anymore
-  call Gpu % Vector_Destroy_On_Device(a)
-  call Gpu % Vector_Destroy_On_Device(b)
-  call Gpu % Vector_Destroy_On_Device(c)
-  call Gpu % Vector_Destroy_On_Device(d)
+  call Gpu % Vector_Real_Destroy_On_Device(a)
+  call Gpu % Vector_Real_Destroy_On_Device(b)
+  call Gpu % Vector_Real_Destroy_On_Device(c)
+  call Gpu % Vector_Real_Destroy_On_Device(d)
 
   ! Print results
   print '(a,es12.3)', ' vector c(1  ):', c(1  )
