@@ -7,7 +7,7 @@
   real,    intent(in) :: lx, ly, lz
   integer, intent(in) :: nx, ny, nz
 !-----------------------------------[Locals]-----------------------------------!
-  integer           :: s, c, c1, c2, e, n, t, i, j, k
+  integer           :: s, c, c1, c2, e, n, t, i, j, k, bc, per_start
   real, allocatable :: visited(:)
   real              :: dx, dy, dz, cdot
 !==============================================================================!
@@ -41,7 +41,7 @@
     Grid % yn(j) = real(j) * ly / real(ny)
   end do
   do k = 0, nz
-    Grid % zn(k) = real(k) * ly / real(nz)
+    Grid % zn(k) = real(k) * lz / real(nz)
   end do
 
   !---------------!
@@ -51,7 +51,15 @@
   !---------------!
 
   Grid % n_cells     = nx * ny * nz
-  Grid % n_bnd_cells = 2 * (ny * nz + nx * nz + nx * ny)
+  Grid % n_bnd_cells = 0
+  if(Grid % bc % w_type .ne. PERIODIC)   Grid % n_bnd_cells  &
+                                       = Grid % n_bnd_cells + 2*ny*nz
+  if(Grid % bc % s_type .ne. PERIODIC)   Grid % n_bnd_cells  &
+                                       = Grid % n_bnd_cells + 2*nx*nz
+  if(Grid % bc % b_type .ne. PERIODIC)   Grid % n_bnd_cells  &
+                                       = Grid % n_bnd_cells + 2*nx*ny
+  print '(a,i12,a)', ' # Grid should have ', Grid % n_bnd_cells,  &
+                     ' boundary cells'
 
   Grid % lx = lx
   Grid % ly = ly
@@ -60,6 +68,10 @@
   Grid % nx = nx
   Grid % ny = ny
   Grid % nz = nz
+
+  !----------------------------------!
+  !   Cell-based memory allocation   !
+  !----------------------------------!
 
   ! Allocate memory for cell coordinates
   allocate(Grid % xc(-Grid % n_bnd_cells:Grid % n_cells))
@@ -97,11 +109,32 @@
   !           !
   !-----------!
 
-  Grid % n_faces = (nx+1) * ny * nz  &
-                 + nx * (ny+1) * nz  &
-                 + nx * ny * (nz+1)
+  !------------------------------------!
+  !   Do some checks for periodicity   !
+  !------------------------------------!
+  if(Grid % bc % w_type .eq. PERIODIC .or.  &
+     Grid % bc % e_type .eq. PERIODIC) then
+    Assert(Grid % bc % w_type .eq. Grid % bc % e_type)
+  end if
+  if(Grid % bc % s_type .eq. PERIODIC .or.  &
+     Grid % bc % n_type .eq. PERIODIC) then
+    Assert(Grid % bc % s_type .eq. Grid % bc % n_type)
+  end if
+  if(Grid % bc % b_type .eq. PERIODIC .or.  &
+     Grid % bc % t_type .eq. PERIODIC) then
+    Assert(Grid % bc % b_type .eq. Grid % bc % t_type)
+  end if
+
+  Grid % n_faces = 3 * nx * ny * nz
+  if(Grid % bc % e_type .ne. PERIODIC) Grid % n_faces = Grid % n_faces + ny*nz
+  if(Grid % bc % n_type .ne. PERIODIC) Grid % n_faces = Grid % n_faces + nz*nx
+  if(Grid % bc % t_type .ne. PERIODIC) Grid % n_faces = Grid % n_faces + nx*ny
+
   print '(a,i12,a)', ' # Grid should have ', Grid % n_faces, ' faces'
 
+  !--------------------------------!
+  !   Allocate face-based memory   !
+  !--------------------------------!
   allocate(Grid % faces_c(2, Grid % n_faces))
 
   allocate(Grid % sx(Grid % n_faces))
@@ -114,111 +147,141 @@
   allocate(Grid % dz(Grid % n_faces))
   allocate(Grid % d (Grid % n_faces))
 
-  s = 0
+  s  = 0
+  bc = 0
   Grid % sx(:) = 0.0
   Grid % sy(:) = 0.0
   Grid % sz(:) = 0.0
 
-  ! Handle the domain in the west
-  do c = 1, Grid % n_cells
-    call Grid % Cells_I_J_K(c, i, j, k)
-    if(i .eq. 1) then
-      s = s + 1
+  !-----------------------------------!
+  !   Handle the domain in the west   !
+  !-----------------------------------!
+  if(Grid % bc % w_type .ne. PERIODIC) then
+    do c = 1, Grid % n_cells
+      call Grid % Cells_I_J_K(c, i, j, k)
+      if(i .eq. 1) then
+        s  = s  + 1
+        bc = bc + 1
 
-      Grid % faces_c(1,s) =  c
-      Grid % faces_c(2,s) = -s
-      Grid % sx(s) = -dy*dz
+        Grid % faces_c(1,s) =  c
+        Grid % faces_c(2,s) = -bc
+        Grid % sx(s) = -dy*dz
 
-      Grid % xc(-s) = Grid % xn(0)
-      Grid % yc(-s) = 0.5 * (Grid % yn(j-1) + Grid % yn(j))
-      Grid % zc(-s) = 0.5 * (Grid % zn(k-1) + Grid % zn(k))
-    end if
-  end do
+        Grid % xc(-bc) = Grid % xn(0)
+        Grid % yc(-bc) = 0.5 * (Grid % yn(j-1) + Grid % yn(j))
+        Grid % zc(-bc) = 0.5 * (Grid % zn(k-1) + Grid % zn(k))
 
-  ! Handle the domain in the east
-  do c = 1, Grid % n_cells
-    call Grid % Cells_I_J_K(c, i, j, k)
-    if(i .eq. Grid % nx) then
-      s = s + 1
+      end if
+    end do
 
-      Grid % faces_c(1,s) =  c
-      Grid % faces_c(2,s) = -s
-      Grid % sx(s) = +dy*dz
+  !-----------------------------------!
+  !   Handle the domain in the east   !
+  !-----------------------------------!
+    do c = 1, Grid % n_cells
+      call Grid % Cells_I_J_K(c, i, j, k)
+      if(i .eq. Grid % nx) then
+        s  = s  + 1
+        bc = bc + 1
 
-      Grid % xc(-s) = Grid % xn(nx)
-      Grid % yc(-s) = 0.5 * (Grid % yn(j-1) + Grid % yn(j))
-      Grid % zc(-s) = 0.5 * (Grid % zn(k-1) + Grid % zn(k))
-    end if
-  end do
+        Grid % faces_c(1,s) =  c
+        Grid % faces_c(2,s) = -bc
+        Grid % sx(s) = +dy*dz
 
-  ! Handle the domain in the south
-  do c = 1, Grid % n_cells
-    call Grid % Cells_I_J_K(c, i, j, k)
-    if(j .eq. 1) then
-      s = s + 1
+        Grid % xc(-bc) = Grid % xn(nx)
+        Grid % yc(-bc) = 0.5 * (Grid % yn(j-1) + Grid % yn(j))
+        Grid % zc(-bc) = 0.5 * (Grid % zn(k-1) + Grid % zn(k))
+      end if
+    end do
+  end if  ! not periodic
 
-      Grid % faces_c(1,s) =  c
-      Grid % faces_c(2,s) = -s
-      Grid % sy(s) = -dx*dz
+  !------------------------------------!
+  !   Handle the domain in the south   !
+  !------------------------------------!
+  if(Grid % bc % s_type .ne. PERIODIC) then
 
-      Grid % xc(-s) = 0.5 * (Grid % xn(i-1) + Grid % xn(i))
-      Grid % yc(-s) = Grid % yn(0)
-      Grid % zc(-s) = 0.5 * (Grid % zn(k-1) + Grid % zn(k))
-    end if
-  end do
+    do c = 1, Grid % n_cells
+      call Grid % Cells_I_J_K(c, i, j, k)
+      if(j .eq. 1) then
+        s  = s  + 1
+        bc = bc + 1
 
-  ! Handle the domain in the north
-  do c = 1, Grid % n_cells
-    call Grid % Cells_I_J_K(c, i, j, k)
-    if(j .eq. Grid % ny) then
-      s = s + 1
+        Grid % faces_c(1,s) =  c
+        Grid % faces_c(2,s) = -bc
+        Grid % sy(s) = -dx*dz
 
-      Grid % faces_c(1,s) =  c
-      Grid % faces_c(2,s) = -s
-      Grid % sy(s) = +dx*dz
+        Grid % xc(-bc) = 0.5 * (Grid % xn(i-1) + Grid % xn(i))
+        Grid % yc(-bc) = Grid % yn(0)
+        Grid % zc(-bc) = 0.5 * (Grid % zn(k-1) + Grid % zn(k))
+      end if
+    end do
 
-      Grid % xc(-s) = 0.5 * (Grid % xn(i-1) + Grid % xn(i))
-      Grid % yc(-s) = Grid % yn(ny)
-      Grid % zc(-s) = 0.5 * (Grid % zn(k-1) + Grid % zn(k))
-    end if
-  end do
+  !------------------------------------!
+  !   Handle the domain in the north   !
+  !------------------------------------!
+    do c = 1, Grid % n_cells
+      call Grid % Cells_I_J_K(c, i, j, k)
+      if(j .eq. Grid % ny) then
+        s  = s  + 1
+        bc = bc + 1
 
-  ! Handle the domain at the bottom
-  do c = 1, Grid % n_cells
-    call Grid % Cells_I_J_K(c, i, j, k)
-    if(k .eq. 1) then
-      s = s + 1
+        Grid % faces_c(1,s) =  c
+        Grid % faces_c(2,s) = -bc
+        Grid % sy(s) = +dx*dz
 
-      Grid % faces_c(1,s) =  c
-      Grid % faces_c(2,s) = -s
-      Grid % sz(s) = -dx*dy
+        Grid % xc(-bc) = 0.5 * (Grid % xn(i-1) + Grid % xn(i))
+        Grid % yc(-bc) = Grid % yn(ny)
+        Grid % zc(-bc) = 0.5 * (Grid % zn(k-1) + Grid % zn(k))
+      end if
+    end do
+  end if
 
-      Grid % xc(-s) = 0.5 * (Grid % xn(i-1) + Grid % xn(i))
-      Grid % yc(-s) = 0.5 * (Grid % yn(j-1) + Grid % yn(j))
-      Grid % zc(-s) = Grid % zn(0)
-    end if
-  end do
+  !-------------------------------------!
+  !   Handle the domain at the bottom   !
+  !-------------------------------------!
+  if(Grid % bc % b_type .ne. PERIODIC) then
+    do c = 1, Grid % n_cells
+      call Grid % Cells_I_J_K(c, i, j, k)
+      if(k .eq. 1) then
+        s  = s  + 1
+        bc = bc + 1
 
-  ! Handle the domain at the top
-  do c = 1, Grid % n_cells
-    call Grid % Cells_I_J_K(c, i, j, k)
-    if(k .eq. Grid % nz) then
-      s = s + 1
+        Grid % faces_c(1,s) =  c
+        Grid % faces_c(2,s) = -bc
+        Grid % sz(s) = -dx*dy
 
-      Grid % faces_c(1,s) =  c
-      Grid % faces_c(2,s) = -s
-      Grid % sz(s) = +dx*dy
+        Grid % xc(-bc) = 0.5 * (Grid % xn(i-1) + Grid % xn(i))
+        Grid % yc(-bc) = 0.5 * (Grid % yn(j-1) + Grid % yn(j))
+        Grid % zc(-bc) = Grid % zn(0)
+      end if
+    end do
 
-      Grid % xc(-s) = 0.5 * (Grid % xn(i-1) + Grid % xn(i))
-      Grid % yc(-s) = 0.5 * (Grid % yn(j-1) + Grid % yn(j))
-      Grid % zc(-s) = Grid % zn(nz)
-    end if
-  end do
+  !----------------------------------!
+  !   Handle the domain at the top   !
+  !----------------------------------!
+    do c = 1, Grid % n_cells
+      call Grid % Cells_I_J_K(c, i, j, k)
+      if(k .eq. Grid % nz) then
+        s  = s  + 1
+        bc = bc + 1
 
-  Assert(Grid % n_bnd_cells .eq. s)
-  print '(a,i12,a)', ' # Found ', s, ' faces at boundaries'
+        Grid % faces_c(1,s) =  c
+        Grid % faces_c(2,s) = -bc
+        Grid % sz(s) = +dx*dy
 
-  ! Handle facs inside the domain
+        Grid % xc(-bc) = 0.5 * (Grid % xn(i-1) + Grid % xn(i))
+        Grid % yc(-bc) = 0.5 * (Grid % yn(j-1) + Grid % yn(j))
+        Grid % zc(-bc) = Grid % zn(nz)
+      end if
+    end do
+  end if
+
+  print '(a,i12,a)', ' # Found ', s,  ' faces at boundaries'
+  print '(a,i12,a)', ' # Found ', bc, ' cells at boundaries'
+  Assert(Grid % n_bnd_cells .eq. bc)
+
+  !------------------------------------!
+  !   Handle faces inside the domain   !
+  !------------------------------------!
   do k = 1, Grid % nz
     do j = 1, Grid % ny
       do i = 1, Grid % nx
@@ -252,15 +315,84 @@
     end do
   end do
 
-  print '(a,i12,a)', ' # Found a total of ', s, ' faces'
+  per_start = s
 
-  ! Form dx, dy and dz, then finish s and d
+  !------------------------------------------------------!
+  !   Handle the periodicity of the domain in the west   !
+  !------------------------------------------------------!
+  if(Grid % bc % w_type .eq. PERIODIC) then
+    do c = 1, Grid % n_cells
+      call Grid % Cells_I_J_K(c, i, j, k)
+      if(i .eq. 1) then
+        s  = s  + 1
+
+        Grid % faces_c(1,s) =  c
+        Grid % faces_c(2,s) =  Grid % Cell_Number(nx, j, k)
+        Grid % sx(s) = -dy*dz
+      end if
+    end do
+  end if  ! it is periodic
+
+  !-------------------------------------------------------!
+  !   Handle the periodicity of the domain in the south   !
+  !-------------------------------------------------------!
+  if(Grid % bc % s_type .eq. PERIODIC) then
+    do c = 1, Grid % n_cells
+      call Grid % Cells_I_J_K(c, i, j, k)
+      if(j .eq. 1) then
+        s  = s  + 1
+
+        Grid % faces_c(1,s) =  c
+        Grid % faces_c(2,s) =  Grid % Cell_Number(i, ny, k)
+        Grid % sy(s) = -dx*dz
+      end if
+    end do
+  end if  ! it is periodic
+
+  !--------------------------------------------------------!
+  !   Handle the periodicity of the domain at the bottom   !
+  !--------------------------------------------------------!
+  if(Grid % bc % b_type .eq. PERIODIC) then
+    do c = 1, Grid % n_cells
+      call Grid % Cells_I_J_K(c, i, j, k)
+      if(k .eq. 1) then
+        s  = s  + 1
+
+        Grid % faces_c(1,s) =  c
+        Grid % faces_c(2,s) =  Grid % Cell_Number(i, j, nz)
+        Grid % sz(s) = -dx*dy
+      end if
+    end do
+  end if
+
+  print '(a,i12,a)', ' # Found ', s,  ' faces at boundaries'
+  print '(a,i12,a)', ' # Found ', bc, ' cells at boundaries'
+  Assert(Grid % n_bnd_cells .eq. bc)
+  print '(a,i12,a)', ' # Found a total of ', s, ' faces'
+  Assert(s .eq. Grid % n_faces)
+
+  !---------------------------------------------!
+  !   Form dx, dy and dz, then finish s and d   !
+  !---------------------------------------------!
   do s = 1, Grid % n_faces
     c1 = Grid % faces_c(1,s)
     c2 = Grid % faces_c(2,s)
+    Assert(c2 .ne. c1)
+    if(c2 .gt. 0) Assert(c2 .gt. c1)
+
     Grid % dx(s) = Grid % xc(c2) - Grid % xc(c1)
     Grid % dy(s) = Grid % yc(c2) - Grid % yc(c1)
     Grid % dz(s) = Grid % zc(c2) - Grid % zc(c1)
+
+    ! If you are in periodic region
+    if(s .gt. per_start) then
+      if(Grid % bc % w_type .eq. PERIODIC)  &
+        Grid % dx(s) = Grid % dx(s) - Grid % lx
+      if(Grid % bc % s_type .eq. PERIODIC)  &
+        Grid % dy(s) = Grid % dy(s) - Grid % ly
+      if(Grid % bc % b_type .eq. PERIODIC)  &
+        Grid % dz(s) = Grid % dz(s) - Grid % lz
+    end if
 
     cdot = Grid % dx(s) * Grid % sx(s)  &
          + Grid % dy(s) * Grid % sy(s)  &
@@ -311,6 +443,19 @@
   do c = 1, Grid % n_cells
     Assert(Grid % cells_n_cells(c) .le. 6)
   end do
+
+  print '(a,2es12.3)', ' # Min/Max sx: ',  &
+           minval(Grid % sx(:)), maxval(Grid % sx(:))
+  print '(a,2es12.3)', ' # Min/Max sy: ',  &
+           minval(Grid % sy(:)), maxval(Grid % sy(:))
+  print '(a,2es12.3)', ' # Min/Max sz: ',  &
+           minval(Grid % sz(:)), maxval(Grid % sz(:))
+  print '(a,2es12.3)', ' # Min/Max dx: ',  &
+           minval(Grid % dx(:)), maxval(Grid % dx(:))
+  print '(a,2es12.3)', ' # Min/Max dy: ',  &
+           minval(Grid % dy(:)), maxval(Grid % dy(:))
+  print '(a,2es12.3)', ' # Min/Max dz: ',  &
+           minval(Grid % dz(:)), maxval(Grid % dz(:))
 
   !---------------------------------!
   !   Check the faces_c structure   !

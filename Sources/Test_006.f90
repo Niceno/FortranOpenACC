@@ -15,11 +15,11 @@
   real                     :: ts, te
   real                     :: dt
   integer                  :: n, c, time_step, iter
-  character(15)            :: name_vel     = 'TTT_III_uvw.vtk'
-  character(13)            :: name_p       = 'TTT_III_p.vtk'
-!@character(14)            :: name_pp      = 'TTT_III_pp.vtk'
-!@character(18)            :: name_grad_p  = 'TTT_III_grad_p.vtk'
-!@character(19)            :: name_grad_pp = 'TTT_III_grad_pp.vtk'
+  character(15)            :: name_vel     = 'TTTT_II_uvw.vtk'
+  character(13)            :: name_p       = 'TTTT_II_p.vtk'
+!@character(14)            :: name_pp      = 'TTTT_II_pp.vtk'
+!@character(18)            :: name_grad_p  = 'TTTT_II_grad_p.vtk'
+!@character(19)            :: name_grad_pp = 'TTTT_II_grad_pp.vtk'
 !==============================================================================!
 
   call Profiler % Start('Test_006')
@@ -116,9 +116,11 @@
   call Gpu % Vector_Real_Copy_To_Device(Flow % p % z)
   call Gpu % Vector_Real_Copy_To_Device(Flow % v_flux)
 
-  !-----------------------------------------------!
-  !   Performing a fake time loop on the device   !
-  !-----------------------------------------------!
+  !------------------------------------------!
+  !                                          !
+  !   Performing a time loop on the device   !
+  !                                          !
+  !------------------------------------------!
   print '(a)', ' # Performing a demo of the computing momentum equations'
   call cpu_time(ts)
   do time_step = 1, N_STEPS
@@ -135,25 +137,22 @@
     end do
     !$acc end parallel
 
-    write(name_vel    (1:3), '(i3.3)') , time_step
-    write(name_p      (1:3), '(i3.3)') , time_step
-!@  write(name_pp     (1:3), '(i3.3)') , time_step
-!@  write(name_grad_pp(1:3), '(i3.3)') , time_step
-!@  write(name_grad_p (1:3), '(i3.3)') , time_step
+    write(name_vel    (1:4), '(i4.4)') , time_step
+    write(name_p      (1:4), '(i4.4)') , time_step
+!@  write(name_pp     (1:4), '(i4.4)') , time_step
+!@  write(name_grad_pp(1:4), '(i4.4)') , time_step
+!@  write(name_grad_p (1:4), '(i4.4)') , time_step
 
-    if(mod(time_step,60) .eq. 0) then
-      call Grid % Save_Vtk_Vector(name_vel, Flow % u % n(1:n),  &
-                                            Flow % v % n(1:n),  &
-                                            Flow % w % n(1:n))
-    end if
-
+    !-----------------------------------!
+    !   Iterations within a time step   !
+    !-----------------------------------!
     do iter = 1, N_ITERS
 
-!@    write(name_vel    (5:7), '(i3.3)') , iter
-!@    write(name_p      (5:7), '(i3.3)') , iter
-!@    write(name_pp     (5:7), '(i3.3)') , iter
-!@    write(name_grad_pp(5:7), '(i3.3)') , iter
-!@    write(name_grad_p (5:7), '(i3.3)') , iter
+!@    write(name_vel    (6:7), '(i2.2)') , iter
+!@    write(name_p      (6:7), '(i2.2)') , iter
+!@    write(name_pp     (6:7), '(i2.2)') , iter
+!@    write(name_grad_pp(6:7), '(i2.2)') , iter
+!@    write(name_grad_p (6:7), '(i2.2)') , iter
 
       print '(a)', ' # Solving u'
       call Process % Compute_Momentum(Flow, dt, comp=1)
@@ -176,7 +175,7 @@
 
     end do  ! iterations
 
-    if(mod(time_step, 120) .eq. 0) then
+    if(mod(time_step, 20) .eq. 0) then
       call Gpu % Vector_Update_Host(Flow % u % n)
       call Gpu % Vector_Update_Host(Flow % v % n)
       call Gpu % Vector_Update_Host(Flow % w % n)

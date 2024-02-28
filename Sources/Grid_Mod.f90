@@ -13,6 +13,7 @@
 
   integer, parameter :: DIRICHLET = 1024
   integer, parameter :: NEUMANN   = 2048
+  integer, parameter :: PERIODIC  = 4096
 
   !-----------------------------!
   !                             !

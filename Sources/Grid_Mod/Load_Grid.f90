@@ -61,44 +61,50 @@
 
     ! West
     read(file_unit, *) dummy, bc_t, bc_v(1), bc_v(2), bc_v(3)
-    Assert(bc_t .eq. 'D' .or. bc_t .eq. 'N')
+    Assert(bc_t .eq. 'D' .or. bc_t .eq. 'N' .or. bc_t .eq. 'P')
     if(bc_t .eq. 'D') Grid % bc % w_type = DIRICHLET
     if(bc_t .eq. 'N') Grid % bc % w_type = NEUMANN
+    if(bc_t .eq. 'P') Grid % bc % w_type = PERIODIC
     Grid % bc % w_vals(:) = bc_v(:)
 
     ! East
     read(file_unit, *) dummy, bc_t, bc_v(1), bc_v(2), bc_v(3)
-    Assert(bc_t .eq. 'D' .or. bc_t .eq. 'N')
+    Assert(bc_t .eq. 'D' .or. bc_t .eq. 'N' .or. bc_t .eq. 'P')
     if(bc_t .eq. 'D') Grid % bc % e_type = DIRICHLET
     if(bc_t .eq. 'N') Grid % bc % e_type = NEUMANN
+    if(bc_t .eq. 'P') Grid % bc % e_type = PERIODIC
     Grid % bc % e_vals(:) = bc_v(:)
 
     ! South
     read(file_unit, *) dummy, bc_t, bc_v(1), bc_v(2), bc_v(3)
-    Assert(bc_t .eq. 'D' .or. bc_t .eq. 'N')
+    Assert(bc_t .eq. 'D' .or. bc_t .eq. 'N' .or. bc_t .eq. 'P')
     if(bc_t .eq. 'D') Grid % bc % s_type = DIRICHLET
     if(bc_t .eq. 'N') Grid % bc % s_type = NEUMANN
+    if(bc_t .eq. 'P') Grid % bc % s_type = PERIODIC
     Grid % bc % s_vals(:) = bc_v(:)
 
     ! North
     read(file_unit, *) dummy, bc_t, bc_v(1), bc_v(2), bc_v(3)
-    Assert(bc_t .eq. 'D' .or. bc_t .eq. 'N')
+    Assert(bc_t .eq. 'D' .or. bc_t .eq. 'N' .or. bc_t .eq. 'P')
     if(bc_t .eq. 'D') Grid % bc % n_type = DIRICHLET
     if(bc_t .eq. 'N') Grid % bc % n_type = NEUMANN
+    if(bc_t .eq. 'P') Grid % bc % n_type = PERIODIC
     Grid % bc % n_vals(:) = bc_v(:)
 
     ! Bottom
     read(file_unit, *) dummy, bc_t, bc_v(1), bc_v(2), bc_v(3)
-    Assert(bc_t .eq. 'D' .or. bc_t .eq. 'N')
+    Assert(bc_t .eq. 'D' .or. bc_t .eq. 'N' .or. bc_t .eq. 'P')
     if(bc_t .eq. 'D') Grid % bc % b_type = DIRICHLET
     if(bc_t .eq. 'N') Grid % bc % b_type = NEUMANN
+    if(bc_t .eq. 'P') Grid % bc % b_type = PERIODIC
     Grid % bc % b_vals(:) = bc_v(:)
 
     ! Top
     read(file_unit, *) dummy, bc_t, bc_v(1), bc_v(2), bc_v(3)
-    Assert(bc_t .eq. 'D' .or. bc_t .eq. 'N')
+    Assert(bc_t .eq. 'D' .or. bc_t .eq. 'N' .or. bc_t .eq. 'P')
     if(bc_t .eq. 'D') Grid % bc % t_type = DIRICHLET
     if(bc_t .eq. 'N') Grid % bc % t_type = NEUMANN
+    if(bc_t .eq. 'P') Grid % bc % t_type = PERIODIC
     Grid % bc % t_vals(:) = bc_v(:)
 
     close(file_unit)

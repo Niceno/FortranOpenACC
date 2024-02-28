@@ -32,8 +32,9 @@
 !-----------------------------------[Locals]-----------------------------------!
   type(Grid_Type),   pointer :: Grid
   type(Sparse_Type), pointer :: A, M
-  integer                    :: s, c1, c2
+  integer                    :: s, c1, c2, c
   real                       :: a12
+  real, allocatable          :: visited(:)
 !------------------------[Avoid unused parent warning]-------------------------!
   Unused(Proc)
 !==============================================================================!
@@ -60,6 +61,14 @@
     A % val(A % dia(c1))  = A % val(A % dia(c1)) + a12
     A % val(A % dia(c2))  = A % val(A % dia(c2)) + a12
   end do
+
+# if VFS_DEBUG == 1
+  allocate(visited(Grid % n_cells));  visited(:) = 0.0
+  do c = 1, Grid % n_cells
+    visited(c) = A % val(A % dia(c))
+  end do
+  call Grid % Save_Vtk_Scalar("a_diagonal.vtk", visited)
+# endif
 
   call Profiler % Stop('Form_Pressure_Matrix')
 

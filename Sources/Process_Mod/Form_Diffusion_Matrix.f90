@@ -12,6 +12,7 @@
   type(Bc_Type),     pointer :: bc
   real                       :: dx, dy, dz, a_we, a_sn, a_bt
   integer                    :: nx, ny, nz, i, j, k, c, d, ij
+  real, allocatable          :: visited(:)
 !------------------------[Avoid unused parent warning]-------------------------!
   Unused(Proc)
 !==============================================================================!
@@ -92,6 +93,14 @@
   do c = 1, Grid % n_cells
     M % v_m(c) = Grid % vol(c) / M % val(M % dia(c))
   end do
+
+# if VFS_DEBUG == 1
+  allocate(visited(Grid % n_cells));  visited(:) = 0.0
+  do c = 1, Grid % n_cells
+    visited(c) = M % val(M % dia(c))
+  end do
+  call Grid % Save_Vtk_Scalar("m_diagonal.vtk", visited)
+# endif
 
   call Profiler % Stop('Form_Diffusion_Matrix')
 
