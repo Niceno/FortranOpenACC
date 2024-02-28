@@ -12,6 +12,7 @@
   type(Bc_Type),     pointer :: bc
   real                       :: dx, dy, dz, a_we, a_sn, a_bt
   integer                    :: nx, ny, nz, i, j, k, c, d, ij
+  real, allocatable          :: visited(:)
 !------------------------[Avoid unused parent warning]-------------------------!
   Unused(Proc)
 !==============================================================================!
@@ -46,12 +47,23 @@
     ! Work out the neighboring coefficients
     do ij = M % row(c), M % row(c+1) - 1
       d = M % col(ij)
-      if(d==c-1)      M % val(ij) = -a_we  ! west
-      if(d==c+1)      M % val(ij) = -a_we  ! east
-      if(d==c-nx)     M % val(ij) = -a_sn  ! south
-      if(d==c+nx)     M % val(ij) = -a_sn  ! north
-      if(d==c-nx*ny)  M % val(ij) = -a_bt  ! bottom
-      if(d==c+nx*ny)  M % val(ij) = -a_bt  ! top
+      if(d .ne. c) then
+        if(abs(c-d)==1) then
+          M % val(ij) = -a_we  ! west or east
+        else if(abs(c-d)==nx) then
+          M % val(ij) = -a_sn  ! south or north
+        else if(abs(c-d)==nx*ny) then
+          M % val(ij) = -a_sn  ! bottom or top
+        else if(abs(c-d) .eq. nx-1) then
+          M % val(ij) = -a_we  ! periodicity in east-west
+        else if(abs(c-d) .eq. nx*ny-nx) then
+          M % val(ij) = -a_sn  ! periodicity in north-south
+        else if(abs(c-d) .eq. nx*ny*(nz-1)) then
+          M % val(ij) = -a_bt  ! periodicity in top-bottom
+        else
+          print '(a)', ' How on earth did you get here?'
+        end if
+      end if
     end do
 
     ! Compute central coefficient and put it in the diagonal
@@ -92,6 +104,15 @@
   do c = 1, Grid % n_cells
     M % v_m(c) = Grid % vol(c) / M % val(M % dia(c))
   end do
+
+# if VFS_DEBUG == 1
+  allocate(visited(Grid % n_cells));  visited(:) = 0.0
+  do c = 1, Grid % n_cells
+    visited(c) = M % val(M % dia(c))
+    ! or: visited(c) = M % row(c+1) - M % row(c) ?
+  end do
+  call Grid % Save_Vtk_Scalar("m_diagonal.vtk", visited)
+# endif
 
   call Profiler % Stop('Form_Diffusion_Matrix')
 

@@ -29,13 +29,25 @@
   do k = 1, nk
     do j = 1, nj
       do i = 1, ni
+
+        ! Diagonal entry
+        non_z = non_z + 1
+
+        ! Non-periodic connections
         if(k > 1) non_z = non_z + 1
         if(j > 1) non_z = non_z + 1
         if(i > 1) non_z = non_z + 1
-        non_z = non_z + 1
         if(i < ni) non_z = non_z + 1
         if(j < nj) non_z = non_z + 1
         if(k < nk) non_z = non_z + 1
+
+        ! Periodic connections
+        if(k== 1 .and. Grid % bc % b_type==PERIODIC) non_z = non_z + 1
+        if(j== 1 .and. Grid % bc % s_type==PERIODIC) non_z = non_z + 1
+        if(i== 1 .and. Grid % bc % w_type==PERIODIC) non_z = non_z + 1
+        if(i==ni .and. Grid % bc % e_type==PERIODIC) non_z = non_z + 1
+        if(j==nj .and. Grid % bc % n_type==PERIODIC) non_z = non_z + 1
+        if(k==nk .and. Grid % bc % t_type==PERIODIC) non_z = non_z + 1
       end do
     end do
   end do
@@ -81,16 +93,34 @@
         if(k > 1) then        ! bottom
           non_z = non_z + 1
           A % col(non_z) = b
+        else
+          Assert(k .eq. 1)
+          if(Grid % bc % b_type .eq. PERIODIC) then
+            non_z = non_z + 1
+            A % col(non_z) = Grid % Cell_Number(i, j, nk)
+          end if
         end if
 
         if(j > 1) then        ! south
           non_z = non_z + 1
           A % col(non_z) = s
+        else
+          Assert(j .eq. 1)
+          if(Grid % bc % s_type .eq. PERIODIC) then
+            non_z = non_z + 1
+            A % col(non_z) = Grid % Cell_Number(i, nj, k)
+          end if
         end if
 
         if(i > 1) then        ! west
           non_z = non_z + 1
           A % col(non_z) = w
+        else
+          Assert(i .eq. 1)
+          if(Grid % bc % w_type .eq. PERIODIC) then
+            non_z = non_z + 1
+            A % col(non_z) = Grid % Cell_Number(ni, j, k)
+          end if
         end if
 
         non_z = non_z + 1     ! central
@@ -99,16 +129,34 @@
         if(i < ni) then       ! east
           non_z = non_z + 1
           A % col(non_z) = e
+        else
+          Assert(i .eq. ni)
+          if(Grid % bc % w_type .eq. PERIODIC) then
+            non_z = non_z + 1
+            A % col(non_z) = Grid % Cell_Number(1, j, k)
+          end if
         end if
 
         if(j < nj) then       ! north
           non_z = non_z + 1
           A % col(non_z) = n
+        else
+          Assert(j .eq. nj)
+          if(Grid % bc % n_type .eq. PERIODIC) then
+            non_z = non_z + 1
+            A % col(non_z) = Grid % Cell_Number(i, 1, k)
+          end if
         end if
 
         if(k < nk) then       ! top
           non_z = non_z + 1
           A % col(non_z) = t
+        else
+          Assert(k .eq. nk)
+          if(Grid % bc % t_type .eq. PERIODIC) then
+            non_z = non_z + 1
+            A % col(non_z) = Grid % Cell_Number(i, j, 1)
+          end if
         end if
 
       end do
