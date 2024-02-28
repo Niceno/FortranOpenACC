@@ -18,8 +18,8 @@
   type(Grid_Type),   pointer :: Grid
   type(Sparse_Type), pointer :: A, M
   type(Var_Type),    pointer :: u, v, w, pp, p
-  real,              pointer :: b(:)
-  real,              pointer :: v_flux(:)
+  real, contiguous,  pointer :: b(:), v_flux(:)
+  real                       :: a12
   integer                    :: c, s, c1, c2
 !------------------------[Avoid unused parent warning]-------------------------!
   Unused(Proc)
@@ -52,10 +52,8 @@
     c1 = Grid % faces_c(1, s)
     c2 = Grid % faces_c(2, s)
 
-    Assert(c2 .gt. 0)
-
-    v_flux(s) = v_flux(s) + (pp % n(c2) - pp % n(c1))  &
-                             * A % val(A % pos(1,s))
+    a12 = Grid % s(s) / Grid % d(s) * 0.5 * (M % v_m(c1) + M % v_m(c2))
+    v_flux(s) = v_flux(s) + (pp % n(c2) - pp % n(c1)) * a12
   end do
 
   !-------------------------------!
