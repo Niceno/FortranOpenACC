@@ -74,7 +74,7 @@
     c1 = faces_c(1, s)
     c2 = faces_c(2, s)
 
-    a12 = fc(s) * 0.5 * (v_m(c1) + v_m(c2))
+    a12 = -fc(s) * 0.5 * (v_m(c1) + v_m(c2))
     v_flux(s) = v_flux(s) + (pp_n(c2) - pp_n(c1)) * a12
   end do
   !$acc end parallel

@@ -18,7 +18,7 @@
   real,    contiguous, pointer :: v_flux(:)
   integer, contiguous, pointer :: cells_n_cells(:)
   integer, contiguous, pointer :: cells_c(:,:), cells_f(:,:)
-  real                         :: b_tmp, den_v_u1, den_v_u2
+  real                         :: b_tmp, den_u1, den_u2
   integer                      :: s, c1, c2, i_cel, n
 !------------------------[Avoid unused parent warning]-------------------------!
   Unused(Proc)
@@ -53,12 +53,14 @@
       c2 = cells_c(i_cel, c1)
       s  = cells_f(i_cel, c1)
       if(c2 .gt. 0) then
-        den_v_u1 = DENS * v_flux(s) * ui_n(c1)
-        den_v_u2 = DENS * v_flux(s) * ui_n(c2)
-        b_tmp = b_tmp - den_v_u1 * max(v_flux(s), 0.0) * merge(1,0, c1.lt.c2)
-        b_tmp = b_tmp - den_v_u2 * min(v_flux(s), 0.0) * merge(1,0, c1.lt.c2)
-        b_tmp = b_tmp + den_v_u2 * max(v_flux(s), 0.0) * merge(1,0, c1.gt.c2)
-        b_tmp = b_tmp + den_v_u1 * min(v_flux(s), 0.0) * merge(1,0, c1.gt.c2)
+        ! Unit: kg / m^3 * m /s = kg / (m^2 s)
+        den_u1 = DENS * ui_n(c1)
+        den_u2 = DENS * ui_n(c2)
+        ! Unit: kg / (m^2 s) * m^3 / s = kg m / s^2 = N
+        b_tmp = b_tmp - den_u1 * max(v_flux(s), 0.0) * merge(1,0, c1.lt.c2)
+        b_tmp = b_tmp - den_u2 * min(v_flux(s), 0.0) * merge(1,0, c1.lt.c2)
+        b_tmp = b_tmp + den_u2 * max(v_flux(s), 0.0) * merge(1,0, c1.gt.c2)
+        b_tmp = b_tmp + den_u1 * min(v_flux(s), 0.0) * merge(1,0, c1.gt.c2)
       end if
     end do
     !$acc end loop

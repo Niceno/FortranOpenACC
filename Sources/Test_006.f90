@@ -8,18 +8,18 @@
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
-  integer, parameter       :: N_STEPS =   3                    ! <- GPU_1
-  integer, parameter       :: N_ITERS =   3                    ! <- GPU_1
+  integer, parameter       :: N_STEPS = 600   ! N_STEPS =   3
+  integer, parameter       :: N_ITERS =   6   ! N_ITERS =   3
   type(Grid_Type)          :: Grid          ! computational grid
   type(Field_Type), target :: Flow          ! flow field
   real                     :: ts, te
   real                     :: dt
   integer                  :: n, c, time_step, iter
-  character(15)            :: name_vel     = 'TTT_III_vel.vtk'
+  character(15)            :: name_vel     = 'TTT_III_uvw.vtk'
+  character(13)            :: name_p       = 'TTT_III_p.vtk'
 !@character(14)            :: name_pp      = 'TTT_III_pp.vtk'
-!@character(13)            :: name_p       = 'TTT_III_p.vtk'
-!@character(19)            :: name_pp_grad = 'TTT_III_pp_grad.vtk'
-!@character(18)            :: name_p_grad  = 'TTT_III_p_grad.vtk'
+!@character(18)            :: name_grad_p  = 'TTT_III_grad_p.vtk'
+!@character(19)            :: name_grad_pp = 'TTT_III_grad_pp.vtk'
 !==============================================================================!
 
   call Profiler % Start('Test_006')
@@ -34,7 +34,7 @@
   n = Grid % n_cells
   print '(a, i12)',   ' # The problem size is: ', n
   print '(a,es12.3)', ' # Solver tolerace is : ', PICO
-  dt = 1.0 / 200.0                                             ! <- GPU_1
+  dt = 0.025  ! dt = 1.0 / 200.0
 
   print '(a)', ' #----------------------------------------------------'
   print '(a)', ' # Be careful with memory usage.  If you exceed the'
@@ -136,10 +136,10 @@
     !$acc end parallel
 
     write(name_vel    (1:3), '(i3.3)') , time_step
+    write(name_p      (1:3), '(i3.3)') , time_step
 !@  write(name_pp     (1:3), '(i3.3)') , time_step
-!@  write(name_p      (1:3), '(i3.3)') , time_step
-!@  write(name_pp_grad(1:3), '(i3.3)') , time_step
-!@  write(name_p_grad (1:3), '(i3.3)') , time_step
+!@  write(name_grad_pp(1:3), '(i3.3)') , time_step
+!@  write(name_grad_p (1:3), '(i3.3)') , time_step
 
     if(mod(time_step,60) .eq. 0) then
       call Grid % Save_Vtk_Vector(name_vel, Flow % u % n(1:n),  &
@@ -150,10 +150,10 @@
     do iter = 1, N_ITERS
 
 !@    write(name_vel    (5:7), '(i3.3)') , iter
-!@    write(name_pp     (5:7), '(i3.3)') , iter
 !@    write(name_p      (5:7), '(i3.3)') , iter
-!@    write(name_pp_grad(5:7), '(i3.3)') , iter
-!@    write(name_p_grad (5:7), '(i3.3)') , iter
+!@    write(name_pp     (5:7), '(i3.3)') , iter
+!@    write(name_grad_pp(5:7), '(i3.3)') , iter
+!@    write(name_grad_p (5:7), '(i3.3)') , iter
 
       print '(a)', ' # Solving u'
       call Process % Compute_Momentum(Flow, dt, comp=1)
@@ -167,37 +167,32 @@
       print '(a)', ' # Solving pp'
       call Process % Compute_Pressure(Flow)
 
-      ! Pressure gradient is computed on the device
       call Flow % Grad_Pressure(Grid, Flow % pp)
 
       print '(a)', ' # Correcting velocity'
       call Process % Correct_Velocity(Flow)
 
-      ! Compute pressure gradients for next iteration
       call Flow % Grad_Pressure(Grid, Flow % p)
-    end do
 
-  end do
+    end do  ! iterations
+
+    if(mod(time_step, 120) .eq. 0) then
+      call Gpu % Vector_Update_Host(Flow % u % n)
+      call Gpu % Vector_Update_Host(Flow % v % n)
+      call Gpu % Vector_Update_Host(Flow % w % n)
+      call Gpu % Vector_Update_Host(Flow % p % n)
+      call Grid % Save_Vtk_Vector(name_vel, Flow % u % n(1:n),  &
+                                            Flow % v % n(1:n),  &
+                                            Flow % w % n(1:n))
+      call Grid % Save_Vtk_Scalar(name_p, Flow % p % n(1:n))
+    end if
+
+  end do    ! time steps
   call cpu_time(te)
 
   ! Save results
-  goto 1
-  call Grid % Save_Vtk_Scalar("p.vtk",  Flow % p  % n(1:n))
-  call Grid % Save_Vtk_Scalar("pp.vtk", Flow % pp % n(1:n))
-  call Grid % Save_Vtk_Vector("velocity.vtk", Flow % u % n(1:n),  &
-                                              Flow % v % n(1:n),  &
-                                              Flow % w % n(1:n))
-  call Grid % Save_Vtk_Vector("pp_gradient.vtk", Flow % pp % x(1:n),  &
-                                                 Flow % pp % y(1:n),  &
-                                                 Flow % pp % z(1:n))
-  call Grid % Save_Vtk_Vector("p_gradient.vtk",  Flow % p % x(1:n),  &
-                                                 Flow % p % y(1:n),  &
-                                                 Flow % p % z(1:n))
 
-
-  print '(a,f12.3,a)', ' # Time elapsed for TEST 6: ', te-ts, ' [s]'
-
-1 call Profiler % Stop('Test_006')
+  call Profiler % Stop('Test_006')
 
   call Profiler % Statistics(indent=1)
 
