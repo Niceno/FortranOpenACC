@@ -16,7 +16,6 @@
   real          :: total_time, t_temp, percent_time
   integer       :: hours, minutes, seconds
   character(DL) :: line, n_temp
-  character(SL) :: pinfo
   logical       :: swap, in_sec
 !==============================================================================!
 
