@@ -9,7 +9,7 @@
   integer,           intent(in)  :: i     !! gradient component (1 to 3)
   real,              intent(out) :: phii(-Grid % n_bnd_cells:Grid % n_cells)
 !-----------------------------------[Locals]-----------------------------------!
-  integer :: c, d, i_cel
+  integer :: c1, c2, s, i_cel
   real    :: dphi, dx, dy, dz, phii_tmp
 !-----------------------------[Local parameters]-------------------------------!
   integer, dimension(3,3), parameter :: MAP = reshape((/ 1, 4, 5,  &
@@ -18,8 +18,8 @@
 !==============================================================================!
 
   ! Aret these checks overkill?
-  Assert(i > 0)
-  Assert(i < 4)
+  Assert(i .ge. 1)
+  Assert(i .le. 3)
 
   ! Initialize gradients
   phii(:) = 0.0
@@ -27,26 +27,32 @@
   ! Try to estimate gradients cell-wise
   ! (face-wise leades to race conditions on GPUs)
   !$acc parallel loop independent
-  do c = 1, Grid % n_cells
+  do c1 = 1, Grid % n_cells
 
     phii_tmp = 0.0
 
     !$acc loop seq
-    do i_cel = 1, Grid % cells_n_cells(c)
-      d = Grid % cells_c(i_cel, c)
-      dphi = phi(d)-phi(c)
-      dx   = Grid % xc(d) - Grid % xc(c)
-      dy   = Grid % yc(d) - Grid % yc(c)
-      dz   = Grid % zc(d) - Grid % zc(c)
+    do i_cel = 1, Grid % cells_n_cells(c1)
+      c2 = Grid % cells_c(i_cel, c1)
+      s  = Grid % cells_f(i_cel, c1)
+      dphi = phi(c2)-phi(c1)
+      dx = Grid % dx(s)
+      dy = Grid % dy(s)
+      dz = Grid % dz(s)
+      if(c2 .gt. 0 .and. c1 .gt. c2) then
+        dx = -dx
+        dy = -dy
+        dz = -dz
+      end if
 
-      phii_tmp = phii_tmp                                     &
-               + dphi * (  Flow % grad_c2c(MAP(i,1),c) * dx   &
-                         + Flow % grad_c2c(MAP(i,2),c) * dy   &
-                         + Flow % grad_c2c(MAP(i,3),c) * dz)
+      phii_tmp = phii_tmp                                      &
+               + dphi * (  Flow % grad_c2c(MAP(i,1),c1) * dx   &
+                         + Flow % grad_c2c(MAP(i,2),c1) * dy   &
+                         + Flow % grad_c2c(MAP(i,3),c1) * dz)
     end do
     !$acc end loop
 
-    phii(c) = phii_tmp
+    phii(c1) = phii_tmp
 
   end do
   !$acc end parallel
