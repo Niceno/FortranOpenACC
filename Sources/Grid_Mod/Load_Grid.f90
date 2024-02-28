@@ -62,37 +62,43 @@
     ! West
     read(file_unit, *) dummy, bc_t, bc_v(1), bc_v(2), bc_v(3)
     Assert(bc_t .eq. 'D' .or. bc_t .eq. 'N')
-    Grid % bc % w_type    = bc_t
+    if(bc_t .eq. 'D') Grid % bc % w_type = DIRICHLET
+    if(bc_t .eq. 'N') Grid % bc % w_type = NEUMANN
     Grid % bc % w_vals(:) = bc_v(:)
 
     ! East
     read(file_unit, *) dummy, bc_t, bc_v(1), bc_v(2), bc_v(3)
     Assert(bc_t .eq. 'D' .or. bc_t .eq. 'N')
-    Grid % bc % e_type    = bc_t
+    if(bc_t .eq. 'D') Grid % bc % e_type = DIRICHLET
+    if(bc_t .eq. 'N') Grid % bc % e_type = NEUMANN
     Grid % bc % e_vals(:) = bc_v(:)
 
     ! South
     read(file_unit, *) dummy, bc_t, bc_v(1), bc_v(2), bc_v(3)
     Assert(bc_t .eq. 'D' .or. bc_t .eq. 'N')
-    Grid % bc % s_type    = bc_t
+    if(bc_t .eq. 'D') Grid % bc % s_type = DIRICHLET
+    if(bc_t .eq. 'N') Grid % bc % s_type = NEUMANN
     Grid % bc % s_vals(:) = bc_v(:)
 
     ! North
     read(file_unit, *) dummy, bc_t, bc_v(1), bc_v(2), bc_v(3)
     Assert(bc_t .eq. 'D' .or. bc_t .eq. 'N')
-    Grid % bc % n_type    = bc_t
+    if(bc_t .eq. 'D') Grid % bc % n_type = DIRICHLET
+    if(bc_t .eq. 'N') Grid % bc % n_type = NEUMANN
     Grid % bc % n_vals(:) = bc_v(:)
 
     ! Bottom
     read(file_unit, *) dummy, bc_t, bc_v(1), bc_v(2), bc_v(3)
     Assert(bc_t .eq. 'D' .or. bc_t .eq. 'N')
-    Grid % bc % b_type    = bc_t
+    if(bc_t .eq. 'D') Grid % bc % b_type = DIRICHLET
+    if(bc_t .eq. 'N') Grid % bc % b_type = NEUMANN
     Grid % bc % b_vals(:) = bc_v(:)
 
     ! Top
     read(file_unit, *) dummy, bc_t, bc_v(1), bc_v(2), bc_v(3)
     Assert(bc_t .eq. 'D' .or. bc_t .eq. 'N')
-    Grid % bc % t_type    = bc_t
+    if(bc_t .eq. 'D') Grid % bc % t_type = DIRICHLET
+    if(bc_t .eq. 'N') Grid % bc % t_type = NEUMANN
     Grid % bc % t_vals(:) = bc_v(:)
 
     close(file_unit)

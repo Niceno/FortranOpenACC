@@ -17,7 +17,7 @@
   real,    contiguous, pointer :: b(:)
   real,    contiguous, pointer :: v_flux(:)
   integer, contiguous, pointer :: cells_n_cells(:)
-  integer,             pointer :: cells_c(:,:), cells_f(:,:)
+  integer, contiguous, pointer :: cells_c(:,:), cells_f(:,:)
   real                         :: b_tmp, den_v_u1, den_v_u2
   integer                      :: s, c1, c2, i_cel, n
 !------------------------[Avoid unused parent warning]-------------------------!
@@ -45,16 +45,9 @@
   !      (This can be accelerted on GPU)      !
   !-------------------------------------------!
 
-  ! Update device with what is needed for updating right-hand side (b)
-  call Gpu % Vector_Update_Device(b)
-  call Gpu % Vector_Update_Device(v_flux)
-  call Gpu % Vector_Update_Device(ui_n)
-
   !$acc parallel loop
   do c1 = 1, n
-
     b_tmp = b(c1)
-
     !$acc loop seq
     do i_cel = 1, cells_n_cells(c1)
       c2 = cells_c(i_cel, c1)
@@ -69,14 +62,9 @@
       end if
     end do
     !$acc end loop
-
     b(c1) = b_tmp
-
   end do
   !$acc end parallel
-
-  ! Update host with the new right-hand side (b)
-  call Gpu % Vector_Update_Host(b)
 
   call Profiler % Stop('Add_Advection_Term')
 

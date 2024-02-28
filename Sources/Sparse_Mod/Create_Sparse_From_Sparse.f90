@@ -20,6 +20,7 @@
   ! Copy all significant fields from the matrix
   A % nonzeros = B % nonzeros
   allocate (A % val(A % nonzeros));       A % val(:)   = B % val(:)
+  allocate (A % fc (Grid % n_faces));     A % fc(:)    = B % fc(:)
   allocate (A % col(A % nonzeros));       A % col(:)   = B % col(:)
   allocate (A % row(Grid % n_cells+1));   A % row(:)   = B % row(:)
   allocate (A % dia(Grid % n_cells));     A % dia(:)   = B % dia(:)

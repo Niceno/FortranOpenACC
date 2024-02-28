@@ -14,7 +14,7 @@
   type(Field_Type), target :: Flow          ! flow field
   real                     :: ts, te
   real                     :: dt
-  integer                  :: n, time_step, iter
+  integer                  :: n, c, time_step, iter
   character(15)            :: name_vel     = 'TTT_III_vel.vtk'
 !@character(14)            :: name_pp      = 'TTT_III_pp.vtk'
 !@character(13)            :: name_p       = 'TTT_III_p.vtk'
@@ -65,47 +65,56 @@
   Flow % v % n(:) = 0.0
   Flow % w % n(:) = 0.0
 
-  ! OK, once you formed the preconditioners, you               ! <- GPU_1
-  ! will want to keep these matrices on the device             ! <- GPU_1
-  call Gpu % Sparse_Copy_To_Device(Flow % Nat % M)             ! <- GPU_1
-  call Gpu % Sparse_Copy_To_Device(Flow % Nat % A)             ! <- GPU_1
+  ! OK, once you formed the preconditioners, you
+  ! will want to keep these matrices on the device
+  call Gpu % Sparse_Copy_To_Device(Flow % Nat % M)
+  call Gpu % Sparse_Copy_To_Device(Flow % Nat % A)
 
-  ! and that bloody right-hand-side vector too                 ! <- GPU_1
-  call Gpu % Vector_Real_Copy_To_Device(Flow % Nat % b)             ! <- GPU_1
+  ! and that bloody right-hand-side vector too
+  call Gpu % Vector_Real_Copy_To_Device(Flow % Nat % b)
 
-  ! In addition to system matrices of your discretized         ! <- GPU_1
-  ! equations, you will want to have gradient matrices, as     ! <- GPU_1
-  ! well as cell connectivity and cell coordinates on the      ! <- GPU_1
-  ! device (they are all needed for gradients), ...            ! <- GPU_1
-  call Gpu % Matrix_Real_Copy_To_Device(Flow % grad_c2c)       ! <- GPU_1
-  call Gpu % Vector_Int_Copy_To_Device(Grid % cells_n_cells)   ! <- GPU_1
-  call Gpu % Matrix_Int_Copy_To_Device(Grid % cells_c)         ! <- GPU_1
-  call Gpu % Matrix_Int_Copy_To_Device(Grid % cells_f)         ! <- GPU_2
-  call Gpu % Vector_Real_Copy_To_Device(Grid % xc)             ! <- GPU_1
-  call Gpu % Vector_Real_Copy_To_Device(Grid % yc)             ! <- GPU_1
-  call Gpu % Vector_Real_Copy_To_Device(Grid % zc)             ! <- GPU_1
-                                                               ! <- GPU_1
-  ! ... and the vectors of the native suite of solvers         ! <- GPU_1
-  call Gpu % Native_Transfer_To_Device(Flow % Nat)             ! <- GPU_1
+  ! In addition to system matrices of your discretized
+  ! equations, you will want to have gradient matrices, as
+  ! well as cell connectivity and cell coordinates on the
+  ! device (they are all needed for gradients), ...
+  call Gpu % Matrix_Real_Copy_To_Device(Flow % grad_c2c)
+  call Gpu % Vector_Int_Copy_To_Device(Grid % cells_n_cells)
+  call Gpu % Matrix_Int_Copy_To_Device(Grid % cells_c)
+  call Gpu % Matrix_Int_Copy_To_Device(Grid % cells_f)
+  call Gpu % Vector_Real_Copy_To_Device(Grid % xc)
+  call Gpu % Vector_Real_Copy_To_Device(Grid % yc)
+  call Gpu % Vector_Real_Copy_To_Device(Grid % zc)
+  call Gpu % Vector_Real_Copy_To_Device(Grid % sx)
+  call Gpu % Vector_Real_Copy_To_Device(Grid % sy)
+  call Gpu % Vector_Real_Copy_To_Device(Grid % sz)
+  call Gpu % Vector_Real_Copy_To_Device(Grid % s)
+  call Gpu % Vector_Real_Copy_To_Device(Grid % d)
+  call Gpu % Vector_Real_Copy_To_Device(Grid % vol)
+                                                  
+  ! ... and the vectors of the native suite of solvers
+  call Gpu % Native_Transfer_To_Device(Flow % Nat)
 
-  ! OK, fine, now you have all sort of matrices and supporting ! <- GPU_1
-  ! data on the device, but you will also need variables sol-  ! <- GPU_1
-  ! ved for (pp % n, u % n, v % n and w % n), universal source ! <- GPU_1
-  ! for them all (b) and the variables whose gradients are     ! <- GPU_1
-  ! being computed (pp % n and p % n) as well as gradient com- ! <- GPU_1
-  ! ponents (pp % x, pp % y, pp % z, p % x, p % y and p % z)   ! <- GPU_1
-  call Gpu % Vector_Real_Copy_To_Device(Flow % pp % n)         ! <- GPU_1
-  call Gpu % Vector_Real_Copy_To_Device(Flow % p % n)          ! <- GPU_1
-  call Gpu % Vector_Real_Copy_To_Device(Flow % u % n)          ! <- GPU_1
-  call Gpu % Vector_Real_Copy_To_Device(Flow % v % n)          ! <- GPU_1
-  call Gpu % Vector_Real_Copy_To_Device(Flow % w % n)          ! <- GPU_1
-  call Gpu % Vector_Real_Copy_To_Device(Flow % pp % x)         ! <- GPU_1
-  call Gpu % Vector_Real_Copy_To_Device(Flow % pp % y)         ! <- GPU_1
-  call Gpu % Vector_Real_Copy_To_Device(Flow % pp % z)         ! <- GPU_1
-  call Gpu % Vector_Real_Copy_To_Device(Flow % p % x)          ! <- GPU_1
-  call Gpu % Vector_Real_Copy_To_Device(Flow % p % y)          ! <- GPU_1
-  call Gpu % Vector_Real_Copy_To_Device(Flow % p % z)          ! <- GPU_1
-  call Gpu % Vector_Real_Copy_To_Device(Flow % v_flux)         ! <- GPU_2
+  ! OK, fine, now you have all sort of matrices and supporting
+  ! data on the device, but you will also need variables sol-
+  ! ved for (pp % n, u % n, v % n and w % n), universal source
+  ! for them all (b) and the variables whose gradients are
+  ! being computed (pp % n and p % n) as well as gradient com
+  ! ponents (pp % x, pp % y, pp % z, p % x, p % y and p % z)
+  call Gpu % Vector_Real_Copy_To_Device(Flow % pp % n)
+  call Gpu % Vector_Real_Copy_To_Device(Flow % p % n)
+  call Gpu % Vector_Real_Copy_To_Device(Flow % u % n)
+  call Gpu % Vector_Real_Copy_To_Device(Flow % v % n)
+  call Gpu % Vector_Real_Copy_To_Device(Flow % w % n)
+  call Gpu % Vector_Real_Copy_To_Device(Flow % u % o)
+  call Gpu % Vector_Real_Copy_To_Device(Flow % v % o)
+  call Gpu % Vector_Real_Copy_To_Device(Flow % w % o)
+  call Gpu % Vector_Real_Copy_To_Device(Flow % pp % x)
+  call Gpu % Vector_Real_Copy_To_Device(Flow % pp % y)
+  call Gpu % Vector_Real_Copy_To_Device(Flow % pp % z)
+  call Gpu % Vector_Real_Copy_To_Device(Flow % p % x)
+  call Gpu % Vector_Real_Copy_To_Device(Flow % p % y)
+  call Gpu % Vector_Real_Copy_To_Device(Flow % p % z)
+  call Gpu % Vector_Real_Copy_To_Device(Flow % v_flux)
 
   !-----------------------------------------------!
   !   Performing a fake time loop on the device   !
@@ -118,9 +127,13 @@
     print '(a)',            ' #--------------------------'
 
     ! Preparation for the new time step
-    Flow % u % o = Flow % u % n
-    Flow % v % o = Flow % v % n
-    Flow % w % o = Flow % w % n
+    !$acc parallel loop
+    do c = 1, n
+      Flow % u % o(c) = Flow % u % n(c)
+      Flow % v % o(c) = Flow % v % n(c)
+      Flow % w % o(c) = Flow % w % n(c)
+    end do
+    !$acc end parallel
 
     write(name_vel    (1:3), '(i3.3)') , time_step
 !@  write(name_pp     (1:3), '(i3.3)') , time_step
@@ -159,7 +172,6 @@
 
       print '(a)', ' # Correcting velocity'
       call Process % Correct_Velocity(Flow)
-      ! call Grid % Save_Vtk_Scalar(name_p, Flow % p % n(1:n))
 
       ! Compute pressure gradients for next iteration
       call Flow % Grad_Pressure(Grid, Flow % p)

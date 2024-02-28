@@ -26,7 +26,7 @@
 
   ! Try to estimate gradients cell-wise
   ! (face-wise leades to race conditions on GPUs)
-  !$acc parallel loop
+  !$acc parallel loop independent
   do c = 1, Grid % n_cells
 
     phii_tmp = 0.0

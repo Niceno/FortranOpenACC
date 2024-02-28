@@ -16,10 +16,9 @@
   type(Field_Type), target :: Flow
   integer                  :: comp
 !-----------------------------------[Locals]-----------------------------------!
-  type(Grid_Type), pointer :: Grid
-  type(Var_Type),  pointer :: p
-  real,            pointer :: b(:)
-  integer                  :: c
+  type(Grid_Type),  pointer :: Grid
+  real, contiguous, pointer :: b(:), p_i(:), vol(:)
+  integer                   :: c, nc
 !------------------------[Avoid unused parent warning]-------------------------!
   Unused(Proc)
 !==============================================================================!
@@ -29,21 +28,19 @@
   ! Take some aliases
   Grid => Flow % pnt_grid
   b    => Flow % Nat % b
-  p    => Flow % p
+  vol  => Grid % vol
+  nc   =  Grid % n_cells
 
-  if(comp .eq. 1) then
-    do c = 1, Grid % n_cells
-      b(c) = b(c) - p % x(c) * Grid % vol(c)
-    end do
-  else if(comp .eq. 2) then
-    do c = 1, Grid % n_cells
-      b(c) = b(c) - p % y(c) * Grid % vol(c)
-    end do
-  else if(comp .eq. 3) then
-    do c = 1, Grid % n_cells
-      b(c) = b(c) - p % z(c) * Grid % vol(c)
-    end do
-  end if
+  ! Still on aliases
+  if(comp .eq. 1) p_i => Flow % p % x
+  if(comp .eq. 2) p_i => Flow % p % y
+  if(comp .eq. 3) p_i => Flow % p % z
+
+  !$acc parallel loop independent
+  do c = 1, nc
+    b(c) = b(c) - p_i(c) * vol(c)
+  end do
+  !$acc end parallel
 
   call Profiler % Stop('Add_Pressure_Term')
 

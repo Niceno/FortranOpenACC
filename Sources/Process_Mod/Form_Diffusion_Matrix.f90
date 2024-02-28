@@ -68,12 +68,12 @@
   !----------------------------------------------------------------------!
   do c = 1, Grid % n_cells
     call Grid % Cells_I_J_K(c, i, j, k)
-    if(i==1  .and. bc % w_type=='D')  Inc(M % val(M % dia(c)),  2.0 * a_we)
-    if(i==nx .and. bc % e_type=='D')  Inc(M % val(M % dia(c)),  2.0 * a_we)
-    if(j==1  .and. bc % s_type=='D')  Inc(M % val(M % dia(c)),  2.0 * a_sn)
-    if(j==ny .and. bc % n_type=='D')  Inc(M % val(M % dia(c)),  2.0 * a_sn)
-    if(k==1  .and. bc % b_type=='D')  Inc(M % val(M % dia(c)),  2.0 * a_bt)
-    if(k==nz .and. bc % t_type=='D')  Inc(M % val(M % dia(c)),  2.0 * a_bt)
+    if(i==1  .and. bc % w_type==DIRICHLET)  Inc(M % val(M % dia(c)), 2.*a_we)
+    if(i==nx .and. bc % e_type==DIRICHLET)  Inc(M % val(M % dia(c)), 2.*a_we)
+    if(j==1  .and. bc % s_type==DIRICHLET)  Inc(M % val(M % dia(c)), 2.*a_sn)
+    if(j==ny .and. bc % n_type==DIRICHLET)  Inc(M % val(M % dia(c)), 2.*a_sn)
+    if(k==1  .and. bc % b_type==DIRICHLET)  Inc(M % val(M % dia(c)), 2.*a_bt)
+    if(k==nz .and. bc % t_type==DIRICHLET)  Inc(M % val(M % dia(c)), 2.*a_bt)
   end do
 
   !------------------------------------!

@@ -11,6 +11,9 @@
 !   Defines a (ludicrously simple) grid                                        !
 !==============================================================================!
 
+  integer, parameter :: DIRICHLET = 1024
+  integer, parameter :: NEUMANN   = 2048
+
   !-----------------------------!
   !                             !
   !   Boundary condition type   !
@@ -19,12 +22,12 @@
   type Bc_Type
 
     ! Types on all sides (N will be for Neumann, D for Dirichlet)
-    character(1) :: w_type
-    character(1) :: e_type
-    character(1) :: s_type
-    character(1) :: n_type
-    character(1) :: b_type
-    character(1) :: t_type
+    integer :: w_type
+    integer :: e_type
+    integer :: s_type
+    integer :: n_type
+    integer :: b_type
+    integer :: t_type
 
     ! Values on all sides - three for three velocity components
     real :: w_vals(3)
@@ -52,7 +55,7 @@
 
     integer, allocatable :: faces_c(:,:)
     integer, allocatable :: cells_c(:,:)
-    integer, allocatable :: cells_f(:,:)                       ! -> GPU_2
+    integer, allocatable :: cells_f(:,:)
     integer, allocatable :: cells_n_cells(:)
 
     real, allocatable :: xn(:), yn(:), zn(:)

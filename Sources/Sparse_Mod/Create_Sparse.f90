@@ -48,6 +48,7 @@
   allocate(A % dia(Grid % n_cells));     A % dia = 0
   allocate(A % col(non_z));              A % col = 0
   allocate(A % val(non_z));              A % val = 0
+  allocate(A % fc (Grid % n_faces));     A % fc  = 0
   allocate(A % mir(non_z));              A % mir = 0
   Assert(Grid % n_faces .gt. 0)
   allocate(A % pos(2, Grid % n_faces));  A % pos   = 0
@@ -150,6 +151,18 @@
       end do
 2     continue
     end do
+  end do
+
+  !-----------------------------------!
+  !   Bare-bone matrix coefficients   !
+  !-----------------------------------!
+  do s = 1, Grid % n_faces
+
+    Assert(Grid % s(s) .gt. TINY)
+    Assert(Grid % d(s) .gt. TINY)
+
+    A % fc(s) = Grid % s(s) / Grid % d(s)
+
   end do
 
   !---------------------------------------!

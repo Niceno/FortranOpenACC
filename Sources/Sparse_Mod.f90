@@ -47,6 +47,7 @@
     integer              :: n
     integer              :: nonzeros  !! number of nonzero entries
     real,    allocatable :: val(:)    !! value
+    real,    allocatable :: fc (:)    !! bare matrix entry for face
     integer, allocatable :: col(:)    !! beginning of each row
     integer, allocatable :: row(:)    !! column positions
     integer, allocatable :: dia(:)    !! diagonal positions

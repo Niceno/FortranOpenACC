@@ -16,9 +16,6 @@
 
   call Profiler % Start('Grad_Pressure')
 
-  ! Pressure gradient is computed on the device                ! <- GPU_1
-  call Gpu % Vector_Update_Device(phi % n)                     ! <- GPU_1
-
   ! All or nothing must be present
   Assert(present(phi_x) .eqv. present(phi_y))
   Assert(present(phi_y) .eqv. present(phi_z))
@@ -29,7 +26,7 @@
 
   ! External arrays are present, use them
   if(present(phi_x)) then
-    !$acc parallel loop
+    !$acc parallel loop independent
     do c = -Grid % n_bnd_cells, Grid % n_cells
       phi_x(c) = 0.0
       phi_y(c) = 0.0
@@ -39,7 +36,7 @@
 
   ! External arrays are not present, use internal gradient components
   else
-    !$acc parallel loop
+    !$acc parallel loop independent
     do c = -Grid % n_bnd_cells, Grid % n_cells
       phi % x(c) = 0.0
       phi % y(c) = 0.0
@@ -81,10 +78,6 @@
       call Flow % Grad_Component(Grid, phi % n, 2, phi_y)
       call Flow % Grad_Component(Grid, phi % n, 3, phi_z)
 
-      call Gpu % Vector_Update_Host(phi_x)                     ! <- GPU_1
-      call Gpu % Vector_Update_Host(phi_y)                     ! <- GPU_1
-      call Gpu % Vector_Update_Host(phi_z)                     ! <- GPU_1
-
     ! External arrays are not present, use internal gradient components
     else
       !$acc parallel loop independent
@@ -105,10 +98,6 @@
       call Flow % Grad_Component(Grid, phi % n, 1, phi % x)
       call Flow % Grad_Component(Grid, phi % n, 2, phi % y)
       call Flow % Grad_Component(Grid, phi % n, 3, phi % z)
-
-      call Gpu % Vector_Update_Host(phi % x)                   ! <- GPU_1
-      call Gpu % Vector_Update_Host(phi % y)                   ! <- GPU_1
-      call Gpu % Vector_Update_Host(phi % z)                   ! <- GPU_1
     end if
 
   end do

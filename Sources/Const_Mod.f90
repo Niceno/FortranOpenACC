@@ -34,4 +34,6 @@
   real, parameter :: ZEPTO = 1.e-21  !! avoid ghost number 1.0e-21
   real, parameter :: YOCTO = 1.e-24  !! avoid ghost number 1.0e-24
 
+  real, parameter :: TINY = FEMTO
+
   end module

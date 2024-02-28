@@ -8,10 +8,10 @@
   real                     :: dt
   integer                  :: comp
 !-----------------------------------[Locals]-----------------------------------!
-  type(Grid_Type), pointer :: Grid
-  type(Var_Type),  pointer :: u, v, w
-  real,            pointer :: b(:)
-  integer                  :: c
+  type(Grid_Type),  pointer :: Grid
+  real, contiguous, pointer :: ui_o(:)
+  real, contiguous, pointer :: b(:), vol(:)
+  integer                   :: c, nc
 !------------------------[Avoid unused parent warning]-------------------------!
   Unused(Proc)
 !==============================================================================!
@@ -21,23 +21,18 @@
   ! Take some aliases
   Grid => Flow % pnt_grid
   b    => Flow % Nat % b
-  u    => Flow % u
-  v    => Flow % v
-  w    => Flow % w
+  vol  => Grid % vol
+  nc   =  Grid % n_cells
 
-  if(comp .eq. 1) then
-    do c = 1, Grid % n_cells
-      b(c) = b(c) + DENS * u % o(c) * Grid % vol(c) / dt
-    end do
-  else if(comp .eq. 2) then
-    do c = 1, Grid % n_cells
-      b(c) = b(c) + DENS * v % o(c) * Grid % vol(c) / dt
-    end do
-  else if(comp .eq. 3) then
-    do c = 1, Grid % n_cells
-      b(c) = b(c) + DENS * w % o(c) * Grid % vol(c) / dt
-    end do
-  end if
+  if(comp .eq. 1) ui_o => Flow % u % o
+  if(comp .eq. 2) ui_o => Flow % v % o
+  if(comp .eq. 3) ui_o => Flow % w % o
+
+  !$acc parallel loop independent
+  do c = 1, nc
+    b(c) = b(c) + DENS * ui_o(c) * vol(c) / dt
+  end do
+  !$acc end parallel
 
   call Profiler % Stop('Add_Inertial_Term')
 

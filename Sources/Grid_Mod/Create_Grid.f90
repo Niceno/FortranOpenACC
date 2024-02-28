@@ -89,7 +89,7 @@
   ! Allocate memory for cells to cells connectivity
   allocate(Grid % cells_n_cells(-Grid % n_bnd_cells:Grid % n_cells))
   allocate(Grid % cells_c(6,    -Grid % n_bnd_cells:Grid % n_cells))
-  allocate(Grid % cells_f(6,    -Grid % n_bnd_cells:Grid % n_cells))  ! > GPU_2
+  allocate(Grid % cells_f(6,    -Grid % n_bnd_cells:Grid % n_cells))
 
   !-----------!
   !           !
@@ -278,7 +278,7 @@
   !---------------!
   Grid % cells_n_cells(:) = 0
   Grid % cells_c(:,:)     = 0
-  Grid % cells_f(:,:)     = 0                                  ! -> GPU_2
+  Grid % cells_f(:,:)     = 0
   do s = 1, Grid % n_bnd_cells  ! boundary faces
     c1 = Grid % faces_c(1,s)
     c2 = Grid % faces_c(2,s)
@@ -287,10 +287,10 @@
     Grid % cells_n_cells(c1) = Grid % cells_n_cells(c1) + 1
     i = Grid % cells_n_cells(c1)  ! i like index, let's say
     Grid % cells_c(i,c1) = c2
-    Grid % cells_f(i,c1) = s                                   ! -> GPU_2
+    Grid % cells_f(i,c1) = s
     Grid % cells_n_cells(c2) = 1
     Grid % cells_c(1,c2) = c1
-    Grid % cells_f(1,c2) = s                                   ! -> GPU_2
+    Grid % cells_f(1,c2) = s
   end do
 
   do s = Grid % n_bnd_cells + 1, Grid % n_faces  ! inside faces
@@ -303,9 +303,9 @@
     i = Grid % cells_n_cells(c1)  ! i like index, let's say
     j = Grid % cells_n_cells(c2)  ! j is like, following i
     Grid % cells_c(i,c1) = c2
-    Grid % cells_f(i,c1) = s                                   ! -> GPU_2
+    Grid % cells_f(i,c1) = s
     Grid % cells_c(j,c2) = c1
-    Grid % cells_f(j,c2) = s                                   ! -> GPU_2
+    Grid % cells_f(j,c2) = s
   end do
 
   do c = 1, Grid % n_cells

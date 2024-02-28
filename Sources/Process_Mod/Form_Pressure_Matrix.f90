@@ -5,27 +5,27 @@
 !------------------------------------------------------------------------------!
 !   Discreetized system of momentum conservation equations:                    !
 !                                                                              !
-!     [M]{u} = {b}   [kg m/s^2]   [N]                                          !
+!     [M]{u} = {b}   [kg m / s^2]   [N]                                        !
 !                                                                              !
 !   Dimensions of certain variables:                                           !
 !                                                                              !
-!     M               [kg/s]                                                   !
-!     u, v, w         [m/s]                                                    !
-!     b               [kg m/s^2]     [N]                                       !
-!     p, pp           [kg/(m s^2)]   [N/m^2]                                   !
-!     p%x, p%y, p%z   [kg/(m^2 s^2)]                                           !
-!     v_flux          [m^3/s]                                                  !
+!     M               [kg / s]                                                 !
+!     u, v, w         [m / s]                                                  !
+!     b               [kg m / s^2]     [N]                                     !
+!     p, pp           [kg / (m s^2)]   [N / m^2]                               !
+!     p%x, p%y, p%z   [kg / (m^2 s^2)]                                         !
+!     v_flux          [m^3 / s]                                                !
 !------------------------------------------------------------------------------!
 !   Discretized pressure-Poisson equation reads:                               !
 !                                                                              !
-!     [A] {pp} = {b}     [m^3/s]                                               !
+!     [A] {pp} = {b}     [m^3 / s]                                             !
 !                                                                              !
 !   Dimensions of certain variables:                                           !
 !                                                                              !
-!     A               [m^4 s/kg]                                               !
-!     pp              [kg/(m s^2)]                                             !
-!     p%x, p%y, p%z   [kg/(m^2 s^2)]                                           !
-!     b               [m^3/s]                                                  !
+!     A               [m^4 s / kg]                                             !
+!     pp              [kg / (m s^2)]                                           !
+!     p%x, p%y, p%z   [kg / (m^2 s^2)]                                         !
+!     b               [m^3 / s]                                                !
 !------------------------------------------------------------------------------!
   class(Process_Type)      :: Proc
   type(Field_Type), target :: Flow
@@ -53,12 +53,12 @@
     c2 = Grid % faces_c(2,s)
 
     ! Calculate coeficients for the pressure matrix
-    ! Units: m^2 / m * m^3 s / kg = m^4 s / kg
-    a12 = Grid % s(s) / Grid % d(s) * 0.5 * (M % v_m(c1) + M % v_m(c2))
+    ! Units: m * m^3 s / kg = m^4 s / kg
+    a12 = A % fc(s) * 0.5 * (M % v_m(c1) + M % v_m(c2))
     A % val(A % pos(1,s)) = -a12
     A % val(A % pos(2,s)) = -a12
-    A % val(A % dia(c1))  = A % val(A % dia(c1)) +  a12
-    A % val(A % dia(c2))  = A % val(A % dia(c2)) +  a12
+    A % val(A % dia(c1))  = A % val(A % dia(c1)) + a12
+    A % val(A % dia(c2))  = A % val(A % dia(c2)) + a12
   end do
 
   call Profiler % Stop('Form_Pressure_Matrix')
