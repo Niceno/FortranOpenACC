@@ -175,7 +175,7 @@
 
     end do  ! iterations
 
-    if(mod(time_step, 120) .eq. 0) then
+    if(mod(time_step, 20) .eq. 0) then
       call Gpu % Vector_Update_Host(Flow % u % n)
       call Gpu % Vector_Update_Host(Flow % v % n)
       call Gpu % Vector_Update_Host(Flow % w % n)
