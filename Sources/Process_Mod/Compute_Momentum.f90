@@ -12,7 +12,7 @@
   type(Sparse_Type), pointer :: M
   real,              pointer :: ui_n(:)
   real,              pointer :: b(:)
-  integer                    :: n
+  integer                    :: n, c
 !------------------------[Avoid unused parent warning]-------------------------!
   Unused(Proc)
 !==============================================================================!
@@ -38,6 +38,18 @@
   call Process % Add_Inertial_Term  (Flow, dt, comp=comp)
   call Process % Add_Advection_Term (Flow,     comp=comp)
   call Process % Add_Pressure_Term  (Flow,     comp=comp)
+
+  ! Set sources to zero, where fluid is zero, that means in obstacles
+  if(comp .eq. 1) then
+    do c = 1, n
+      b(c) = b(c) + Grid % vol(c) * 0.036
+    end do
+  end if
+
+  ! Set sources to zero, where fluid is zero, that means in obstacles
+  do c = 1, n
+    b(c) = b(c) * Grid % fluid(c)
+  end do
 
   ! Call linear solver
   call Profiler % Start('CG_for_Momentum')

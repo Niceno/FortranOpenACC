@@ -67,6 +67,13 @@
     real, allocatable :: dx(:), dy(:), dz(:), d(:)
     real, allocatable :: sx(:), sy(:), sz(:), s(:)
 
+    ! Variables which define obstacle
+    logical              :: has_obstacle = .false.
+    integer              :: o_i_min=0, o_i_max=0
+    integer              :: o_j_min=0, o_j_max=0
+    integer              :: o_k_min=0, o_k_max=0
+    integer, allocatable :: fluid(:)  ! 1 in fluid, 0 in solid (obstacle)
+
     type(Bc_Type) :: bc  ! boundary conditions
 
     contains

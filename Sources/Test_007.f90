@@ -1,5 +1,5 @@
 !==============================================================================!
-  subroutine Test_006
+  subroutine Test_007
 !------------------------------------------------------------------------------!
 !>  Tests calling of the CG algorithm from the Native_Mod
 !------------------------------------------------------------------------------!
@@ -9,7 +9,7 @@
   implicit none
 !------------------------------------------------------------------------------!
   integer, parameter       :: N_STEPS = 1200   ! N_STEPS =   3
-  integer, parameter       :: N_ITERS =    6   ! N_ITERS =   3
+  integer, parameter       :: N_ITERS =    3   ! N_ITERS =   3
   type(Grid_Type)          :: Grid          ! computational grid
   type(Field_Type), target :: Flow          ! flow field
   real                     :: ts, te
@@ -22,19 +22,19 @@
 !@character(19)            :: name_grad_pp = 'TTTT_II_grad_pp.vtk'
 !==============================================================================!
 
-  call Profiler % Start('Test_006')
+  call Profiler % Start('Test_007')
 
   print '(a)', ' #====================================================='
-  print '(a)', ' # TEST 6: Solution of Navier-Stokes equations'
+  print '(a)', ' # TEST 7: Matrix of cubes'
   print '(a)', ' #====================================================='
 
   print '(a)', ' # Creating a grid'
-  call Grid % Load_Grid("test_006_cavity.ini")
+  call Grid % Load_Grid("test_007_cube.ini", obstacle=.true.)
 
   n = Grid % n_cells
   print '(a, i12)',   ' # The problem size is: ', n
   print '(a,es12.3)', ' # Solver tolerace is : ', PICO
-  dt = 0.0125  ! dt = 1.0 / 200.0
+  dt = 0.01
 
   print '(a)', ' #----------------------------------------------------'
   print '(a)', ' # Be careful with memory usage.  If you exceed the'
@@ -64,6 +64,10 @@
   Flow % u % n(:) = 0.0
   Flow % v % n(:) = 0.0
   Flow % w % n(:) = 0.0
+
+  Flow % u % o(:) = 0.0
+  Flow % v % o(:) = 0.0
+  Flow % w % o(:) = 0.0
 
   ! OK, once you formed the preconditioners, you
   ! will want to keep these matrices on the device
@@ -166,16 +170,16 @@
       print '(a)', ' # Solving pp'
       call Process % Compute_Pressure(Flow)
 
-      call Flow % Grad_Pressure(Grid, Flow % pp)
+      call Flow % Grad_Pressure_Obstacle(Grid, Flow % pp)
 
       print '(a)', ' # Correcting velocity'
       call Process % Correct_Velocity(Flow)
 
-      call Flow % Grad_Pressure(Grid, Flow % p)
+      call Flow % Grad_Pressure_Obstacle(Grid, Flow % p)
 
     end do  ! iterations
 
-    if(mod(time_step, 20) .eq. 0) then
+    if(mod(time_step, 120) .eq. 0) then
       call Gpu % Vector_Update_Host(Flow % u % n)
       call Gpu % Vector_Update_Host(Flow % v % n)
       call Gpu % Vector_Update_Host(Flow % w % n)
@@ -190,8 +194,16 @@
   call cpu_time(te)
 
   ! Save results
+      call Gpu % Vector_Update_Host(Flow % u % n)
+      call Gpu % Vector_Update_Host(Flow % v % n)
+      call Gpu % Vector_Update_Host(Flow % w % n)
+      call Gpu % Vector_Update_Host(Flow % p % n)
+      call Grid % Save_Vtk_Vector(name_vel, Flow % u % n(1:n),  &
+                                            Flow % v % n(1:n),  &
+                                            Flow % w % n(1:n))
+      call Grid % Save_Vtk_Scalar(name_p, Flow % p % n(1:n))
 
-  call Profiler % Stop('Test_006')
+  call Profiler % Stop('Test_007')
 
   call Profiler % Statistics(indent=1)
 

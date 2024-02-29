@@ -8,7 +8,8 @@
   integer, intent(in) :: nx, ny, nz
 !-----------------------------------[Locals]-----------------------------------!
   integer           :: s, c, c1, c2, e, n, t, i, j, k, bc, per_start
-  real, allocatable :: visited(:)
+  integer           :: ox, oy, oz
+  real, allocatable :: work(:)
   real              :: dx, dy, dz, cdot
 !==============================================================================!
 
@@ -102,6 +103,41 @@
   allocate(Grid % cells_n_cells(-Grid % n_bnd_cells:Grid % n_cells))
   allocate(Grid % cells_c(6,    -Grid % n_bnd_cells:Grid % n_cells))
   allocate(Grid % cells_f(6,    -Grid % n_bnd_cells:Grid % n_cells))
+
+  !------------------------!
+  !                        !
+  !   Play with obstacle   !
+  !                        !
+  !------------------------!
+
+  ! Perform if obstacle is sane
+  if(Grid % has_obstacle) then
+    ox = Grid % o_i_max - Grid % o_i_min + 1
+    oy = Grid % o_j_max - Grid % o_j_min + 1
+    oz = Grid % o_k_max - Grid % o_k_min + 1
+    Assert(ox .gt. 0)
+    Assert(oy .gt. 0)
+    Assert(oz .gt. 0)
+  end if
+
+  allocate(Grid % fluid(Grid % n_cells));  Grid % fluid(:) = 1
+  if(Grid % has_obstacle) then
+    do c = 1, Grid % n_cells
+      call Grid % Cells_I_J_K(c, i, j, k)
+      if(i .ge. Grid % o_i_min  .and. i .le. Grid % o_i_max  .and.  &
+         j .ge. Grid % o_j_min  .and. j .le. Grid % o_j_max  .and.  &
+         k .ge. Grid % o_k_min  .and. k .le. Grid % o_k_max)        &
+        Grid % fluid(c) = 0
+    end do
+  end if
+
+# if VFS_DEBUG == 1
+  allocate(work(Grid % n_cells)); work(:) = 0.0
+  do c = 1, Grid % n_cells
+    if(Grid % has_obstacle) work(c) = Grid % fluid(c)
+  end do
+  call Grid % Save_Vtk_Scalar("fluid.vtk", work)
+# endif
 
   !-----------!
   !           !
@@ -386,12 +422,18 @@
 
     ! If you are in periodic region
     if(s .gt. per_start) then
-      if(Grid % bc % w_type .eq. PERIODIC)  &
-        Grid % dx(s) = Grid % dx(s) - Grid % lx
-      if(Grid % bc % s_type .eq. PERIODIC)  &
-        Grid % dy(s) = Grid % dy(s) - Grid % ly
-      if(Grid % bc % b_type .eq. PERIODIC)  &
-        Grid % dz(s) = Grid % dz(s) - Grid % lz
+      if(Grid % bc % w_type .eq. PERIODIC) then
+        if(abs(Grid % dx(s)) .gt. abs(Grid % dy(s)) + abs(Grid % dz(s)))  &
+          Grid % dx(s) = Grid % dx(s) - Grid % lx
+      end if
+      if(Grid % bc % s_type .eq. PERIODIC) then
+        if(abs(Grid % dy(s)) .gt. abs(Grid % dx(s)) + abs(Grid % dz(s)))  &
+          Grid % dy(s) = Grid % dy(s) - Grid % ly
+      end if
+      if(Grid % bc % b_type .eq. PERIODIC) then
+        if(abs(Grid % dz(s)) .gt. abs(Grid % dx(s)) + abs(Grid % dy(s)))  &
+          Grid % dz(s) = Grid % dz(s) - Grid % lz
+      end if
     end if
 
     cdot = Grid % dx(s) * Grid % sx(s)  &
@@ -461,16 +503,16 @@
   !   Check the faces_c structure   !
   !---------------------------------!
 # if VFS_DEBUG == 1
-    allocate(visited(Grid % n_cells));  visited(:) = 0.0
-    do s = 1, Grid % n_faces
-      c1 = Grid % faces_c(1,s)
-      c2 = Grid % faces_c(2,s)
-      if(c2 .gt. 0) then
-        visited(c1) = visited(c1) + 1.0
-        visited(c2) = visited(c2) + 1.0
-      end if
-    end do
-    call Grid % Save_Vtk_Scalar("visited.vtk", visited)
+  work(:) = 0.0
+  do s = 1, Grid % n_faces
+    c1 = Grid % faces_c(1,s)
+    c2 = Grid % faces_c(2,s)
+    if(c2 .gt. 0) then
+      work(c1) = work(c1) + 1.0
+      work(c2) = work(c2) + 1.0
+    end if
+  end do
+  call Grid % Save_Vtk_Scalar("visited.vtk", work)
 # endif
 
   end subroutine

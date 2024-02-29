@@ -20,7 +20,7 @@
   real,    contiguous, pointer :: pp_x(:), pp_y(:), pp_z(:)
   real,    contiguous, pointer :: v_m(:), fc(:)
   integer, contiguous, pointer :: faces_c(:,:)
-  integer, contiguous, pointer :: cells_n_cells(:)
+  integer, contiguous, pointer :: cells_n_cells(:), fluid(:)
   integer, contiguous, pointer :: cells_c(:,:), cells_f(:,:)
   real                         :: a12, b_tmp, max_abs_val
   integer                      :: c, s, c1, c2, nb, nc, nf, i_cel
@@ -47,6 +47,7 @@
   cells_n_cells => Flow % pnt_grid % cells_n_cells
   cells_c       => Flow % pnt_grid % cells_c
   cells_f       => Flow % pnt_grid % cells_f
+  fluid         => Flow % pnt_grid % fluid
   nb            =  Flow % pnt_grid % n_bnd_cells
   nc            =  Flow % pnt_grid % n_cells
   nf            =  Flow % pnt_grid % n_faces
@@ -61,6 +62,9 @@
     u_n(c) = u_n(c) - pp_x(c) * v_m(c)
     v_n(c) = v_n(c) - pp_y(c) * v_m(c)
     w_n(c) = w_n(c) - pp_z(c) * v_m(c)
+    u_n(c) = u_n(c) * fluid(c)
+    v_n(c) = v_n(c) * fluid(c)
+    w_n(c) = w_n(c) * fluid(c)
   end do
   !$acc end parallel
 
@@ -75,7 +79,10 @@
     c2 = faces_c(2, s)
 
     a12 = -fc(s) * 0.5 * (v_m(c1) + v_m(c2))
+
     v_flux(s) = v_flux(s) + (pp_n(c2) - pp_n(c1)) * a12
+
+    v_flux(s) = v_flux(s) * fluid(c1) * fluid(c2)
   end do
   !$acc end parallel
 
@@ -88,6 +95,7 @@
 
   !$acc parallel loop independent
   do c1 = 1, nc
+
     b_tmp = b(c1)
     !$acc loop seq
     do i_cel = 1, cells_n_cells(c1)
@@ -99,7 +107,10 @@
       end if
     end do
     !$acc end loop
-    b(c1) = b_tmp
+
+    ! Finish, and nullify if it is not in fluid
+    b(c1) = b_tmp * fluid(c1)
+
   end do
   !$acc end parallel
 
@@ -121,7 +132,7 @@
 
   !$acc parallel loop independent
   do c = 1, nc
-    p_n(c) = p_n(c) + 0.2 * pp_n(c)
+    p_n(c) = p_n(c) + 0.2 * pp_n(c) * fluid(c)
   end do
   !$acc end parallel
 

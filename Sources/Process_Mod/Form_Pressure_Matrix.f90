@@ -34,7 +34,7 @@
   type(Sparse_Type), pointer :: A, M
   integer                    :: s, c1, c2, c
   real                       :: a12
-  real, allocatable          :: visited(:)
+  real, allocatable          :: work(:)
 !------------------------[Avoid unused parent warning]-------------------------!
   Unused(Proc)
 !==============================================================================!
@@ -53,21 +53,35 @@
     c1 = Grid % faces_c(1,s)
     c2 = Grid % faces_c(2,s)
 
-    ! Calculate coeficients for the pressure matrix
-    ! Units: m * m^3 s / kg = m^4 s / kg
-    a12 = A % fc(s) * 0.5 * (M % v_m(c1) + M % v_m(c2))
-    A % val(A % pos(1,s)) = -a12
-    A % val(A % pos(2,s)) = -a12
-    A % val(A % dia(c1))  = A % val(A % dia(c1)) + a12
-    A % val(A % dia(c2))  = A % val(A % dia(c2)) + a12
+    ! Insert matrix entries only when both cells are in fluid
+    if(Grid % fluid(c1) + Grid % fluid(c2) .eq. 2) then
+
+      ! Calculate coeficients for the pressure matrix
+      ! Units: m * m^3 s / kg = m^4 s / kg
+      a12 = A % fc(s) * 0.5 * (M % v_m(c1) + M % v_m(c2))
+      A % val(A % pos(1,s)) = -a12
+      A % val(A % pos(2,s)) = -a12
+      A % val(A % dia(c1))  = A % val(A % dia(c1)) + a12
+      A % val(A % dia(c2))  = A % val(A % dia(c2)) + a12
+
+    end if
   end do
 
+  ! Avoid zeroes on diagonal
+  if(Grid % has_obstacle) then
+    do c = 1, Grid % n_cells
+      if(Grid % fluid(c) .eq. 0) then
+        A % val(A % dia(c)) = 1.0
+      end if
+    end do
+  end if
+
 # if VFS_DEBUG == 1
-  allocate(visited(Grid % n_cells));  visited(:) = 0.0
+  allocate(work(Grid % n_cells));  work(:) = 0.0
   do c = 1, Grid % n_cells
-    visited(c) = A % val(A % dia(c))
+    work(c) = A % val(A % dia(c))
   end do
-  call Grid % Save_Vtk_Scalar("a_diagonal.vtk", visited)
+  call Grid % Save_Vtk_Scalar("a_diagonal.vtk", work)
 # endif
 
   call Profiler % Stop('Form_Pressure_Matrix')

@@ -39,9 +39,14 @@
       call Test_005()
       goto 1
 
-    ! An attempt to solve Stokes' equations
+    ! An attempt to solve Navier-Stokes equations
     else if(arg .eq. '6') then
       call Test_006()
+      goto 1
+
+    ! An attempt to solve Navier-Stokes equations
+    else if(arg .eq. '7') then
+      call Test_007()
       goto 1
 
     end if
@@ -63,7 +68,8 @@
   print '(a)', '                   c = a - scalar * b'
   print '(a)', '   4 - conjugate gradient solver'
   print '(a)', '   5 - field creation and gradient calculation'
-  print '(a)', '   6 - solution of Stokes'' equations'
+  print '(a)', '   6 - solution of the Navier-Stokes equations'
+  print '(a)', '   7   matrix of cubes case'
 
 1 continue
 
