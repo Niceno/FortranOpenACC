@@ -137,22 +137,22 @@
     end do
     !$acc end parallel
 
-    write(name_vel    (1:4), '(i4.4)') , time_step
-    write(name_p      (1:4), '(i4.4)') , time_step
-!@  write(name_pp     (1:4), '(i4.4)') , time_step
-!@  write(name_grad_pp(1:4), '(i4.4)') , time_step
-!@  write(name_grad_p (1:4), '(i4.4)') , time_step
+    write(name_vel    (1:4), '(i4.4)') time_step
+    write(name_p      (1:4), '(i4.4)') time_step
+!@  write(name_pp     (1:4), '(i4.4)') time_step
+!@  write(name_grad_pp(1:4), '(i4.4)') time_step
+!@  write(name_grad_p (1:4), '(i4.4)') time_step
 
     !-----------------------------------!
     !   Iterations within a time step   !
     !-----------------------------------!
     do iter = 1, N_ITERS
 
-!@    write(name_vel    (6:7), '(i2.2)') , iter
-!@    write(name_p      (6:7), '(i2.2)') , iter
-!@    write(name_pp     (6:7), '(i2.2)') , iter
-!@    write(name_grad_pp(6:7), '(i2.2)') , iter
-!@    write(name_grad_p (6:7), '(i2.2)') , iter
+!@    write(name_vel    (6:7), '(i2.2)') iter
+!@    write(name_p      (6:7), '(i2.2)') iter
+!@    write(name_pp     (6:7), '(i2.2)') iter
+!@    write(name_grad_pp(6:7), '(i2.2)') iter
+!@    write(name_grad_p (6:7), '(i2.2)') iter
 
       print '(a)', ' # Solving u'
       call Process % Compute_Momentum(Flow, dt, comp=1)
