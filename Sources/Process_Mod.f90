@@ -18,7 +18,8 @@
 
   real, parameter :: DENS = 1.0
   real, parameter :: VISC = 0.0001
-
+  real, parameter :: BLEND = 0.9    ! the amount of central scheme in the
+                                    ! upwind blended advection scheme
   !------------------!
   !   Process type   !
   !------------------!

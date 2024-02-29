@@ -1,10 +1,11 @@
 !==============================================================================!
-  subroutine Load_Grid(Grid, grid_name)
+  subroutine Load_Grid(Grid, grid_name, obstacle)
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Grid_Type)         :: Grid
-  character(*), intent(in) :: grid_name
+  class(Grid_Type)              :: Grid
+  character(*),      intent(in) :: grid_name
+  logical, optional, intent(in) :: obstacle
 !-----------------------------------[Locals]-----------------------------------!
   integer       :: nx, ny, nz
   real          :: lx, ly, lz
@@ -29,12 +30,12 @@
     lx =  1.0;  ly =  1.0;  lz =  1.0
     nx = 10;    ny = 10;    nz = 10
 
-    Grid % bc % w_type = 'D';  Grid % bc % w_vals(:) = -1.0
-    Grid % bc % e_type = 'D';  Grid % bc % e_vals(:) = +1.0
-    Grid % bc % s_type = 'N';  Grid % bc % s_vals(:) =  0.0
-    Grid % bc % n_type = 'N';  Grid % bc % n_vals(:) =  0.0
-    Grid % bc % b_type = 'N';  Grid % bc % b_vals(:) =  0.0
-    Grid % bc % t_type = 'N';  Grid % bc % t_vals(:) =  0.0
+    Grid % bc % w_type = DIRICHLET;  Grid % bc % w_vals(:) = -1.0
+    Grid % bc % e_type = DIRICHLET;  Grid % bc % e_vals(:) = +1.0
+    Grid % bc % s_type = NEUMANN;    Grid % bc % s_vals(:) =  0.0
+    Grid % bc % n_type = NEUMANN;    Grid % bc % n_vals(:) =  0.0
+    Grid % bc % b_type = NEUMANN;    Grid % bc % b_vals(:) =  0.0
+    Grid % bc % t_type = NEUMANN;    Grid % bc % t_vals(:) =  0.0
 
   !-----------------!
   !   File exists   !
@@ -106,6 +107,15 @@
     if(bc_t .eq. 'N') Grid % bc % t_type = NEUMANN
     if(bc_t .eq. 'P') Grid % bc % t_type = PERIODIC
     Grid % bc % t_vals(:) = bc_v(:)
+
+    ! Read the obstacle
+    if(present(obstacle)) then
+      if(obstacle) then
+        Grid % has_obstacle = .true.
+        read(file_unit, *)  Grid % o_i_min, Grid % o_j_min, Grid % o_k_min,  &
+                            Grid % o_i_max, Grid % o_j_max, Grid % o_k_max
+      end if
+    end if
 
     close(file_unit)
   end if

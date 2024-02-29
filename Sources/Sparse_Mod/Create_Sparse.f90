@@ -6,8 +6,8 @@
   class(Sparse_Type)      :: A       !! parent class
   type(Grid_Type), target :: Grid    !! grid on which it is created
 !-----------------------------------[Locals]-----------------------------------!
-  integer :: i, j, k, ni, nj, nk, non_z
-  integer :: c, w, e, s, n, b, t, c1, c2
+  integer :: i, j, k, ni, nj, nk, non_z, run
+  integer :: c, w, e, s, n, b, t, c1, c2, cols
   integer :: col_a, col_b, row_a, row_b, pos_a, pos_b
 !==============================================================================!
 
@@ -20,151 +20,197 @@
   nj = Grid % ny
   nk = Grid % nz
 
-  !------------------------------------------!
-  !   Count non-zeroes and allocate memory   !
-  !------------------------------------------!
-  non_z = 0
-
-  ! Browse in A way in which cell number "A" will increase one by one
-  do k = 1, nk
-    do j = 1, nj
-      do i = 1, ni
-
-        ! Diagonal entry
-        non_z = non_z + 1
-
-        ! Non-periodic connections
-        if(k > 1) non_z = non_z + 1
-        if(j > 1) non_z = non_z + 1
-        if(i > 1) non_z = non_z + 1
-        if(i < ni) non_z = non_z + 1
-        if(j < nj) non_z = non_z + 1
-        if(k < nk) non_z = non_z + 1
-
-        ! Periodic connections
-        if(k== 1 .and. Grid % bc % b_type==PERIODIC) non_z = non_z + 1
-        if(j== 1 .and. Grid % bc % s_type==PERIODIC) non_z = non_z + 1
-        if(i== 1 .and. Grid % bc % w_type==PERIODIC) non_z = non_z + 1
-        if(i==ni .and. Grid % bc % e_type==PERIODIC) non_z = non_z + 1
-        if(j==nj .and. Grid % bc % n_type==PERIODIC) non_z = non_z + 1
-        if(k==nk .and. Grid % bc % t_type==PERIODIC) non_z = non_z + 1
-      end do
-    end do
-  end do
-
-  print '(a,i15)', ' # Number of nonzeros: ', non_z
-  A % nonzeros = non_z
-  A % n = ni * nj * nk
-  Assert(A % n .eq. Grid % n_cells)
-  allocate(A % row(Grid % n_cells+1));   A % row = 0
-  allocate(A % dia(Grid % n_cells));     A % dia = 0
-  allocate(A % col(non_z));              A % col = 0
-  allocate(A % val(non_z));              A % val = 0
-  allocate(A % fc (Grid % n_faces));     A % fc  = 0
-  allocate(A % mir(non_z));              A % mir = 0
-  Assert(Grid % n_faces .gt. 0)
-  allocate(A % pos(2, Grid % n_faces));  A % pos   = 0
-  allocate(A % d_inv(Grid % n_cells));   A % d_inv = 0
-  allocate(A % v_m  (Grid % n_cells));   A % v_m   = 0
-
   !--------------------------------!
   !   Form the compressed matrix   !
   !--------------------------------!
-  non_z = 0
+  do run = 1, 2
 
-  ! Browse in A way in which cell number "A" will increase one by one
-  do k = 1, nk
-    do j = 1, nj
-      do i = 1, ni
-        c = Grid % Cell_Number(i, j, k)
+    non_z = 0  ! reset the counter
 
-        ! First neighbours
-        b = c-ni*nj
-        s = c-ni
-        w = c-1
-        e = c+1
-        n = c+ni
-        t = c+ni*nj
+    ! Browse in A way in which cell number "A" will increase one by one
+    do k = 1, nk
+      do j = 1, nj
+        do i = 1, ni
+          c = Grid % Cell_Number(i, j, k)
 
-        ! Set row index
-        A % row(c) = non_z + 1
+          ! First neighbours
+          b = c-ni*nj
+          s = c-ni
+          w = c-1
+          e = c+1
+          n = c+ni
+          t = c+ni*nj
 
-        ! Set columns for neighbours
-        if(k > 1) then        ! bottom
+          ! Set next row index, one cell will be present for sure, own self
+          if(run .eq. 2) A % row(c) = non_z + 1
+
+          !----------------------!
+          !   Cell is in fliud   !
+          !----------------------!
+          if(Grid % fluid(c) .eq. 1) then
+
+            ! Bottom
+            if(k > 1) then
+              if(Grid % fluid(b) .eq. 1) then
+                non_z = non_z + 1
+                if(run .eq. 2) A % col(non_z) = b
+              end if
+            else
+              Assert(k .eq. 1)
+              b = Grid % Cell_Number(i, j, nk)  ! new bottom cell
+              if(Grid % fluid(b) .eq. 1) then
+                if(Grid % bc % b_type .eq. PERIODIC) then
+                  non_z = non_z + 1
+                  if(run .eq. 2) A % col(non_z) = b
+                end if
+              end if
+            end if
+
+            ! South
+            if(j > 1) then
+              if(Grid % fluid(s) .eq. 1) then
+                non_z = non_z + 1
+                if(run .eq. 2) A % col(non_z) = s
+              end if
+            else
+              Assert(j .eq. 1)
+              s = Grid % Cell_Number(i, nj, k)  ! new south cell
+              if(Grid % fluid(s) .eq. 1) then
+                if(Grid % bc % s_type .eq. PERIODIC) then
+                  non_z = non_z + 1
+                  if(run .eq. 2) A % col(non_z) = s
+                end if
+              end if
+            end if
+
+            ! West
+            if(i > 1) then
+              if(Grid % fluid(w) .eq. 1) then
+                non_z = non_z + 1
+                if(run .eq. 2) A % col(non_z) = w
+              end if
+            else
+              Assert(i .eq. 1)
+              w = Grid % Cell_Number(ni, j, k)  ! new west cell
+              if(Grid % fluid(w) .eq. 1) then
+                if(Grid % bc % w_type .eq. PERIODIC) then
+                  non_z = non_z + 1
+                  if(run .eq. 2) A % col(non_z) = w
+                end if
+              end if
+            end if
+
+          end if  ! cell is not in obstacle
+
+          !--------------------------------------------------!
+          !   Central - store it, be it in obstacle or not   !
+          !--------------------------------------------------!
           non_z = non_z + 1
-          A % col(non_z) = b
-        else
-          Assert(k .eq. 1)
-          if(Grid % bc % b_type .eq. PERIODIC) then
-            non_z = non_z + 1
-            A % col(non_z) = Grid % Cell_Number(i, j, nk)
-          end if
-        end if
+          if(run .eq. 2) A % col(non_z) = c
 
-        if(j > 1) then        ! south
-          non_z = non_z + 1
-          A % col(non_z) = s
-        else
-          Assert(j .eq. 1)
-          if(Grid % bc % s_type .eq. PERIODIC) then
-            non_z = non_z + 1
-            A % col(non_z) = Grid % Cell_Number(i, nj, k)
-          end if
-        end if
+          !-----------------------------!
+          !   Cell is not in obstacle   !
+          !-----------------------------!
+          if(Grid % fluid(c) .eq. 1) then
 
-        if(i > 1) then        ! west
-          non_z = non_z + 1
-          A % col(non_z) = w
-        else
-          Assert(i .eq. 1)
-          if(Grid % bc % w_type .eq. PERIODIC) then
-            non_z = non_z + 1
-            A % col(non_z) = Grid % Cell_Number(ni, j, k)
-          end if
-        end if
+            ! East
+            if(i < ni) then
+              if(Grid % fluid(e) .eq. 1) then
+                non_z = non_z + 1
+                if(run .eq. 2) A % col(non_z) = e
+              end if
+            else
+              Assert(i .eq. ni)
+              e = Grid % Cell_Number(1, j, k)  ! new east cell
+              if(Grid % fluid(e) .eq. 1) then
+                if(Grid % bc % e_type .eq. PERIODIC) then
+                 non_z = non_z + 1
+                 if(run .eq. 2) A % col(non_z) = e
+                end if
+              end if
+            end if
 
-        non_z = non_z + 1     ! central
-        A % col(non_z) = c
+            ! North
+            if(j < nj) then
+              if(Grid % fluid(n) .eq. 1) then
+                non_z = non_z + 1
+                if(run .eq. 2) A % col(non_z) = n
+              end if
+            else
+              Assert(j .eq. nj)
+              n = Grid % Cell_Number(i, 1, k)  ! new north cell
+              if(Grid % fluid(n) .eq. 1) then
+                if(Grid % bc % n_type .eq. PERIODIC) then
+                  non_z = non_z + 1
+                  if(run .eq. 2) A % col(non_z) = n
+                end if
+              end if
+            end if
 
-        if(i < ni) then       ! east
-          non_z = non_z + 1
-          A % col(non_z) = e
-        else
-          Assert(i .eq. ni)
-          if(Grid % bc % w_type .eq. PERIODIC) then
-            non_z = non_z + 1
-            A % col(non_z) = Grid % Cell_Number(1, j, k)
-          end if
-        end if
+            ! Top
+            if(k < nk) then       ! top
+              if(Grid % fluid(t) .eq. 1) then
+                non_z = non_z + 1
+                if(run .eq. 2) A % col(non_z) = t
+              end if
+            else
+              Assert(k .eq. nk)
+              t = Grid % Cell_Number(i, j, 1)  ! new top cell
+              if(Grid % fluid(t) .eq. 1) then
+                if(Grid % bc % t_type .eq. PERIODIC) then
+                  non_z = non_z + 1
+                  if(run .eq. 2) A % col(non_z) = t
+                end if
+              end if
+            end if
 
-        if(j < nj) then       ! north
-          non_z = non_z + 1
-          A % col(non_z) = n
-        else
-          Assert(j .eq. nj)
-          if(Grid % bc % n_type .eq. PERIODIC) then
-            non_z = non_z + 1
-            A % col(non_z) = Grid % Cell_Number(i, 1, k)
-          end if
-        end if
+          end if  ! cell is not in obstacle
 
-        if(k < nk) then       ! top
-          non_z = non_z + 1
-          A % col(non_z) = t
-        else
-          Assert(k .eq. nk)
-          if(Grid % bc % t_type .eq. PERIODIC) then
-            non_z = non_z + 1
-            A % col(non_z) = Grid % Cell_Number(i, j, 1)
-          end if
-        end if
+        end do  ! i
+      end do    ! j
+    end do      ! k
 
-      end do
-    end do
+    print '(a,i15)', ' # Number of nonzeros: ', non_z
+
+    if(run .eq. 1) then
+      A % nonzeros = non_z
+      A % n = ni * nj * nk
+      Assert(A % n .eq. Grid % n_cells)
+      allocate(A % row(Grid % n_cells+1));   A % row = 0
+      allocate(A % dia(Grid % n_cells));     A % dia = 0
+      allocate(A % col(non_z));              A % col = 0
+      allocate(A % val(non_z));              A % val = 0
+      allocate(A % fc (Grid % n_faces));     A % fc  = 0
+      allocate(A % mir(non_z));              A % mir = 0
+      Assert(Grid % n_faces .gt. 0)
+      allocate(A % pos(2, Grid % n_faces));  A % pos   = 0
+      allocate(A % d_inv(Grid % n_cells));   A % d_inv = 0
+      allocate(A % v_m  (Grid % n_cells));   A % v_m   = 0
+    end if
+
+    ! Wrap it up
+    if(run .eq. 2) A % row(ni*nj*nk+1) = non_z + 1
+
+  end do  ! run
+
+  ! Check 1: Each cell in the obstacle must have
+  !          one colum reserved just for itself 
+  do c = 1, Grid % n_cells
+    if(Grid % fluid(c) .eq. 0) then
+      cols = A % row(c+1) - A % row(c)
+      Assert(cols .eq. 1)
+    end if
   end do
 
-  ! Wrap it up
-  A % row(ni*nj*nk+1) = non_z + 1
+  ! Check 2: No cell in fluid, should have
+  !          any neighbors in the obstacle
+  do c = 1, Grid % n_cells
+    if(Grid % fluid(c) .eq. 1) then
+      do cols = A % row(c), A % row(c + 1) - 1
+        Assert(Grid % fluid(A % col(cols)) .eq. 1)
+      end do
+    end if
+  end do
 
   !---------------------------------!
   !   Find positions of diagonals   !
@@ -220,21 +266,26 @@
     c1 = Grid % faces_c(1,s)
     c2 = Grid % faces_c(2,s)
 
-    ! Where is matrix(c1,c2) and ...
-    do c = A % row(c1), A % row(c1+1)-1
-      if(A % col(c) .eq. c2) then
-        A % pos(1, s) = c
-        exit
-      end if
-    end do
+    ! Connect only if both cells arae immersed in fluid
+    if(Grid % fluid(c1) + Grid % fluid(c2) .eq. 2) then
 
-    ! ... where is matrix(c2,c1)
-    do c=A % row(c2),A % row(c2+1)-1
-      if(A % col(c) .eq. c1) then
-        A % pos(2, s) = c
-        exit
-      end if
-    end do
+      ! Where is matrix(c1,c2) and ...
+      do c = A % row(c1), A % row(c1+1)-1
+        if(A % col(c) .eq. c2) then
+          A % pos(1, s) = c
+          exit
+        end if
+      end do
+
+      ! ... where is matrix(c2,c1)
+      do c=A % row(c2),A % row(c2+1)-1
+        if(A % col(c) .eq. c1) then
+          A % pos(2, s) = c
+          exit
+        end if
+      end do
+    end if
+
   end do
 
   end subroutine

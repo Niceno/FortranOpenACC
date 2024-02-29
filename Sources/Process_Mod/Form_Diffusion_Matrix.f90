@@ -44,35 +44,43 @@
 
   do c = 1, Grid % n_cells
 
-    ! Work out the neighboring coefficients
-    do ij = M % row(c), M % row(c+1) - 1
-      d = M % col(ij)
-      if(d .ne. c) then
-        if(abs(c-d)==1) then
-          M % val(ij) = -a_we  ! west or east
-        else if(abs(c-d)==nx) then
-          M % val(ij) = -a_sn  ! south or north
-        else if(abs(c-d)==nx*ny) then
-          M % val(ij) = -a_sn  ! bottom or top
-        else if(abs(c-d) .eq. nx-1) then
-          M % val(ij) = -a_we  ! periodicity in east-west
-        else if(abs(c-d) .eq. nx*ny-nx) then
-          M % val(ij) = -a_sn  ! periodicity in north-south
-        else if(abs(c-d) .eq. nx*ny*(nz-1)) then
-          M % val(ij) = -a_bt  ! periodicity in top-bottom
-        else
-          print '(a)', ' How on earth did you get here?'
-        end if
-      end if
-    end do
+    if(Grid % fluid(c) .eq. 1) then
 
-    ! Compute central coefficient and put it in the diagonal
-    do ij = M % row(c), M % row(c+1) - 1
-      d = M % col(ij)
-      if(d .ne. c) then
-        M % val(M % dia(c)) = M % val(M % dia(c)) - M % val(ij)
-      end if
-    end do
+      ! Work out the neighboring coefficients
+      do ij = M % row(c), M % row(c+1) - 1
+        d = M % col(ij)
+
+        Assert(Grid % fluid(d) .eq. 1)  ! check once more
+
+        if(d .ne. c) then
+          if(abs(c-d)==1) then
+            M % val(ij) = -a_we  ! west or east
+          else if(abs(c-d)==nx) then
+            M % val(ij) = -a_sn  ! south or north
+          else if(abs(c-d)==nx*ny) then
+            M % val(ij) = -a_sn  ! bottom or top
+          else if(abs(c-d) .eq. nx-1) then
+            M % val(ij) = -a_we  ! periodicity in east-west
+          else if(abs(c-d) .eq. nx*ny-nx) then
+            M % val(ij) = -a_sn  ! periodicity in north-south
+          else if(abs(c-d) .eq. nx*ny*(nz-1)) then
+            M % val(ij) = -a_bt  ! periodicity in top-bottom
+          else
+            print '(a)', ' How on earth did you get here?'
+          end if
+        end if
+      end do
+
+      ! Compute central coefficient and put it in the diagonal
+      do ij = M % row(c), M % row(c+1) - 1
+        d = M % col(ij)
+        if(d .ne. c) then
+          M % val(M % dia(c)) = M % val(M % dia(c)) - M % val(ij)
+        end if
+      end do
+
+    end if  ! c is in fluid
+
   end do
 
   !----------------------------------------------------------------------!

@@ -34,7 +34,7 @@
   real,    contiguous, pointer :: p_n(:), p_x(:), p_y(:), p_z(:)
   real,    contiguous, pointer :: v_flux(:), v_m(:), sx(:), sy(:), sz(:), fc(:)
   integer, contiguous, pointer :: faces_c(:,:)
-  integer, contiguous, pointer :: cells_n_cells(:)
+  integer, contiguous, pointer :: cells_n_cells(:), fluid(:)
   integer, contiguous, pointer :: cells_c(:,:), cells_f(:,:)
   real                         :: a12, b_tmp, max_abs_val
   real                         :: u_f, v_f, w_f
@@ -66,6 +66,7 @@
   cells_n_cells => Flow % pnt_grid % cells_n_cells
   cells_c       => Flow % pnt_grid % cells_c
   cells_f       => Flow % pnt_grid % cells_f
+  fluid         => Flow % pnt_grid % fluid
 
   ! Nullify the volume source
   !$acc kernels
@@ -82,23 +83,32 @@
     c1 = faces_c(1,s)
     c2 = faces_c(2,s)
 
-    ! Velocity plus the cell-centered pressure gradient
-    ! Units: kg / (m^2 s^2) * m^3 * s / kg = m / s
-    u_f = 0.5 * (u_n(c1) + p_x(c1) * v_m(c1) + u_n(c2) + p_x(c2) * v_m(c2))
-    v_f = 0.5 * (v_n(c1) + p_y(c1) * v_m(c1) + v_n(c2) + p_y(c2) * v_m(c2))
-    w_f = 0.5 * (w_n(c1) + p_z(c1) * v_m(c1) + w_n(c2) + p_z(c2) * v_m(c2))
+    ! Treat only when both cells are immersed in fluid
+    if(fluid(c1) + fluid(c2) .eq. 2) then
 
-    ! This is a bit of a code repetition, the
-    ! same thing is in the Form_Pressure_Matrix
-    ! Anyhow, units are given here are
-    !  Units: m * m^3 s / kg = m^4 s / kg
-    a12 = fc(s) * 0.5 * (v_m(c1) + v_m(c2))
+      ! Velocity plus the cell-centered pressure gradient
+      ! Units: kg / (m^2 s^2) * m^3 * s / kg = m / s
+      u_f = 0.5 * (u_n(c1) + p_x(c1) * v_m(c1) + u_n(c2) + p_x(c2) * v_m(c2))
+      v_f = 0.5 * (v_n(c1) + p_y(c1) * v_m(c1) + v_n(c2) + p_y(c2) * v_m(c2))
+      w_f = 0.5 * (w_n(c1) + p_z(c1) * v_m(c1) + w_n(c2) + p_z(c2) * v_m(c2))
 
-    ! Volume flux without the cell-centered pressure gradient
-    ! but with the staggered pressure difference
-    ! Units:  m^4 s / kg * kg / (m s^2) = m^3 / s
-    v_flux(s) = u_f * sx(s) + v_f * sy(s) + w_f * sz(s)  &
-              + a12 * (p_n(c1) - p_n(c2))
+      ! This is a bit of a code repetition, the
+      ! same thing is in the Form_Pressure_Matrix
+      ! Anyhow, units are given here are
+      !  Units: m * m^3 s / kg = m^4 s / kg
+      a12 = fc(s) * 0.5 * (v_m(c1) + v_m(c2))
+
+      ! Volume flux without the cell-centered pressure gradient
+      ! but with the staggered pressure difference
+      ! Units:  m^4 s / kg * kg / (m s^2) = m^3 / s
+      v_flux(s) = u_f * sx(s) + v_f * sy(s) + w_f * sz(s)  &
+                + a12 * (p_n(c1) - p_n(c2))
+
+    ! No fluid, no source
+    else
+      v_flux(s) = 0.0
+    end if
+
   end do
   !$acc end parallel
 
@@ -108,6 +118,7 @@
 
   !$acc parallel loop
   do c1 = 1, nc
+
     b_tmp = b(c1)
     !$acc loop seq
     do i_cel = 1, cells_n_cells(c1)
@@ -119,7 +130,10 @@
       end if
     end do
     !$acc end loop
-    b(c1) = b_tmp
+
+    ! Finish, and nullify if it is not in fluid
+    b(c1) = b_tmp * fluid(c1)
+
   end do
   !$acc end parallel
 

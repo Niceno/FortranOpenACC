@@ -18,7 +18,7 @@
   real,    contiguous, pointer :: v_flux(:)
   integer, contiguous, pointer :: cells_n_cells(:)
   integer, contiguous, pointer :: cells_c(:,:), cells_f(:,:)
-  real                         :: b_tmp, den_u1, den_u2
+  real                         :: b_tmp, den_u1, den_u2, ui_c
   integer                      :: s, c1, c2, i_cel, n
 !------------------------[Avoid unused parent warning]-------------------------!
   Unused(Proc)
@@ -53,9 +53,10 @@
       c2 = cells_c(i_cel, c1)
       s  = cells_f(i_cel, c1)
       if(c2 .gt. 0) then
+        ui_c = 0.5 * (ui_n(c1) + ui_n(c2))  ! centered value
         ! Unit: kg / m^3 * m /s = kg / (m^2 s)
-        den_u1 = DENS * ui_n(c1)
-        den_u2 = DENS * ui_n(c2)
+        den_u1 = DENS * ((1.0-BLEND) * ui_n(c1) + BLEND * ui_c)
+        den_u2 = DENS * ((1.0-BLEND) * ui_n(c2) + BLEND * ui_c)
         ! Unit: kg / (m^2 s) * m^3 / s = kg m / s^2 = N
         b_tmp = b_tmp - den_u1 * max(v_flux(s), 0.0) * merge(1,0, c1.lt.c2)
         b_tmp = b_tmp - den_u2 * min(v_flux(s), 0.0) * merge(1,0, c1.lt.c2)

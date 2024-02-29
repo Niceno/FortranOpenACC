@@ -44,6 +44,7 @@
       procedure :: Calculate_Grad_Matrix
       procedure :: Grad_Component
       procedure :: Grad_Pressure
+      procedure :: Grad_Pressure_Obstacle
 
   end type
 
@@ -52,5 +53,6 @@
 #   include "Field_Mod/Calculate_Grad_Matrix.f90"
 #   include "Field_Mod/Grad_Component.f90"
 #   include "Field_Mod/Grad_Pressure.f90"
+#   include "Field_Mod/Grad_Pressure_Obstacle.f90"
 
   end module
