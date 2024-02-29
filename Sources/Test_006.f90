@@ -29,7 +29,7 @@
   print '(a)', ' #====================================================='
 
   print '(a)', ' # Creating a grid'
-  call Grid % Load_Grid("test_006_cube.ini")
+  call Grid % Load_Grid("test_006_cavity.ini")
 
   n = Grid % n_cells
   print '(a, i12)',   ' # The problem size is: ', n
