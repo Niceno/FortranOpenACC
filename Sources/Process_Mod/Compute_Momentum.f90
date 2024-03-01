@@ -11,6 +11,7 @@
   type(Sparse_Type), pointer :: M
   real,              pointer :: ui_n(:)
   real,              pointer :: b(:)
+  real                       :: tol
   integer,           pointer :: fluid(:)
   integer                    :: n, c
 !------------------------[Avoid unused parent warning]-------------------------!
@@ -33,6 +34,7 @@
   if(comp .eq. 1) ui_n => Flow % u % n
   if(comp .eq. 2) ui_n => Flow % v % n
   if(comp .eq. 3) ui_n => Flow % w % n
+  tol = Flow % u % tol  ! they are the same for all components
 
   ! Insert proper sources (forces) to momentum equations
   call Process % Insert_Diffusion_Bc(Flow, comp=comp)
@@ -49,7 +51,7 @@
 
   ! Call linear solver
   call Profiler % Start('CG_for_Momentum')
-  call Flow % Nat % Cg(M, ui_n, b, n, FEMTO)
+  call Flow % Nat % Cg(M, ui_n, b, n, tol)
   call Profiler % Stop('CG_for_Momentum')
 
   call Profiler % Stop('Compute_Momentum')

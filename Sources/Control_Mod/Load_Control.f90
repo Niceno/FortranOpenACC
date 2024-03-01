@@ -112,6 +112,20 @@
                 Flow % blend = real_1
               end if
 
+              if(keyword .eq. 'TOLERANCE_FOR_MOMENTUM_SOLVER') then
+                read(line, *)  keyword, real_1
+                print '(a,es12.3)', ' # Momentum solver tolerance:', real_1
+                Flow % u % tol = real_1
+                Flow % v % tol = real_1
+                Flow % w % tol = real_1
+              end if
+
+              if(keyword .eq. 'TOLERANCE_FOR_PRESSURE_SOLVER') then
+                read(line, *)  keyword, real_1
+                print '(a,es12.3)', ' # Pressure solver tolerance:', real_1
+                Flow % pp % tol = real_1
+              end if
+
             end if
           end if
         end if

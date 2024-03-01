@@ -22,6 +22,8 @@
     real, allocatable :: x(:)   !! gradient in x direction
     real, allocatable :: y(:)   !! gradient in x direction
     real, allocatable :: z(:)   !! gradient in x direction
+
+    real :: tol = PICO  !! linear solver tolerance
   end type
 
   contains
