@@ -49,9 +49,31 @@ Assert_Mod/*.f90
 
 #-- ./Field_Mod/Calculate_Grad_Matrix.f90
 #-- ./Field_Mod/Create_Field.f90
+#-- ./Field_Mod/Grad_Pressure_Obstacle.f90
 #-- ./Field_Mod/Grad_Component.f90
 #-- ./Field_Mod/Grad_Pressure.f90
+#-- ./Test_007.f90
+$(DIR_OBJECT)/Test_007.o:\
+$(DIR_OBJECT)/Process_Mod.o \
+Process_Mod/*.f90 \
+$(DIR_OBJECT)/Native_Mod.o \
+Native_Mod/*.f90 \
+$(DIR_OBJECT)/Control_Mod.o \
+Control_Mod/*.f90 
+
 #-- ./Main.f90
+#-- ./Control_Mod.f90
+$(DIR_OBJECT)/Control_Mod.o:\
+$(DIR_OBJECT)/Field_Mod.o \
+Field_Mod/*/Grad_Component.005 \
+Field_Mod/*/Grad_Component.004 \
+Field_Mod/*/Grad_Component.003 \
+Field_Mod/*/Grad_Component.002 \
+Field_Mod/*/Grad_Component.001 \
+Field_Mod/*.f90 \
+Control_Mod/*.f90 \
+$(DIR_OBJECT)/Const_Mod.o 
+
 #-- ./Test_001.f90
 $(DIR_OBJECT)/Test_001.o:\
 $(DIR_OBJECT)/Process_Mod.o \
@@ -93,6 +115,8 @@ Field_Mod/*/Grad_Component.003 \
 Field_Mod/*/Grad_Component.002 \
 Field_Mod/*/Grad_Component.001 \
 Field_Mod/*.f90 \
+$(DIR_OBJECT)/Control_Mod.o \
+Control_Mod/*.f90 \
 $(DIR_OBJECT)/Assert_Mod.o \
 Assert_Mod/*.f90 
 
@@ -116,6 +140,13 @@ Grid_Mod/*.f90 \
 $(DIR_OBJECT)/Assert_Mod.o \
 Assert_Mod/*.f90 
 
+#-- ./.Modules/test_003__genmod.f90
+#-- ./.Modules/test_007__genmod.f90
+#-- ./.Modules/test_005__genmod.f90
+#-- ./.Modules/test_004__genmod.f90
+#-- ./.Modules/test_006__genmod.f90
+#-- ./.Modules/test_002__genmod.f90
+#-- ./.Modules/test_001__genmod.f90
 #-- ./Test_005.f90
 $(DIR_OBJECT)/Test_005.o:\
 $(DIR_OBJECT)/Gpu_Mod.o \
@@ -128,6 +159,7 @@ Field_Mod/*/Grad_Component.002 \
 Field_Mod/*/Grad_Component.001 \
 Field_Mod/*.f90 
 
+#-- ./Control_Mod/Load_Control.f90
 #-- ./Assert_Mod/Handle_Assert.f90
 #-- ./Field_Mod.f90
 $(DIR_OBJECT)/Field_Mod.o:\
@@ -165,22 +197,19 @@ Grid_Mod/*.f90
 #-- ./Gpu_Mod/Native/Destroy_On_Device.f90
 #-- ./Gpu_Mod/Native/Transfer_To_Device.f90
 #-- ./Gpu_Mod/Vector/Update_Device.f90
-#-- ./Gpu_Mod/Vector/Destroy_On_Device.f90
-#-- ./Gpu_Mod/Vector/Copy_To_Device.f90
-#-- ./Gpu_Mod/Vector/Create_On_Device.f90
+#-- ./Gpu_Mod/Vector/Int_Create_On_Device.f90
+#-- ./Gpu_Mod/Vector/Int_Destroy_On_Device.f90
+#-- ./Gpu_Mod/Vector/Real_Create_On_Device.f90
+#-- ./Gpu_Mod/Vector/Real_Destroy_On_Device.f90
+#-- ./Gpu_Mod/Vector/Int_Copy_To_Device.f90
+#-- ./Gpu_Mod/Vector/Real_Copy_To_Device.f90
 #-- ./Gpu_Mod/Vector/Update_Host.f90
-#-- ./Gpu_Mod/Grid/Cell_Coordinates_Destroy_On_Device.f90
-#-- ./Gpu_Mod/Grid/Face_Cell_Connectivity_Copy_To_Device.f90
-#-- ./Gpu_Mod/Grid/Cell_Coordinates_Copy_To_Device.f90
-#-- ./Gpu_Mod/Grid/Cell_Cell_Connectivity_Copy_To_Device.f90
-#-- ./Gpu_Mod/Grid/Cell_Volumes_Destroy_On_Device.f90
-#-- ./Gpu_Mod/Grid/Cell_Volumes_Copy_To_Device.f90
-#-- ./Gpu_Mod/Grid/Face_Cell_Connectivity_Destroy_On_Device.f90
-#-- ./Gpu_Mod/Grid/Cell_Cell_Connectivity_Destroy_On_Device.f90
 #-- ./Gpu_Mod/Sparse/Destroy_On_Device.f90
 #-- ./Gpu_Mod/Sparse/Copy_To_Device.f90
-#-- ./Gpu_Mod/Matrix/Destroy_On_Device.f90
-#-- ./Gpu_Mod/Matrix/Copy_To_Device.f90
+#-- ./Gpu_Mod/Matrix/Int_Destroy_On_Device.f90
+#-- ./Gpu_Mod/Matrix/Real_Destroy_On_Device.f90
+#-- ./Gpu_Mod/Matrix/Int_Copy_To_Device.f90
+#-- ./Gpu_Mod/Matrix/Real_Copy_To_Device.f90
 #-- ./Const_Mod.f90
 #-- ./Assert_Mod.f90
 $(DIR_OBJECT)/Assert_Mod.o:\

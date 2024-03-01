@@ -10,7 +10,7 @@
   type(Grid_Type),   pointer :: Grid
   type(Sparse_Type), pointer :: M
   type(Bc_Type),     pointer :: bc
-  real                       :: dx, dy, dz, a_we, a_sn, a_bt
+  real                       :: dx, dy, dz, a_we, a_sn, a_bt, dens, visc
   integer                    :: nx, ny, nz, i, j, k, c, d, ij
   real, allocatable          :: visited(:)
 !------------------------[Avoid unused parent warning]-------------------------!
@@ -23,15 +23,17 @@
   Grid => Flow % pnt_grid
   M    => Flow % Nat % M
   bc   => Grid % bc
+  dens =  Flow % density
+  visc =  Flow % viscosity
 
   ! Some abbreviations
   dx = Grid % lx / Grid % nx
   dy = Grid % ly / Grid % ny
   dz = Grid % lz / Grid % nz
 
-  a_we = (dy * dz / dx) * VISC
-  a_sn = (dz * dx / dy) * VISC
-  a_bt = (dx * dy / dz) * VISC
+  a_we = (dy * dz / dx) * visc
+  a_sn = (dz * dx / dy) * visc
+  a_bt = (dx * dy / dz) * visc
 
   nx = Grid % nx
   ny = Grid % ny
@@ -53,30 +55,20 @@
         Assert(Grid % fluid(d) .eq. 1)  ! check once more
 
         if(d .ne. c) then
-          if(abs(c-d)==1) then
-            M % val(ij) = -a_we  ! west or east
-          else if(abs(c-d)==nx) then
-            M % val(ij) = -a_sn  ! south or north
-          else if(abs(c-d)==nx*ny) then
-            M % val(ij) = -a_sn  ! bottom or top
-          else if(abs(c-d) .eq. nx-1) then
-            M % val(ij) = -a_we  ! periodicity in east-west
-          else if(abs(c-d) .eq. nx*ny-nx) then
-            M % val(ij) = -a_sn  ! periodicity in north-south
-          else if(abs(c-d) .eq. nx*ny*(nz-1)) then
-            M % val(ij) = -a_bt  ! periodicity in top-bottom
-          else
-            print '(a)', ' How on earth did you get here?'
-          end if
+          if(abs(c-d)==1)                M % val(ij) = -a_we  ! west or east
+          if(abs(c-d)==nx)               M % val(ij) = -a_sn  ! south or north
+          if(abs(c-d)==nx*ny)            M % val(ij) = -a_sn  ! bottom or top
+          if(abs(c-d) .eq. nx-1)         M % val(ij) = -a_we  ! periodic in e-w
+          if(abs(c-d) .eq. nx*ny-nx)     M % val(ij) = -a_sn  ! periodic in n-s
+          if(abs(c-d) .eq. nx*ny*(nz-1)) M % val(ij) = -a_bt  ! periodic in t-b
+          Assert(M % val(ij) .ne. 0.0)
         end if
       end do
 
       ! Compute central coefficient and put it in the diagonal
       do ij = M % row(c), M % row(c+1) - 1
         d = M % col(ij)
-        if(d .ne. c) then
-          M % val(M % dia(c)) = M % val(M % dia(c)) - M % val(ij)
-        end if
+        if(d .ne. c) M % val(M % dia(c)) = M % val(M % dia(c)) - M % val(ij)
       end do
 
     end if  ! c is in fluid
@@ -101,7 +93,7 @@
   !------------------------------------!
   if(present(dt)) then
     do c = 1, Grid % n_cells
-      M % val(M % dia(c)) = M % val(M % dia(c)) + DENS * Grid % vol(c) / dt
+      M % val(M % dia(c)) = M % val(M % dia(c)) + dens * Grid % vol(c) / dt
     end do
   end if
 

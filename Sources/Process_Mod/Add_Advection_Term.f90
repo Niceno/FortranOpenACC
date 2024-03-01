@@ -18,7 +18,7 @@
   real,    contiguous, pointer :: v_flux(:)
   integer, contiguous, pointer :: cells_n_cells(:)
   integer, contiguous, pointer :: cells_c(:,:), cells_f(:,:)
-  real                         :: b_tmp, den_u1, den_u2, ui_c
+  real                         :: b_tmp, den_u1, den_u2, ui_c, dens, blend
   integer                      :: s, c1, c2, i_cel, n
 !------------------------[Avoid unused parent warning]-------------------------!
   Unused(Proc)
@@ -34,6 +34,8 @@
   cells_c       => Grid % cells_c
   cells_f       => Grid % cells_f
   n             =  Grid % n_cells
+  dens          =  Flow % density
+  blend         =  Flow % blend
 
   ! Still on aliases
   if(comp .eq. 1) ui_n => Flow % u % n
@@ -55,8 +57,8 @@
       if(c2 .gt. 0) then
         ui_c = 0.5 * (ui_n(c1) + ui_n(c2))  ! centered value
         ! Unit: kg / m^3 * m /s = kg / (m^2 s)
-        den_u1 = DENS * ((1.0-BLEND) * ui_n(c1) + BLEND * ui_c)
-        den_u2 = DENS * ((1.0-BLEND) * ui_n(c2) + BLEND * ui_c)
+        den_u1 = dens * ((1.0-blend) * ui_n(c1) + blend * ui_c)
+        den_u2 = dens * ((1.0-blend) * ui_n(c2) + blend * ui_c)
         ! Unit: kg / (m^2 s) * m^3 / s = kg m / s^2 = N
         b_tmp = b_tmp - den_u1 * max(v_flux(s), 0.0) * merge(1,0, c1.lt.c2)
         b_tmp = b_tmp - den_u2 * min(v_flux(s), 0.0) * merge(1,0, c1.lt.c2)

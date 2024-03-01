@@ -7,8 +7,7 @@
   real,    intent(in) :: lx, ly, lz
   integer, intent(in) :: nx, ny, nz
 !-----------------------------------[Locals]-----------------------------------!
-  integer           :: s, c, c1, c2, e, n, t, i, j, k, bc, per_start
-  integer           :: ox, oy, oz
+  integer           :: s, c, c1, c2, e, n, t, i, j, k, bc, per_start, run
   real, allocatable :: work(:)
   real              :: dx, dy, dz, cdot
 !==============================================================================!
@@ -110,18 +109,22 @@
   !                        !
   !------------------------!
 
-  ! Perform if obstacle is sane
-  if(Grid % has_obstacle) then
-    ox = Grid % o_i_max - Grid % o_i_min + 1
-    oy = Grid % o_j_max - Grid % o_j_min + 1
-    oz = Grid % o_k_max - Grid % o_k_min + 1
-    Assert(ox .gt. 0)
-    Assert(oy .gt. 0)
-    Assert(oz .gt. 0)
-  end if
-
+  !----------------------------------------!
+  !   All cells are in fluid, by default   !
+  !----------------------------------------!
   allocate(Grid % fluid(Grid % n_cells));  Grid % fluid(:) = 1
+
+  !-----------------------------------------!
+  !   But, if there is obstacle, store it   !
+  !-----------------------------------------!
   if(Grid % has_obstacle) then
+
+    ! Obstacle must have at least two cells thickness in each direction
+    Assert(Grid % o_i_max - Grid % o_i_min .gt. 1)
+    Assert(Grid % o_j_max - Grid % o_j_min .gt. 1)
+    Assert(Grid % o_k_max - Grid % o_k_min .gt. 1)
+
+    ! Set the flag fluid for cells inside the obstacle / solid
     do c = 1, Grid % n_cells
       call Grid % Cells_I_J_K(c, i, j, k)
       if(i .ge. Grid % o_i_min  .and. i .le. Grid % o_i_max  .and.  &
@@ -351,7 +354,10 @@
     end do
   end do
 
-  per_start = s
+  !------------------------------------------!
+  !   Mark the beginning of periodic faces   !
+  !------------------------------------------!
+  per_start = s + 1
 
   !------------------------------------------------------!
   !   Handle the periodicity of the domain in the west   !
@@ -420,8 +426,11 @@
     Grid % dy(s) = Grid % yc(c2) - Grid % yc(c1)
     Grid % dz(s) = Grid % zc(c2) - Grid % zc(c1)
 
-    ! If you are in periodic region
-    if(s .gt. per_start) then
+    ! If you are in periodic region (per_start).  The second check (with abs)
+    ! is to ensure that the face is oriented in the direction under consider-
+    ! ation.  It is important for cases with more than periodic direction.
+    if(s .ge. per_start) then
+
       if(Grid % bc % w_type .eq. PERIODIC) then
         if(abs(Grid % dx(s)) .gt. abs(Grid % dy(s)) + abs(Grid % dz(s)))  &
           Grid % dx(s) = Grid % dx(s) - Grid % lx
@@ -434,7 +443,8 @@
         if(abs(Grid % dz(s)) .gt. abs(Grid % dx(s)) + abs(Grid % dy(s)))  &
           Grid % dz(s) = Grid % dz(s) - Grid % lz
       end if
-    end if
+
+    end if  ! you are in periodic region
 
     cdot = Grid % dx(s) * Grid % sx(s)  &
          + Grid % dy(s) * Grid % sy(s)  &
@@ -514,6 +524,39 @@
   end do
   call Grid % Save_Vtk_Scalar("visited.vtk", work)
 # endif
+
+  !-----------------------------------------------------!
+  !                                                     !
+  !   Make a list of internal boundaries - interfaces   !
+  !                                                     !
+  !-----------------------------------------------------!
+  do run = 1, 2
+
+    Grid % n_int_faces = 0
+    do s = Grid % n_bnd_cells + 1, Grid % n_faces
+      c1 = Grid % faces_c(1, s)
+      c2 = Grid % faces_c(2, s)
+
+      if(Grid % fluid(c1) .eq. 1 .and. Grid % fluid(c2) .eq. 0) then
+        Grid % n_int_faces = Grid % n_int_faces + 1
+        if(run .eq. 2) Grid % int_faces_c(1, Grid % n_int_faces) = c1
+        if(run .eq. 2) Grid % int_faces_c(2, Grid % n_int_faces) = c2
+      end if
+
+      if(Grid % fluid(c1) .eq. 0 .and. Grid % fluid(c2) .eq. 1) then
+        Grid % n_int_faces = Grid % n_int_faces + 1
+        if(run .eq. 2) Grid % int_faces_c(1, Grid % n_int_faces) = c1
+        if(run .eq. 2) Grid % int_faces_c(2, Grid % n_int_faces) = c2
+      end if
+
+    end do
+
+    if(run .eq. 1) then
+      allocate(Grid % int_faces_c(2, Grid % n_int_faces))
+      Grid % int_faces_c(:,:) = 0
+    end if
+
+  end do  ! run
 
   end subroutine
 

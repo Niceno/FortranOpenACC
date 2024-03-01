@@ -1,0 +1,23 @@
+#--------------------------
+# Time-integration related
+#--------------------------
+  NUMBER_OF_TIME_STEPS   6000
+  TIME_STEP                 0.005
+
+  RESULTS_SAVE_INTERVAL   120
+
+#----------------------
+# Numerical parameters
+#----------------------
+  BLENDING_COEFFICIENT_FOR_MOMENTUM  0.9
+  MAX_SIMPLE_ITERATIONS              3
+
+#---------------------
+# Physical properties
+#---------------------
+  MASS_DENSITY       1.0
+  DYNAMIC_VISCOSITY    0.0001
+
+# Volume flow rates are still innactive
+  PRESSURE_DROPS     0.036   0.00    0.00
+  VOLUME_FLOW_RATES  7.28    0.00    0.00

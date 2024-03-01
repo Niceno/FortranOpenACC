@@ -1,0 +1,20 @@
+#--------------------------
+# Time-integration related
+#--------------------------
+  NUMBER_OF_TIME_STEPS   1200
+  TIME_STEP                 0.0125
+
+  RESULTS_SAVE_INTERVAL   120
+
+#----------------------
+# Numerical parameters
+#----------------------
+  BLENDING_COEFFICIENT_FOR_MOMENTUM  0.9
+  MAX_SIMPLE_ITERATIONS              3
+
+#---------------------
+# Physical properties
+#---------------------
+  MASS_DENSITY       1.0
+  DYNAMIC_VISCOSITY    0.001
+

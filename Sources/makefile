@@ -147,6 +147,7 @@ SRC_MOD = Const_Mod.f90		\
           Var_Mod.f90		\
           Gpu_Mod.f90		\
           Field_Mod.f90		\
+          Control_Mod.f90	\
           Process_Mod.f90
 
 #---------------

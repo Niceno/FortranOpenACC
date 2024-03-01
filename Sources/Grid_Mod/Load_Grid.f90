@@ -9,7 +9,7 @@
 !-----------------------------------[Locals]-----------------------------------!
   integer       :: nx, ny, nz
   real          :: lx, ly, lz
-  character(80) :: dummy
+  character(SL) :: dummy
   character(1)  :: bc_t     ! boundary condition type
   real          :: bc_v(3)  ! boundary condition values (three velocity comp.)
   integer       :: file_unit
@@ -42,7 +42,7 @@
   !-----------------!
   else
 
-    print *, "# Reading the file "//grid_name
+    print '(a)', " # Reading the file "//grid_name
     open(newunit = file_unit, file = grid_name, action = 'read')
 
     !--------------------------------!

@@ -35,8 +35,23 @@
     ! Volume flux through faces
     real, allocatable :: v_flux(:)
 
+    ! Time step
+    real :: dt = 0.01
+
+    ! Relevant physical properties
+    real :: density   = 1.0    !! [kg / m^3]
+    real :: viscosity = 0.001  !! [kg / (m s)]
+
+    ! Pressure drops
+    real :: p_drop_x = 0.0  !! [kg/(m^2 s^2)]
+    real :: p_drop_y = 0.0  !! [kg/(m^2 s^2)]
+    real :: p_drop_z = 0.0  !! [kg/(m^2 s^2)]
+
     ! Gradient matrices for cells to cells (c2c)
     real, allocatable :: grad_c2c(:,:)  !! gradient matrices [1/m^2]
+
+    ! Some numerical parameters
+    real :: blend  !! bleding coefficient for momentum
 
     contains
 

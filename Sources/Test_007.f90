@@ -3,17 +3,15 @@
 !------------------------------------------------------------------------------!
 !>  Tests calling of the CG algorithm from the Native_Mod
 !------------------------------------------------------------------------------!
+  use Control_Mod
   use Native_Mod
   use Process_Mod
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
-  integer, parameter       :: N_STEPS = 1200   ! N_STEPS =   3
-  integer, parameter       :: N_ITERS =    3   ! N_ITERS =   3
   type(Grid_Type)          :: Grid          ! computational grid
   type(Field_Type), target :: Flow          ! flow field
   real                     :: ts, te
-  real                     :: dt
   integer                  :: n, c, time_step, iter
   character(15)            :: name_vel     = 'TTTT_II_uvw.vtk'
   character(13)            :: name_p       = 'TTTT_II_p.vtk'
@@ -31,10 +29,11 @@
   print '(a)', ' # Creating a grid'
   call Grid % Load_Grid("test_007_cube.ini", obstacle=.true.)
 
+  call Control % Load_Control('control.007', Flow)
+
   n = Grid % n_cells
   print '(a, i12)',   ' # The problem size is: ', n
   print '(a,es12.3)', ' # Solver tolerace is : ', PICO
-  dt = 0.01
 
   print '(a)', ' #----------------------------------------------------'
   print '(a)', ' # Be careful with memory usage.  If you exceed the'
@@ -47,7 +46,7 @@
   call Flow % Create_Field(Grid)
 
   ! Discretize momentum equations ...
-  call Process % Form_Diffusion_Matrix(Flow, dt=dt)
+  call Process % Form_Diffusion_Matrix(Flow, dt = Flow % dt)
 
   ! ... followed by discretization of pressure equation
   call Process % Form_Pressure_Matrix(Flow)
@@ -94,7 +93,9 @@
   call Gpu % Vector_Real_Copy_To_Device(Grid % s)
   call Gpu % Vector_Real_Copy_To_Device(Grid % d)
   call Gpu % Vector_Real_Copy_To_Device(Grid % vol)
-                                                  
+  call Gpu % Matrix_Int_Copy_To_Device(Grid % int_faces_c)
+  call Gpu % Vector_Int_Copy_To_Device(Grid % fluid)
+
   ! ... and the vectors of the native suite of solvers
   call Gpu % Native_Transfer_To_Device(Flow % Nat)
 
@@ -127,7 +128,8 @@
   !------------------------------------------!
   print '(a)', ' # Performing a demo of the computing momentum equations'
   call cpu_time(ts)
-  do time_step = 1, N_STEPS
+  do time_step = 1, Control % time_steps
+
     print '(a)',            ' #=========================='
     print '(a,i12,es12.3)', ' # Time step = ', time_step
     print '(a)',            ' #--------------------------'
@@ -150,7 +152,7 @@
     !-----------------------------------!
     !   Iterations within a time step   !
     !-----------------------------------!
-    do iter = 1, N_ITERS
+    do iter = 1, Control % max_simple
 
 !@    write(name_vel    (6:7), '(i2.2)') iter
 !@    write(name_p      (6:7), '(i2.2)') iter
@@ -159,13 +161,13 @@
 !@    write(name_grad_p (6:7), '(i2.2)') iter
 
       print '(a)', ' # Solving u'
-      call Process % Compute_Momentum(Flow, dt, comp=1)
+      call Process % Compute_Momentum(Flow, comp=1)
 
       print '(a)', ' # Solving v'
-      call Process % Compute_Momentum(Flow, dt, comp=2)
+      call Process % Compute_Momentum(Flow, comp=2)
 
       print '(a)', ' # Solving w'
-      call Process % Compute_Momentum(Flow, dt, comp=3)
+      call Process % Compute_Momentum(Flow, comp=3)
 
       print '(a)', ' # Solving pp'
       call Process % Compute_Pressure(Flow)
@@ -179,7 +181,7 @@
 
     end do  ! iterations
 
-    if(mod(time_step, 120) .eq. 0) then
+    if(mod(time_step, Control % save_int) .eq. 0) then
       call Gpu % Vector_Update_Host(Flow % u % n)
       call Gpu % Vector_Update_Host(Flow % v % n)
       call Gpu % Vector_Update_Host(Flow % w % n)
@@ -194,14 +196,14 @@
   call cpu_time(te)
 
   ! Save results
-      call Gpu % Vector_Update_Host(Flow % u % n)
-      call Gpu % Vector_Update_Host(Flow % v % n)
-      call Gpu % Vector_Update_Host(Flow % w % n)
-      call Gpu % Vector_Update_Host(Flow % p % n)
-      call Grid % Save_Vtk_Vector(name_vel, Flow % u % n(1:n),  &
-                                            Flow % v % n(1:n),  &
-                                            Flow % w % n(1:n))
-      call Grid % Save_Vtk_Scalar(name_p, Flow % p % n(1:n))
+  call Gpu % Vector_Update_Host(Flow % u % n)
+  call Gpu % Vector_Update_Host(Flow % v % n)
+  call Gpu % Vector_Update_Host(Flow % w % n)
+  call Gpu % Vector_Update_Host(Flow % p % n)
+  call Grid % Save_Vtk_Vector(name_vel, Flow % u % n(1:n),  &
+                                        Flow % v % n(1:n),  &
+                                        Flow % w % n(1:n))
+  call Grid % Save_Vtk_Scalar(name_p, Flow % p % n(1:n))
 
   call Profiler % Stop('Test_007')
 

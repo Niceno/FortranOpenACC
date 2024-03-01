@@ -18,6 +18,7 @@
 !-----------------------------------[Locals]-----------------------------------!
   type(Grid_Type),  pointer :: Grid
   real, contiguous, pointer :: b(:), p_i(:), vol(:)
+  real                      :: p_d_i
   integer                   :: c, nc
 !------------------------[Avoid unused parent warning]-------------------------!
   Unused(Proc)
@@ -32,13 +33,16 @@
   nc   =  Grid % n_cells
 
   ! Still on aliases
-  if(comp .eq. 1) p_i => Flow % p % x
-  if(comp .eq. 2) p_i => Flow % p % y
-  if(comp .eq. 3) p_i => Flow % p % z
+  if(comp .eq. 1) p_i   => Flow % p % x
+  if(comp .eq. 2) p_i   => Flow % p % y
+  if(comp .eq. 3) p_i   => Flow % p % z
+  if(comp .eq. 1) p_d_i =  Flow % p_drop_x
+  if(comp .eq. 2) p_d_i =  Flow % p_drop_y
+  if(comp .eq. 3) p_d_i =  Flow % p_drop_z
 
   !$acc parallel loop independent
   do c = 1, nc
-    b(c) = b(c) - p_i(c) * vol(c)
+    b(c) = b(c) + (p_d_i - p_i(c)) * vol(c)
   end do
   !$acc end parallel
 

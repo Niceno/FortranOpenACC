@@ -50,29 +50,38 @@
     integer :: n_cells
     integer :: n_bnd_cells
     integer :: n_faces
+    integer :: n_int_faces  !! number of faces at fluid/solid interface
 
-    integer :: nx, ny, nz  ! domain resolution in x, y and z direction
-    real    :: lx, ly, lz  ! domain size in x, y and z direction
+    integer :: nx, ny, nz  !! domain resolution in x, y and z direction
+    real    :: lx, ly, lz  !! domain size in x, y and z direction
 
     integer, allocatable :: faces_c(:,:)
     integer, allocatable :: cells_c(:,:)
     integer, allocatable :: cells_f(:,:)
     integer, allocatable :: cells_n_cells(:)
+    integer, allocatable :: int_faces_c(:,:)  !! list of faces at fluid/solid
 
     real, allocatable :: xn(:), yn(:), zn(:)
 
     real, allocatable :: xc(:), yc(:), zc(:)
     real, allocatable :: vol(:)
 
+    ! Certain dimensions assoicated with faces
     real, allocatable :: dx(:), dy(:), dz(:), d(:)
     real, allocatable :: sx(:), sy(:), sz(:), s(:)
 
-    ! Variables which define obstacle
-    logical              :: has_obstacle = .false.
-    integer              :: o_i_min=0, o_i_max=0
-    integer              :: o_j_min=0, o_j_max=0
-    integer              :: o_k_min=0, o_k_max=0
-    integer, allocatable :: fluid(:)  ! 1 in fluid, 0 in solid (obstacle)
+    ! Variables which define if there is an obstacle (solid) in the domain,
+    ! and where is it exactly.  The scope of this variables is very limited
+    ! they are used only in two functions.  It is better to keep it that way
+    logical :: has_obstacle = .false.
+    integer :: o_i_min=0, o_i_max=0
+    integer :: o_j_min=0, o_j_max=0
+    integer :: o_k_min=0, o_k_max=0
+
+    ! Flag over cells to indicate those in fluid regions (in which the
+    ! flag fluid is 1, and in the solid region (where flag fluid is 0)
+    ! Unlike the above (has_obstacle and o's), this flag is used a lot.
+    integer, allocatable :: fluid(:)
 
     type(Bc_Type) :: bc  ! boundary conditions
 

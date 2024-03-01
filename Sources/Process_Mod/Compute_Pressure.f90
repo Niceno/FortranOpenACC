@@ -26,7 +26,7 @@
 
   ! Call linear solver
   call Profiler % Start('CG_for_Pressure')
-  call Flow % Nat % Cg(A, pp_n, b, n, PICO)
+  call Flow % Nat % Cg(A, pp_n, b, n, FEMTO)
   call Profiler % Stop('CG_for_Pressure')
 
   call Profiler % Stop('Compute_Pressure')

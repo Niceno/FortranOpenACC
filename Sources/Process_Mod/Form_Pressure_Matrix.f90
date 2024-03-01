@@ -68,13 +68,9 @@
   end do
 
   ! Avoid zeroes on diagonal
-  if(Grid % has_obstacle) then
-    do c = 1, Grid % n_cells
-      if(Grid % fluid(c) .eq. 0) then
-        A % val(A % dia(c)) = 1.0
-      end if
-    end do
-  end if
+  do c = 1, Grid % n_cells
+    if(Grid % fluid(c) .eq. 0)  A % val(A % dia(c)) = 1.0
+  end do
 
 # if VFS_DEBUG == 1
   allocate(work(Grid % n_cells));  work(:) = 0.0

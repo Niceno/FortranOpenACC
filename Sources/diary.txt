@@ -403,3 +403,14 @@ With these changes, the profiling results read:
 Add_Advection_Term when from using 2.52 [s] to only 0.13 [s], a whopping
 speed up of a factor 20!
 
+
+
+                                                                   March 1, 2024
+
+At this point I have both periodicity and the possibility to insert obstacles in
+the code, although the implementation of the latter went faster than I wanted,
+I pushed, by mistake, things before thoroughly checking them, really.  Today, I
+will try to fix and / or document a few things.
+
+
+

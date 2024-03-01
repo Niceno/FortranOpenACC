@@ -2,8 +2,10 @@
 #include "Unused.h90"
 
 ! A couple of macros to shorten the syntax a bit
-#define Inc(X,Y) X = X + Y
-#define Dec(X,Y) X = X - Y
+#define Inc(X, Y)  X = X + Y
+#define Dec(X, Y)  X = X - Y
+#define Div(X, Y)  X = X / Y
+#define Mul(X, Y)  X = X * Y
 
 !==============================================================================!
   module Process_Mod
@@ -12,14 +14,11 @@
   use Profiler_Mod
   use Field_Mod
   use Gpu_Mod
+  use Control_Mod
 !------------------------------------------------------------------------------!
   implicit none
 !==============================================================================!
 
-  real, parameter :: DENS = 1.0
-  real, parameter :: VISC = 0.0001
-  real, parameter :: BLEND = 0.9    ! the amount of central scheme in the
-                                    ! upwind blended advection scheme
   !------------------!
   !   Process type   !
   !------------------!
