@@ -1,30 +1,9 @@
-!==============================================================================!
-!   The first evolutionary step (stored in ../Step_001) showed the basic       !
-!   functionality of Fortran and OpenACC coupling, all within a single         !
-!   programming unit (main function).  The second evolutionary step (stored    !
-!   in ../Step_002) showed that OpenACC commands can spread over different     !
-!   programming units; meaning subroutines in Fortran.                         !
-!                                                                              !
-!   This example goes a step further and shows how data enclosed inside more   !
-!   complex data types can be transferred to and from GPUs.  The program in-   !
-!   troduces new type (Full_Matrix_Type) inside the module (Full_Matrix_Mod)   !
-!   with two data members.  It uses main function to transfer the data from    !
-!   the Full_Matrix_Type to device and back, using the global functions        !
-!   copy_to_device and copy_from_device and the computations are done on       !
-!   the device calling the global function compute_on_device.                  !
-!                                                                              !
-!   An important aspect when transferring data belonging to more complex types !
-!   to and from a "device" is that the derived data types can't be transfered, !
-!   only its basic data type components, which can be seen in the main         !
-!   function where transfer takes place.                                       !
-!                                                                              !
-!   Another important aspect is that the subroutines performing calculations   !
-!   on the host, do not need "!$acc data present ..." and "!$acc end data"     !
-!   clauses, if one is sure data is on the device.                             !
+!------------------------------------------------------------------------------!
+!   Described in the readme.md file.  Compiled with the script compiled.sh.    !
 !------------------------------------------------------------------------------!
 
 !==============================================================================!
-  module Full_Matrix_Mod
+  module Dense_Mod
 !------------------------------------------------------------------------------!
 !   Introduces a more complex data type to be transferred to and back from     !
 !   the "device".  It does not have member function which do the transfer,     !
@@ -36,28 +15,31 @@
   !----------------------!
   !   Full Matrix type   !
   !----------------------!
-  type Full_Matrix_Type
+  type Dense_Type
 
     integer           :: len
     real, allocatable :: val(:,:)
 
     contains
-      procedure :: Allocate_Full_Matrix
+      procedure :: Allocate_Dense
 
   end type
 
   contains
 
 !==============================================================================!
-  subroutine Allocate_Full_Matrix(A, n)
+  subroutine Allocate_Dense(A, n)
+!------------------------------------------------------------------------------!
+!   Allocates memory for the data member "val" and stores its size, matrix     !
+!   dimension in this case, into data member "n".                              !
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Full_Matrix_Type) :: A
+  class(Dense_Type) :: A
   integer, intent(in)     :: n
 !==============================================================================!
 
-  ! Store the length
+  ! Store the dimension fo the matrix
   A % len = n
 
   ! Allocate the memory
@@ -68,14 +50,14 @@
   end module
 
 !==============================================================================!
-  subroutine copy_to_device(n, c)
+  subroutine Copy_To_Device(n, c)
 !------------------------------------------------------------------------------!
 !   This subroutines creates (allocates) memory on "device" for varible c, and !
 !   it also coppies its contents to the device.  It is useful for data which   !
 !   are operands (as opposed to results) in the computations performed on the  !
 !   "device".                                                                  !
 !                                                                              !
-!   Subroutine related to this one is "create_one_device" which allocates      !
+!   Subroutine related to this one is "Create_On_Device" which allocates       !
 !   memory  on the "device", but does not copy the contents to the "device".   !
 !                                                                              !
 !   Note that this subroutine is the same as in previous step (../Step_002)    !
@@ -85,11 +67,13 @@
   integer              :: n
   real, dimension(n,n) :: c
 !==============================================================================!
+
   !$acc enter data copyin(c)
+
   end subroutine
 
 !==============================================================================!
-  subroutine create_on_device(n, c)
+  subroutine Create_On_Device(n, c)
 !------------------------------------------------------------------------------!
 !   This subroutines creates (allocates) memory on "device" for varible c, but !
 !   it doesn't copy its contents to the device.  It is useful for data which   !
@@ -97,7 +81,7 @@
 !   written by the calculations on the "device", the data which is the result  !
 !   of computations on the device.                                             !
 !                                                                              !
-!   Subroutine related to this one is "copy_to_device" which allocates memory  !
+!   Subroutine related to this one is "Copy_To_Device" which allocates memory  !
 !   on the "device", but also coppies the contents to the "device".            !
 !                                                                              !
 !   Note that this subroutine is the same as in previous step (../Step_002)    !
@@ -113,7 +97,7 @@
   end subroutine
 
 !==============================================================================!
-  subroutine copy_from_device(n, c)
+  subroutine Copy_From_Device(n, c)
 !------------------------------------------------------------------------------!
 !   Explicitly retrieve data stored in c, from "device" to the "host".  This   !
 !   is useful for results obtained on the "device", which need further post-   !
@@ -126,11 +110,13 @@
   integer              :: n
   real, dimension(n,n) :: c
 !==============================================================================!
+
   !$acc exit data copyout(c)
+
   end subroutine
 
 !==============================================================================!
-  subroutine compute_on_device(n, a, b, c)
+  subroutine Compute_On_Device(n, a, b, c)
 !------------------------------------------------------------------------------!
 !   This subroutine performs computations on "device", on the data which was   !
 !   previously (see the main funciton) transferred to the "device".            !
@@ -163,19 +149,19 @@
 !==============================================================================!
   program Main
 !------------------------------------------------------------------------------!
-  use Full_Matrix_Mod
+  use Dense_Mod
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
-  integer, parameter     :: N = 10000
-  integer                :: i, j, iter
-  type(Full_Matrix_Type) :: A, B, C
+  integer, parameter :: N = 10000
+  integer            :: i, j, iter
+  type(Dense_Type)   :: A, B, C
 !==============================================================================!
 
   ! Allocate matrices
-  call A % Allocate_Full_Matrix(N)
-  call B % Allocate_Full_Matrix(N)
-  call C % Allocate_Full_Matrix(N)
+  call A % Allocate_Dense(N)
+  call B % Allocate_Dense(N)
+  call C % Allocate_Dense(N)
 
   ! Initialize matrices
   A % val(:,:) = 1.0
@@ -184,17 +170,17 @@
 
   ! Transfer the basic data members from the matrix structure.  One can not
   ! transfer the derived data type with OpenACC, as it is unaware of it.
-  call copy_to_device   (N, A % val)
-  call copy_to_device   (N, B % val)
-  call create_on_device (N, C % val)
+  call Copy_To_Device  (N, A % val)
+  call Copy_To_Device  (N, B % val)
+  call Create_On_Device(N, C % val)
 
   ! Perform computations on device, using only "!$acc kernels" and
   ! "!$acc end kernels" statement to avoid redundant copying of
   ! data back and forth.
-  call compute_on_device(N, A % val, B % val, C % val)
+  call Compute_On_Device(N, A % val, B % val, C % val)
 
   ! Retrieve results from the device
-  call copy_from_device (N, C % val)
+  call Copy_From_Device (N, C % val)
 
   ! Print result
   print *, 'Matrix c(1,1):', C % val(1,1)
