@@ -1,12 +1,16 @@
 !==============================================================================!
-  subroutine Full_Matrix_Copy_To_Device(A)
+  subroutine Dense_Allocate(A, n)
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Full_Matrix_Type) :: A
+  class(Dense_Type)   :: A
+  integer, intent(in) :: n
 !==============================================================================!
 
-  !$acc enter data copyin(A % val)
+  ! Store the length
+  A % len = n
+
+  ! Allocate the memory
+  allocate(A % val(n, n))
 
   end subroutine
-
