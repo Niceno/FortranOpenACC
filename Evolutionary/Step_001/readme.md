@@ -16,7 +16,7 @@ Although ludicrously simple, this little program contains all necessary ingredie
 4. Copying the data back to the "host", and
 5. Save data for post-processing (just printing in this simple case.)
 
-# Technical Deep Dive: Data Management and Computation
+# Technical Aspects: Data Management and Computation
 
 Please note the difference in which operand matrices (a and b) and the result matrix (c) are passed to "device". Matrices a and b are copied with the command `!$acc data copyin(a, b)`, because they are not copied back to the "host" after the calculations. Contrary to that, matrix "c" will hold the result of the operation on the "device" and we want its contents back once the calculation is over. Therefore, we copy it with the command `!$acc data copy(c)!`, which means that data will be copied back once the command `!$acc end data` is reached.
 
@@ -24,7 +24,7 @@ Although this works, we could have done things slightly better here. The initial
 
 The calculations on the device are performed using the Keep It Simple and Stupid (KISS) principle, that is, they are started with `!acc kernels` and ended with `!$acc end kernels`. That gave a decent speed up of this case. Not much philosophy, just tell the compiler to run on the "device" in the best way it can.
 
-# Building and Running: Compilation Details
+# Compilation and Execution
 
 The program is compiled with the script `compile.sh` and it requires Nvidia's Fortran compiler, which comes with Nvidia HPC-SDK. The script will create two executables: the `With_Gpu` which uses GPUs and `No_Gpu` which doesn't use GPUs.
 
