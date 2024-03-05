@@ -7,7 +7,7 @@
 !---------------------------------[Arguments]----------------------------------!
   class(Compute_Type) :: Comp  !! parent class
   type(Vector_Type)   :: C     !! result vector
-  type(Matrix_Type)   :: A     !! operand matrix
+  type(Dense_Type)    :: A     !! operand matrix
   type(Vector_Type)   :: B     !! operand vector
 !-----------------------------------[Locals]-----------------------------------!
   integer :: n

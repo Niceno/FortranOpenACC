@@ -3,20 +3,20 @@
 !------------------------------------------------------------------------------!
   use Grid_Mod
   use Vector_Mod
-  use Matrix_Mod
+  use Dense_Mod
   use Sparse_Mod
   use Compute_Mod
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
-  type(Vector_Type)  :: B, C
-  type(Matrix_Type)  :: Am, Bm, Cm
-  type(Sparse_Type)  :: As
-  type(Grid_Type)    :: G
-  integer            :: n, nx, ny, nz, time_step
-  logical            :: fail = .false.
-  character(80)      :: arg
-  real               :: ts, te
+  type(Vector_Type) :: B, C
+  type(Dense_Type)  :: Am, Bm, Cm
+  type(Sparse_Type) :: As
+  type(Grid_Type)   :: G
+  integer           :: n, nx, ny, nz, time_step
+  logical           :: fail = .false.
+  character(80)     :: arg
+  real              :: ts, te
 !==============================================================================!
 
   !-----------------------------------!
@@ -57,9 +57,9 @@
     print *, '#----------------------------------------------------------'
 
     ! Allocate matrices
-    call Am % Allocate_Matrix(n)
-    call Bm % Allocate_Matrix(n)
-    call Cm % Allocate_Matrix(n)
+    call Am % Allocate_Dense(n)
+    call Bm % Allocate_Dense(n)
+    call Cm % Allocate_Dense(n)
 
     ! Initialize matrices on the host
     Am % val(:,:) = 1.0
@@ -67,9 +67,9 @@
     Cm % val(:,:) = 0.0
 
     ! Copy dense matrices to the device
-    call Am % Copy_Matrix_To_Device()
-    call Bm % Copy_Matrix_To_Device()
-    call Cm % Copy_Matrix_To_Device()
+    call Am % Copy_Dense_To_Device()
+    call Bm % Copy_Dense_To_Device()
+    call Cm % Copy_Dense_To_Device()
 
     !-----------------------------------------------!
     !   Performing a fake time loop on the device   !
@@ -81,18 +81,18 @@
     call cpu_time(te)
 
     ! Copy results back to host
-    call Cm % Copy_Matrix_To_Host()
+    call Cm % Copy_Dense_To_Host()
 
     ! Destroy results on the device, you don't need them anymore
-    call Am % Destroy_Matrix_On_Device()
-    call Bm % Destroy_Matrix_On_Device()
-    call Cm % Destroy_Matrix_On_Device()
+    call Am % Destroy_Dense_On_Device()
+    call Bm % Destroy_Dense_On_Device()
+    call Cm % Destroy_Dense_On_Device()
 
     ! Print result
-    print *, 'Matrix Cm(1,  1  ):', Cm % val(1,   1)
-    print *, 'Matrix Cm(2,  2  ):', Cm % val(2,   2)
-    print *, 'Matrix Cm(n-1,n-1):', Cm % val(n-1, n-1)
-    print *, 'Matrix Cm(n,  n  ):', Cm % val(n,   n)
+    print *, 'Dense Cm(1,  1  ):', Cm % val(1,   1)
+    print *, 'Dense Cm(2,  2  ):', Cm % val(2,   2)
+    print *, 'Dense Cm(n-1,n-1):', Cm % val(n-1, n-1)
+    print *, 'Dense Cm(n,  n  ):', Cm % val(n,   n)
 
     print '(a,f12.3,a)', '# Time elapsed for TEST  1: ', te-ts, ' [s]'
   end if
@@ -111,7 +111,7 @@
     print *, '#----------------------------------------------------'
 
     ! Allocate matrix and vectors
-    call Am % Allocate_Matrix(n)
+    call Am % Allocate_Dense(n)
     call B  % Allocate_Vector(n)
     call C  % Allocate_Vector(n)
 
@@ -121,7 +121,7 @@
     C  % val(:)   = 0.0
 
     ! Copy matrix and vectors to the device
-    call Am % Copy_Matrix_To_Device()
+    call Am % Copy_Dense_To_Device()
     call B  % Copy_Vector_To_Device()
     call C  % Copy_Vector_To_Device()
 
@@ -138,7 +138,7 @@
     call C % Copy_Vector_To_Host()
 
     ! Destroy data on the device, you don't need them anymore
-    call Am % Destroy_Matrix_On_Device()
+    call Am % Destroy_Dense_On_Device()
     call B  % Destroy_Vector_On_Device()
     call C  % Destroy_Vector_On_Device()
 

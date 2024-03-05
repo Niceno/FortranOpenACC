@@ -4,7 +4,7 @@
   module Compute_Mod
 !----------------------------------[Modules]-----------------------------------!
   use Vector_Mod
-  use Matrix_Mod
+  use Dense_Mod
   use Sparse_Mod
 !------------------------------------------------------------------------------!
   implicit none

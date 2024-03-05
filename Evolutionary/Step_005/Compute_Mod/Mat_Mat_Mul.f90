@@ -6,8 +6,8 @@
   implicit none
 !---------------------------------[Arguments]----------------------------------!
   class(Compute_Type) :: Comp  !! parent class
-  type(Matrix_Type)   :: c     !! result matrix
-  type(Matrix_Type)   :: a, b  !! operand matrices
+  type(Dense_Type)    :: c     !! result matrix
+  type(Dense_Type)    :: a, b  !! operand matrices
 !-----------------------------------[Locals]-----------------------------------!
   integer :: n
 !==============================================================================!

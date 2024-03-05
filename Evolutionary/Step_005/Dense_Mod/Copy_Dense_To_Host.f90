@@ -1,16 +1,16 @@
 !==============================================================================!
-  subroutine Destroy_Matrix_On_Device(A)
+  subroutine Copy_Dense_To_Host(A)
 !------------------------------------------------------------------------------!
-!>  Destroys a dense-matrix on the GPU, without copying it back to CPU.
+!>  Copy a dense-matrix from GPU back to CPU, but do not destroy it on GPU.
 !------------------------------------------------------------------------------!
-!   Note: if you wanted to copy it before destroying, change delete to copyout !
+!   Note: I can't possibly imagine when this functionality would be needed.    !
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
-  class(Matrix_Type) :: A  !! parent class
+  class(Dense_Type) :: A  !! parent class
 !==============================================================================!
 
-  !$acc exit data delete(A % val)
+  !$acc update host(A % val)
 
   end subroutine
 
