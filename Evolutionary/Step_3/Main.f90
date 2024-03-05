@@ -1,13 +1,10 @@
-!------------------------------------------------------------------------------!
-!   Described in the readme.md file.  Compiled with the script compiled.sh.    !
-!------------------------------------------------------------------------------!
-
 !==============================================================================!
   module Dense_Mod
 !------------------------------------------------------------------------------!
-!   Introduces a more complex data type to be transferred to and back from     !
-!   the "device".  It does not have member function which do the transfer,     !
-!   the transfer is still done from the main function.                         !
+!   This module introduces a more complex data type which represents a dense   !
+!   matrix, which will be transferred to and back from the "device".  It does  !
+!   not have member function which do the transfer, the transfer is still      !
+!   performed from the main function.                                          !
 !------------------------------------------------------------------------------!
   implicit none
 !==============================================================================!
@@ -30,8 +27,8 @@
 !==============================================================================!
   subroutine Allocate_Dense(A, n)
 !------------------------------------------------------------------------------!
-!   Allocates memory for the data member "val" and stores its size, matrix     !
-!   dimension in this case, into data member "n".                              !
+!   Allocates memory for the data member "val" and stores dense matrix's size, !
+!   (a.k.a. matrix dimension) into data member "n".                            !
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Arguments]----------------------------------!
@@ -52,13 +49,14 @@
 !==============================================================================!
   subroutine Copy_To_Device(n, c)
 !------------------------------------------------------------------------------!
-!   This subroutines creates (allocates) memory on "device" for varible c, and !
-!   it also coppies its contents to the device.  It is useful for data which   !
+!   This subroutines creates (allocates) memory on "device" for varible c,     !
+!   and also coppies its contents to the device.  It is useful for data which  !
 !   are operands (as opposed to results) in the computations performed on the  !
 !   "device".                                                                  !
 !                                                                              !
 !   Subroutine related to this one is "Create_On_Device" which allocates       !
-!   memory  on the "device", but does not copy the contents to the "device".   !
+!   memory on the "device", but does not copy the contents of the variable     !
+!   from the "host" to the "device".                                           !
 !                                                                              !
 !   Note that this subroutine is the same as in previous step (../Step_002)    !
 !------------------------------------------------------------------------------!
@@ -75,11 +73,11 @@
 !==============================================================================!
   subroutine Create_On_Device(n, c)
 !------------------------------------------------------------------------------!
-!   This subroutines creates (allocates) memory on "device" for varible c, but !
-!   it doesn't copy its contents to the device.  It is useful for data which   !
-!   doesn't depend on its initial values, the data which is completelly over-  !
-!   written by the calculations on the "device", the data which is the result  !
-!   of computations on the device.                                             !
+!   This subroutines creates (allocates) memory on "device" for varible c,     !
+!   but it doesn't copy its contents to the device.  It is useful for data     !
+!   which doesn't depend on its initial values from the "host", the data       !
+!   which is completelly over-written by the calculations on the "device",     !
+!   the data which is the result of computations on the device.                !
 !                                                                              !
 !   Subroutine related to this one is "Copy_To_Device" which allocates memory  !
 !   on the "device", but also coppies the contents to the "device".            !
@@ -119,13 +117,13 @@
   subroutine Compute_On_Device(n, a, b, c)
 !------------------------------------------------------------------------------!
 !   This subroutine performs computations on "device", on the data which was   !
-!   previously (see the main funciton) transferred to the "device".            !
+!   previously (in the main function) transferred to the "device".             !
 !                                                                              !
 !   This subroutine differs from the one in the previous step (../Step_002)    !
 !   in the absence of statements "!$acc data present(a, b, c)", coupled with   !
 !   "!$acc end data", because I learned that the combination of these two      !
 !   functions is also copying data back to host. (Maybe even coppies data to   !
-!   host, that should be double checked.                                       !
+!   host, that should be double checked.)                                      !
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!

@@ -1,12 +1,19 @@
 !==============================================================================!
   module Dense_Mod
 !------------------------------------------------------------------------------!
+!   This module introduces a more complex data type which represents a dense   !
+!   matrix, which will be transferred to and back from the "device".  It also  !
+!   has member function which perform the transfer to and back from "host" to  !
+!   "device ", called "Dense_Copy_...".                                        !
+!------------------------------------------------------------------------------!
   implicit none
 !==============================================================================!
 
-  !-----------------------!
-  !   Dense matrix type   !
-  !-----------------------!
+  !----------------!
+  !                !
+  !   Dense type   !
+  !                !
+  !----------------!
   type Dense_Type
 
     integer           :: len

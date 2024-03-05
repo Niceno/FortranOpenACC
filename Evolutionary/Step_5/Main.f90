@@ -37,9 +37,9 @@
     print *, './Program <test>'
     print *, ''
     print *, 'where <test> can be 1, 2 or 3, depending if you want to test:'
-    print *, '  1 - dense-matrix dense-matrix multiplication'
-    print *, '  2 - dense-matrix vector multiplication'
-    print *, '  3 - sperse-matrix vector multiplication'
+    print *, '  1 - dense-dense multiplication'
+    print *, '  2 - dense-vector multiplication'
+    print *, '  3 - sperse-vector multiplication'
     return
   end if
 
@@ -76,7 +76,7 @@
     !-----------------------------------------------!
     call cpu_time(ts)
     do time_step = 1, 60
-      call Global % Compute_Mat_Mat_Mul(Cm, Am, Bm)
+      call Global % Compute_Den_Den_Mul(Cm, Am, Bm)
     end do
     call cpu_time(te)
 
@@ -130,7 +130,7 @@
     !-----------------------------------------------!
     call cpu_time(ts)
     do time_step = 1, 60
-      call Global % Compute_Mat_Vec_Mul(C, Am, B)
+      call Global % Compute_Den_Vec_Mul(C, Am, B)
     end do
     call cpu_time(te)
 

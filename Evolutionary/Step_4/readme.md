@@ -12,7 +12,7 @@ The philosophy here was that it was most convenient to write the data transfer f
 
 ## Modularization and Calculation Enhancements
 
-Another change to the previous step is that calculations are done in a different module, called `Compute_Mod`, which introduces the new type `Compute_Type`, and which also creates a singleton object called `Global`, indicating that it is accessible to the rest of the code.
+Another change to the previous step is that calculations are done in a different module, called `Compute_Mod`, which introduces the new type `Compute_Type`, and which also creates a singleton object called `Global`, indicating that it is accessible to the rest of the code.  It is important to note that the Compute_Module is unaware of the derived data type Dense_Type, and accepts as operators basic Fortran's two-dimensional arrays.
 
 This step also brings several source files to the project. We have the main function still, but each module is defined in its own source file for the module definition, and sources in its sub-directories for member functions (the same practice was introduced in T-Flows many years back, and it is still proving to be useful).
 

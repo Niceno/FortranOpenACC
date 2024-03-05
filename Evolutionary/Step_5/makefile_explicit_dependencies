@@ -2,14 +2,14 @@
 #-- ./Dense_Mod/Destroy_Dense_On_Device.f90
 #-- ./Dense_Mod/Copy_Dense_To_Device.f90
 #-- ./Dense_Mod/Allocate_Dense.f90
-#-- ./Compute_Mod/Mat_Mat_Mul_Raw.f90
+#-- ./Compute_Mod/Spa_Vec_Mul_Acc.f90
+#-- ./Compute_Mod/Den_Den_Add.f90
 #-- ./Compute_Mod/Spa_Vec_Mul.f90
-#-- ./Compute_Mod/Mat_Mat_Add_Raw.f90
-#-- ./Compute_Mod/Mat_Vec_Mul.f90
-#-- ./Compute_Mod/Mat_Mat_Add.f90
-#-- ./Compute_Mod/Spa_Vec_Mul_Raw.f90
-#-- ./Compute_Mod/Mat_Mat_Mul.f90
-#-- ./Compute_Mod/Mat_Vec_Mul_Raw.f90
+#-- ./Compute_Mod/Den_Den_Mul.f90
+#-- ./Compute_Mod/Den_Den_Add_Acc.f90
+#-- ./Compute_Mod/Den_Vec_Mul_Acc.f90
+#-- ./Compute_Mod/Den_Den_Mul_Acc.f90
+#-- ./Compute_Mod/Den_Vec_Mul.f90
 #-- ./Grid_Mod/Create_Grid.f90
 #-- ./Vector_Mod.f90
 $(DIR_OBJECT)/Vector_Mod.o:\

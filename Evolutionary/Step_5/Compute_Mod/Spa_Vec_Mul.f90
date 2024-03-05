@@ -16,7 +16,7 @@
   n  = C % len
   nz = A % nonzeros
 
-  call Comp % Compute_Spa_Vec_Mul_Raw(n,        &
+  call Comp % Compute_Spa_Vec_Mul_Acc(n,        &
                                       nz,       &
                                       C % val,  &
                                       A % val,  &

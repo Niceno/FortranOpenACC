@@ -18,14 +18,14 @@
   type Compute_Type
 
     contains
-      procedure          :: Compute_Mat_Mat_Add
-      procedure, private :: Compute_Mat_Mat_Add_Raw
-      procedure          :: Compute_Mat_Mat_Mul
-      procedure, private :: Compute_Mat_Mat_Mul_Raw
-      procedure          :: Compute_Mat_Vec_Mul
-      procedure, private :: Compute_Mat_Vec_Mul_Raw
+      procedure          :: Compute_Den_Den_Add
+      procedure, private :: Compute_Den_Den_Add_Acc
+      procedure          :: Compute_Den_Den_Mul
+      procedure, private :: Compute_Den_Den_Mul_Acc
+      procedure          :: Compute_Den_Vec_Mul
+      procedure, private :: Compute_Den_Vec_Mul_Acc
       procedure          :: Compute_Spa_Vec_Mul
-      procedure, private :: Compute_Spa_Vec_Mul_Raw
+      procedure, private :: Compute_Spa_Vec_Mul_Acc
 
   end type
 
@@ -35,13 +35,13 @@
   type(Compute_Type) :: Global
 
   contains
-#   include "Compute_Mod/Mat_Mat_Add.f90"
-#   include "Compute_Mod/Mat_Mat_Add_Raw.f90"
-#   include "Compute_Mod/Mat_Mat_Mul.f90"
-#   include "Compute_Mod/Mat_Mat_Mul_Raw.f90"
-#   include "Compute_Mod/Mat_Vec_Mul.f90"
-#   include "Compute_Mod/Mat_Vec_Mul_Raw.f90"
+#   include "Compute_Mod/Den_Den_Add.f90"
+#   include "Compute_Mod/Den_Den_Add_Acc.f90"
+#   include "Compute_Mod/Den_Den_Mul.f90"
+#   include "Compute_Mod/Den_Den_Mul_Acc.f90"
+#   include "Compute_Mod/Den_Vec_Mul.f90"
+#   include "Compute_Mod/Den_Vec_Mul_Acc.f90"
 #   include "Compute_Mod/Spa_Vec_Mul.f90"
-#   include "Compute_Mod/Spa_Vec_Mul_Raw.f90"
+#   include "Compute_Mod/Spa_Vec_Mul_Acc.f90"
 
   end module
