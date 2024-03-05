@@ -1,7 +1,7 @@
 !==============================================================================!
-  subroutine Mat_X_Mat_Acc(Lin, n, c, a, b)
+  subroutine Den_X_Den_Acc(Lin, n, c, a, b)
 !------------------------------------------------------------------------------!
-!>  This subroutine computes dense-matrix dense-matrix multiplication on
+!>  This subroutine computes dense-dense multiplication on
 !>  a device without checking if variables are present on the device.
 !------------------------------------------------------------------------------!
 !   Notes:                                                                     !

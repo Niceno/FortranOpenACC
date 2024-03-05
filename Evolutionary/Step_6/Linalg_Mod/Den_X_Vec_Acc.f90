@@ -1,8 +1,8 @@
 !==============================================================================!
-  subroutine Mat_P_Mat_Acc(Lin, n, c, a, b)
+  subroutine Den_X_Vec_Acc(Lin, n, c, a, b)
 !------------------------------------------------------------------------------!
-!>  This subroutine computes dense-matrix dense-matrix addition on a device,
-!>  without checking if variables are present on the device.
+!>  This subroutine computes dense-vector multiplication on
+!>  a device without checking if variables are present on the device.
 !------------------------------------------------------------------------------!
 !   Notes:                                                                     !
 !                                                                              !
@@ -19,21 +19,24 @@
   implicit none
 !---------------------------------[Arguments]----------------------------------!
   class(Linalg_Type) :: Lin     !! parent class
-  integer            :: n       !! matrix dimensions
-  real               :: c(n,n)  !! result matrix
+  integer            :: n       !! matrix and vector dimension
+  real               :: c(n)    !! result vector
   real               :: a(n,n)  !! operand matrix
-  real               :: b(n,n)  !! operand matrix
+  real               :: b(n)    !! operand vector
 !-----------------------------------[Locals]-----------------------------------!
   integer :: i, j
+  real    :: temp
 !------------------------[Avoid unused parent warning]-------------------------!
   Unused(Lin)
 !==============================================================================!
 
   !$acc kernels
   do j = 1, n
+    temp = 0.0
     do i = 1, n
-      c(i,j) = a(i,j) + b(i,j)
+      temp = temp + a(j, i) * b(i)
     end do
+    c(j) = temp
   end do
   !$acc end kernels
 

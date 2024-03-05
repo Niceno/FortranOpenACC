@@ -19,7 +19,7 @@
     nz = 400
     n  = nx * ny * nz
     print *, '#-----------------------------------------------------'
-    print *, '# TEST  3: Performing a sparse-matrix vector product'
+    print *, '# TEST  3: Performing a sparse-vector product'
     print *, '#          The problem size is set to ', n
     print *, '#-----------------------------------------------------'
 

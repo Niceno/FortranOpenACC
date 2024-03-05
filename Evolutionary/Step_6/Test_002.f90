@@ -7,20 +7,20 @@
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
-  type(Vector_Type)  :: B, C
-  type(Matrix_Type)  :: Am
-  integer            :: n, time_step
-  real               :: ts, te
+  type(Vector_Type) :: B, C
+  type(Dense_Type)  :: Am
+  integer           :: n, time_step
+  real              :: ts, te
 !==============================================================================!
 
     n = 10000
     print *, '#----------------------------------------------------'
-    print *, '# TEST  2: Performing a dense-matrix vector product'
+    print *, '# TEST  2: Performing a dense-vector product'
     print *, '#          The problem size is set to ', n
     print *, '#----------------------------------------------------'
 
     ! Allocate matrix and vectors
-    call Am % Allocate_Matrix(n)
+    call Am % Allocate_Dense(n)
     call B  % Allocate_Vector(n)
     call C  % Allocate_Vector(n)
 
@@ -30,7 +30,7 @@
     C  % val(:)   = 0.0
 
     ! Copy matrix and vectors to the device
-    call Am % Copy_Matrix_To_Device()
+    call Am % Copy_Dense_To_Device()
     call B  % Copy_Vector_To_Device()
     call C  % Copy_Vector_To_Device()
 
@@ -39,7 +39,7 @@
     !-----------------------------------------------!
     call cpu_time(ts)
     do time_step = 1, 60
-      call Linalg % Mat_X_Vec(C, Am, B)
+      call Linalg % Den_X_Vec(C, Am, B)
     end do
     call cpu_time(te)
 
@@ -47,7 +47,7 @@
     call C % Copy_Vector_To_Host()
 
     ! Destroy data on the device, you don't need them anymore
-    call Am % Destroy_Matrix_On_Device()
+    call Am % Destroy_Dense_On_Device()
     call B  % Destroy_Vector_On_Device()
     call C  % Destroy_Vector_On_Device()
 
