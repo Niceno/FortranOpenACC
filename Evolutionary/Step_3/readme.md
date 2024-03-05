@@ -16,7 +16,7 @@ call Copy_To_Device  (N, A % val)
 ```
 we are not transferring `Dense_Type A`, but its component `val` which is a Fortran's basic two-dimensional array.
 
-Another important aspect is that the subroutines performing calculations on the host _do not need_ `!$acc data present ...` and `!$acc end data` clauses if a programmer makes sure the data is on the device.  Actually, the !$acc data present` and `!$acc end data` cause the data transfer to and back from device, impeding performance gains significantly.
+Another important aspect is that the subroutines performing calculations on the host _do not need_ `!$acc data present ...` and `!$acc end data` clauses if a programmer makes sure the data is on the device.  Actually, the `!$acc data present` and `!$acc end data` cause the data transfer to and back from device, impeding performance gains significantly.
 
 ### Compilation and Execution
 
