@@ -1,8 +1,6 @@
 !==============================================================================!
   program Main
 !------------------------------------------------------------------------------!
-!   Described in the readme.md file.  Compiled with the script compiled.sh.    !
-!------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
   integer, parameter   :: N = 10000
@@ -31,13 +29,14 @@
 !==============================================================================!
   subroutine Copy_To_Device(n, c)
 !------------------------------------------------------------------------------!
-!   This subroutines creates (allocates) memory on "device" for varible c, and !
-!   it also coppies its contents to the device.  It is useful for data which   !
+!   This subroutines creates (allocates) memory on "device" for varible c,     !
+!   and also coppies its contents to the device.  It is useful for data which  !
 !   are operands (as opposed to results) in the computations performed on the  !
 !   "device".                                                                  !
 !                                                                              !
 !   Subroutine related to this one is "Create_On_Device" which allocates       !
-!   memory  on the "device", but does not copy the contents to the "device".   !
+!   memory on the "device", but does not copy the contents of the variable     !
+!   from the "host" to the "device".                                           !
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
@@ -92,7 +91,7 @@
   subroutine Compute_On_Device(n, a, b, c)
 !------------------------------------------------------------------------------!
 !   This subroutine performs computations on "device", on the data which was   !
-!   previously (see the main funciton) transferred to the "device".            !
+!   previously (in the main function) transferred to the "device".             !
 !                                                                              !
 !   This subroutine uses statement "!$acc data present(a, b, c)", which must   !
 !   be coupled with "!$acc end data" for compiler to work, for which I belived !
