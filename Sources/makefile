@@ -140,6 +140,8 @@ endif
 SRC_MOD = Const_Mod.f90		\
           Assert_Mod.f90	\
           Profiler_Mod.f90	\
+          Swap_Mod.f90		\
+          Sort_Mod.f90		\
           Grid_Mod.f90		\
           Sparse_Mod.f90	\
           Linalg_Mod.f90	\
