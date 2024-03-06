@@ -6,8 +6,8 @@
   class(Sparse_Type)      :: A       !! parent class
   type(Grid_Type), target :: Grid    !! grid on which it is created
 !-----------------------------------[Locals]-----------------------------------!
-  integer :: i, j, k, ni, nj, nk, non_z, run
-  integer :: c, w, e, s, n, b, t, c1, c2, cols
+  integer :: non_z, run
+  integer :: c, i_cel, d, s, c1, c2, cols
   integer :: col_a, col_b, row_a, row_b, pos_a, pos_b
 !==============================================================================!
 
@@ -16,165 +16,55 @@
 
   print '(a)', ' # Creating a sparse matrix'
 
-  ni = Grid % nx
-  nj = Grid % ny
-  nk = Grid % nz
-
   !--------------------------------!
+  !                                !
   !   Form the compressed matrix   !
+  !                                !
   !--------------------------------!
-  do run = 1, 2
+  do run = 1, 2  ! first run is just for counting non-zeros, second for filling
 
-    non_z = 0  ! reset the counter
+    non_z = 0    ! reset the counter of non-zero entries
 
-    ! Browse in A way in which cell number "A" will increase one by one
-    do k = 1, nk
-      do j = 1, nj
-        do i = 1, ni
-          c = Grid % Cell_Number(i, j, k)
+    !----------------------------------!
+    !   Browse through all the cells   !
+    !----------------------------------!
+    do c = 1, Grid % n_cells
 
-          ! First neighbours
-          b = c-ni*nj
-          s = c-ni
-          w = c-1
-          e = c+1
-          n = c+ni
-          t = c+ni*nj
+      ! Set this row index, one cell will be present for sure, own self
+      if(run .eq. 2) A % row(c) = non_z + 1
 
-          ! Set next row index, one cell will be present for sure, own self
-          if(run .eq. 2) A % row(c) = non_z + 1
+      !-------------------------------------------------------!
+      !   Store the central entry, be it in obstacle or not   !
+      !-------------------------------------------------------!
+      non_z = non_z + 1
+      if(run .eq. 2) A % col(non_z) = c
 
-          !----------------------!
-          !   Cell is in fliud   !
-          !----------------------!
-          if(Grid % fluid(c) .eq. 1) then
+      !----------------------!
+      !   Cell is in fluid   !
+      !----------------------!
+      if(Grid % fluid(c) .eq. 1) then
+        do i_cel = 1, Grid % cells_n_cells(c)
+          d = Grid % cells_c(i_cel, c)
 
-            ! Bottom
-            if(k > 1) then
-              if(Grid % fluid(b) .eq. 1) then
-                non_z = non_z + 1
-                if(run .eq. 2) A % col(non_z) = b
-              end if
-            else
-              Assert(k .eq. 1)
-              b = Grid % Cell_Number(i, j, nk)  ! new bottom cell
-              if(Grid % fluid(b) .eq. 1) then
-                if(Grid % bc % b_type .eq. PERIODIC) then
-                  non_z = non_z + 1
-                  if(run .eq. 2) A % col(non_z) = b
-                end if
-              end if
-            end if
+          if(d .gt. 0) then
+            if(Grid % fluid(d) .eq. 1) then
+              non_z = non_z + 1
+              if(run .eq. 2) A % col(non_z) = d
+            end if  ! d is in fluid
+          end if    ! d is inside cell
+        end do      ! i_cel
+      end if        ! c is in fluid
 
-            ! South
-            if(j > 1) then
-              if(Grid % fluid(s) .eq. 1) then
-                non_z = non_z + 1
-                if(run .eq. 2) A % col(non_z) = s
-              end if
-            else
-              Assert(j .eq. 1)
-              s = Grid % Cell_Number(i, nj, k)  ! new south cell
-              if(Grid % fluid(s) .eq. 1) then
-                if(Grid % bc % s_type .eq. PERIODIC) then
-                  non_z = non_z + 1
-                  if(run .eq. 2) A % col(non_z) = s
-                end if
-              end if
-            end if
-
-            ! West
-            if(i > 1) then
-              if(Grid % fluid(w) .eq. 1) then
-                non_z = non_z + 1
-                if(run .eq. 2) A % col(non_z) = w
-              end if
-            else
-              Assert(i .eq. 1)
-              w = Grid % Cell_Number(ni, j, k)  ! new west cell
-              if(Grid % fluid(w) .eq. 1) then
-                if(Grid % bc % w_type .eq. PERIODIC) then
-                  non_z = non_z + 1
-                  if(run .eq. 2) A % col(non_z) = w
-                end if
-              end if
-            end if
-
-          end if  ! cell is not in obstacle
-
-          !--------------------------------------------------!
-          !   Central - store it, be it in obstacle or not   !
-          !--------------------------------------------------!
-          non_z = non_z + 1
-          if(run .eq. 2) A % col(non_z) = c
-
-          !-----------------------------!
-          !   Cell is not in obstacle   !
-          !-----------------------------!
-          if(Grid % fluid(c) .eq. 1) then
-
-            ! East
-            if(i < ni) then
-              if(Grid % fluid(e) .eq. 1) then
-                non_z = non_z + 1
-                if(run .eq. 2) A % col(non_z) = e
-              end if
-            else
-              Assert(i .eq. ni)
-              e = Grid % Cell_Number(1, j, k)  ! new east cell
-              if(Grid % fluid(e) .eq. 1) then
-                if(Grid % bc % e_type .eq. PERIODIC) then
-                 non_z = non_z + 1
-                 if(run .eq. 2) A % col(non_z) = e
-                end if
-              end if
-            end if
-
-            ! North
-            if(j < nj) then
-              if(Grid % fluid(n) .eq. 1) then
-                non_z = non_z + 1
-                if(run .eq. 2) A % col(non_z) = n
-              end if
-            else
-              Assert(j .eq. nj)
-              n = Grid % Cell_Number(i, 1, k)  ! new north cell
-              if(Grid % fluid(n) .eq. 1) then
-                if(Grid % bc % n_type .eq. PERIODIC) then
-                  non_z = non_z + 1
-                  if(run .eq. 2) A % col(non_z) = n
-                end if
-              end if
-            end if
-
-            ! Top
-            if(k < nk) then       ! top
-              if(Grid % fluid(t) .eq. 1) then
-                non_z = non_z + 1
-                if(run .eq. 2) A % col(non_z) = t
-              end if
-            else
-              Assert(k .eq. nk)
-              t = Grid % Cell_Number(i, j, 1)  ! new top cell
-              if(Grid % fluid(t) .eq. 1) then
-                if(Grid % bc % t_type .eq. PERIODIC) then
-                  non_z = non_z + 1
-                  if(run .eq. 2) A % col(non_z) = t
-                end if
-              end if
-            end if
-
-          end if  ! cell is not in obstacle
-
-        end do  ! i
-      end do    ! j
-    end do      ! k
+    end do          ! c
 
     print '(a,i15)', ' # Number of nonzeros: ', non_z
 
+    !--------------------------------------------------------------!
+    !   If this is the end of the first run, allocate the memory   !
+    !--------------------------------------------------------------!
     if(run .eq. 1) then
       A % nonzeros = non_z
-      A % n = ni * nj * nk
+      A % n = Grid % n_cells
       Assert(A % n .eq. Grid % n_cells)
       allocate(A % row(Grid % n_cells+1));   A % row = 0
       allocate(A % dia(Grid % n_cells));     A % dia = 0
@@ -188,13 +78,17 @@
       allocate(A % v_m  (Grid % n_cells));   A % v_m   = 0
     end if
 
-    ! Wrap it up
-    if(run .eq. 2) A % row(ni*nj*nk+1) = non_z + 1
+    !-----------------------------------------------------!
+    !   Wrap it up - set the end of the last cell's row   !
+    !-----------------------------------------------------!
+    if(run .eq. 2) A % row(Grid % n_cells + 1) = non_z + 1
 
   end do  ! run
 
   !--------------------------------------!
+  !                                      !
   !   Sort each row in ascending order   !
+  !                                      !
   !--------------------------------------!
   do c = 1, Grid % n_cells
     call Sort_Mod_Int(A % col(A % row(c) : A % row(c+1)-1))
@@ -220,7 +114,9 @@
   end do
 
   !---------------------------------!
+  !                                 !
   !   Find positions of diagonals   !
+  !                                 !
   !---------------------------------!
   do row_a = 1, Grid % n_cells
     do pos_a = A % row(row_a), A % row(row_a + 1) - 1
@@ -234,7 +130,9 @@
   end do
 
   !----------------------!
+  !                      !
   !   Find it's mirror   !
+  !                      !
   !----------------------!
   do row_a = 1, Grid % n_cells
     do pos_a = A % row(row_a), A % row(row_a + 1) - 1
@@ -255,7 +153,9 @@
   end do
 
   !-----------------------------------!
+  !                                   !
   !   Bare-bone matrix coefficients   !
+  !                                   !
   !-----------------------------------!
   do s = 1, Grid % n_faces
 
@@ -267,7 +167,9 @@
   end do
 
   !---------------------------------------!
+  !                                       !
   !   Connect faces with matrix entries   !
+  !                                       !
   !---------------------------------------!
   do s = Grid % n_bnd_cells + 1, Grid % n_faces
     c1 = Grid % faces_c(1,s)
