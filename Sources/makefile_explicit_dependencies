@@ -26,6 +26,8 @@ $(DIR_OBJECT)/Grid_Mod.o \
 Grid_Mod/*.f90 
 
 #-- ./Var_Mod/Create_Variable.f90
+#-- ./Swap_Mod/Swap_Real.f90
+#-- ./Swap_Mod/Swap_Int.f90
 #-- ./Linalg_Mod/Vec_P_Vec_X_Vec_Acc.f90
 #-- ./Linalg_Mod/Vec_M_Vec_X_Vec.f90
 #-- ./Linalg_Mod/Mat_X_Vec.f90
@@ -140,13 +142,12 @@ Grid_Mod/*.f90 \
 $(DIR_OBJECT)/Assert_Mod.o \
 Assert_Mod/*.f90 
 
-#-- ./.Modules/test_003__genmod.f90
-#-- ./.Modules/test_007__genmod.f90
-#-- ./.Modules/test_005__genmod.f90
-#-- ./.Modules/test_004__genmod.f90
-#-- ./.Modules/test_006__genmod.f90
-#-- ./.Modules/test_002__genmod.f90
-#-- ./.Modules/test_001__genmod.f90
+#-- ./Sort_Mod.f90
+$(DIR_OBJECT)/Sort_Mod.o:\
+$(DIR_OBJECT)/Swap_Mod.o \
+Swap_Mod/*.f90 \
+Sort_Mod/*.f90 
+
 #-- ./Test_005.f90
 $(DIR_OBJECT)/Test_005.o:\
 $(DIR_OBJECT)/Gpu_Mod.o \
@@ -158,6 +159,10 @@ Field_Mod/*/Grad_Component.003 \
 Field_Mod/*/Grad_Component.002 \
 Field_Mod/*/Grad_Component.001 \
 Field_Mod/*.f90 
+
+#-- ./Swap_Mod.f90
+$(DIR_OBJECT)/Swap_Mod.o:\
+Swap_Mod/*.f90 
 
 #-- ./Control_Mod/Load_Control.f90
 #-- ./Assert_Mod/Handle_Assert.f90
@@ -191,6 +196,8 @@ $(DIR_OBJECT)/Const_Mod.o
 #-- ./Sparse_Mod.f90
 $(DIR_OBJECT)/Sparse_Mod.o:\
 Sparse_Mod/*.f90 \
+$(DIR_OBJECT)/Sort_Mod.o \
+Sort_Mod/*.f90 \
 $(DIR_OBJECT)/Grid_Mod.o \
 Grid_Mod/*.f90 
 
@@ -211,6 +218,9 @@ Grid_Mod/*.f90
 #-- ./Gpu_Mod/Matrix/Int_Copy_To_Device.f90
 #-- ./Gpu_Mod/Matrix/Real_Copy_To_Device.f90
 #-- ./Const_Mod.f90
+#-- ./Sort_Mod/Int.f90
+#-- ./Sort_Mod/2_Int.f90
+#-- ./Sort_Mod/Int_Carry_Int.f90
 #-- ./Assert_Mod.f90
 $(DIR_OBJECT)/Assert_Mod.o:\
 Assert_Mod/*.f90 

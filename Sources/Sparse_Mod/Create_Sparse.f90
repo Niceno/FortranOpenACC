@@ -193,6 +193,13 @@
 
   end do  ! run
 
+  !--------------------------------------!
+  !   Sort each row in ascending order   !
+  !--------------------------------------!
+  do c = 1, Grid % n_cells
+    call Sort_Mod_Int(A % col(A % row(c) : A % row(c+1)-1))
+  end do
+
   ! Check 1: Each cell in the obstacle must have
   !          one colum reserved just for itself 
   do c = 1, Grid % n_cells
