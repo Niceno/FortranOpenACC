@@ -23,7 +23,6 @@
                                                       :Grid % n_cells)
 !-----------------------------------[Locals]-----------------------------------!
   integer       :: c, c1, c2, iter, s, i
-  real          :: dx, dy, dz
   real, pointer :: phi_x(:), phi_y(:), phi_z(:)
   real, pointer :: phi_i(:), xc_i(:)
   real          :: di
