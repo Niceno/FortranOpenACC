@@ -53,31 +53,22 @@
     c1 = Grid % faces_c(1,s)
     c2 = Grid % faces_c(2,s)
 
-    ! Insert matrix entries only when both cells are in fluid
-    if(Grid % fluid(c1) + Grid % fluid(c2) .eq. 2) then
+    ! Calculate coeficients for the pressure matrix
+    ! Units: m * m^3 s / kg = m^4 s / kg
+    a12 = A % fc(s) * 0.5 * (M % v_m(c1) + M % v_m(c2))
+    A % val(A % pos(1,s)) = -a12
+    A % val(A % pos(2,s)) = -a12
+    A % val(A % dia(c1))  = A % val(A % dia(c1)) + a12
+    A % val(A % dia(c2))  = A % val(A % dia(c2)) + a12
 
-      ! Calculate coeficients for the pressure matrix
-      ! Units: m * m^3 s / kg = m^4 s / kg
-      a12 = A % fc(s) * 0.5 * (M % v_m(c1) + M % v_m(c2))
-      A % val(A % pos(1,s)) = -a12
-      A % val(A % pos(2,s)) = -a12
-      A % val(A % dia(c1))  = A % val(A % dia(c1)) + a12
-      A % val(A % dia(c2))  = A % val(A % dia(c2)) + a12
-
-    end if
   end do
 
-  ! Avoid zeroes on diagonal
-  do c = 1, Grid % n_cells
-    if(Grid % fluid(c) .eq. 0)  A % val(A % dia(c)) = 1.0
-  end do
-
-# if VFS_DEBUG == 1
+# if T_FLOWS_DEBUG == 1
   allocate(work(Grid % n_cells));  work(:) = 0.0
   do c = 1, Grid % n_cells
     work(c) = A % val(A % dia(c))
   end do
-  call Grid % Save_Vtk_Scalar("a_diagonal.vtk", work)
+  call Grid % Save_Debug_Vtu("a_diagonal", inside_name="a_diagonal", inside_cell=work)
 # endif
 
   call Profiler % Stop('Form_Pressure_Matrix')

@@ -10,7 +10,7 @@
   class(Gpu_Type)   :: Gpu  !! parent class
   type(Native_Type) :: Nat  !! native solver to destroy
 !-----------------------[Avoid unused argument warning]------------------------!
-# if VFS_GPU == 0
+# if T_FLOWS_GPU == 0
     Unused(Gpu)
     Unused(Nat)
 # endif
@@ -20,7 +20,7 @@
   !$acc exit data delete(Nat % p)
   !$acc exit data delete(Nat % q)
 
-# if VFS_GPU == 1
+# if T_FLOWS_GPU == 1
     Gpu % gb_used = Gpu % gb_used - (  real(sizeof(Nat % p))      &
                                      + real(sizeof(Nat % q))      &
                                      + real(sizeof(Nat % r))) / GIGABYTE

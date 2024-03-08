@@ -6,8 +6,9 @@
   implicit none
 !------------------------------------------------------------------------------!
   real, allocatable  :: a(:), b(:)
-  integer            :: n, nx, ny, nz, time_step
+  integer, parameter :: N = 800*800*800
   integer, parameter :: N_STEPS = 1200  ! spend enough time on device
+  integer            :: step
   real               :: dot, ts, te
 !==============================================================================!
 
@@ -16,11 +17,7 @@
   print '(a)', ' #================================================='
 
   ! 800^3 => 7.629 GB on device => was OK
-  nx = 800
-  ny = 800
-  nz = 800
-  n  = nx * ny * nz
-  print '(a,i12)', ' # The problem size is: ', n
+  print '(a,i12)', ' # The problem size is: ', N
 
   print '(a)', ' #----------------------------------------------------'
   print '(a)', ' # Be careful with memory usage.  If you exceed the'
@@ -30,8 +27,8 @@
   print '(a)', ' #----------------------------------------------------'
 
   print '(a)', ' # Creating two vectors'
-  allocate(a(n))
-  allocate(b(n))
+  allocate(a(N))
+  allocate(b(N))
 
   a(:) = 1.0
   b(:) = 2.0
@@ -47,8 +44,8 @@
                     N_STEPS, ' times'
 
   call cpu_time(ts)
-  do time_step = 1, N_STEPS
-    call Linalg % Vec_D_Vec(n, dot, a, b)
+  do step = 1, N_STEPS
+    call Linalg % Vec_D_Vec(N, dot, a, b)
   end do
   call cpu_time(te)
 
@@ -58,7 +55,7 @@
 
   ! Print result
   print '(a,es12.3)', ' Dot product is: ', dot
-  print '(a,es12.3)', ' Correct result: ', a(1) * b(1) * n
+  print '(a,es12.3)', ' Correct result: ', a(1) * b(1) * N
 
   print '(a,f12.3,a)', ' # Time elapsed for TEST 2: ', te-ts, ' [s]'
 

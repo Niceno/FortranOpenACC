@@ -1,5 +1,6 @@
-#include "Assert.h90"
-#include "Unused.h90"
+#include "../Shared/Assert.h90"
+#include "../Shared/Browse.h90"
+#include "../Shared/Unused.h90"
 
 ! A couple of macros to shorten the syntax a bit
 #define Inc(X, Y)  X = X + Y

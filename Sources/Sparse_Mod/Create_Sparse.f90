@@ -7,7 +7,7 @@
   type(Grid_Type), target :: Grid    !! grid on which it is created
 !-----------------------------------[Locals]-----------------------------------!
   integer :: non_z, run
-  integer :: c, i_cel, d, s, c1, c2, cols
+  integer :: c, i_cel, d, s, c1, c2
   integer :: col_a, col_b, row_a, row_b, pos_a, pos_b
 !==============================================================================!
 
@@ -39,23 +39,16 @@
       non_z = non_z + 1
       if(run .eq. 2) A % col(non_z) = c
 
-      !----------------------!
-      !   Cell is in fluid   !
-      !----------------------!
-      if(Grid % fluid(c) .eq. 1) then
-        do i_cel = 1, Grid % cells_n_cells(c)
-          d = Grid % cells_c(i_cel, c)
+      do i_cel = 1, Grid % cells_n_cells(c)
+        d = Grid % cells_c(i_cel, c)
 
-          if(d .gt. 0) then
-            if(Grid % fluid(d) .eq. 1) then
-              non_z = non_z + 1
-              if(run .eq. 2) A % col(non_z) = d
-            end if  ! d is in fluid
-          end if    ! d is inside cell
-        end do      ! i_cel
-      end if        ! c is in fluid
+        if(d .gt. 0) then
+          non_z = non_z + 1
+          if(run .eq. 2) A % col(non_z) = d
+        end if    ! d is inside cell
+      end do      ! i_cel
 
-    end do          ! c
+    end do        ! c
 
     print '(a,i15)', ' # Number of nonzeros: ', non_z
 
@@ -91,26 +84,7 @@
   !                                      !
   !--------------------------------------!
   do c = 1, Grid % n_cells
-    call Sort_Mod_Int(A % col(A % row(c) : A % row(c+1)-1))
-  end do
-
-  ! Check 1: Each cell in the obstacle must have
-  !          one colum reserved just for itself 
-  do c = 1, Grid % n_cells
-    if(Grid % fluid(c) .eq. 0) then
-      cols = A % row(c+1) - A % row(c)
-      Assert(cols .eq. 1)
-    end if
-  end do
-
-  ! Check 2: No cell in fluid, should have
-  !          any neighbors in the obstacle
-  do c = 1, Grid % n_cells
-    if(Grid % fluid(c) .eq. 1) then
-      do cols = A % row(c), A % row(c + 1) - 1
-        Assert(Grid % fluid(A % col(cols)) .eq. 1)
-      end do
-    end if
+    call Sort % Int_Array(A % col(A % row(c) : A % row(c+1)-1))
   end do
 
   !---------------------------------!
@@ -175,25 +149,21 @@
     c1 = Grid % faces_c(1,s)
     c2 = Grid % faces_c(2,s)
 
-    ! Connect only if both cells arae immersed in fluid
-    if(Grid % fluid(c1) + Grid % fluid(c2) .eq. 2) then
+    ! Where is matrix(c1,c2) and ...
+    do c = A % row(c1), A % row(c1+1)-1
+      if(A % col(c) .eq. c2) then
+        A % pos(1, s) = c
+        exit
+      end if
+    end do
 
-      ! Where is matrix(c1,c2) and ...
-      do c = A % row(c1), A % row(c1+1)-1
-        if(A % col(c) .eq. c2) then
-          A % pos(1, s) = c
-          exit
-        end if
-      end do
-
-      ! ... where is matrix(c2,c1)
-      do c=A % row(c2),A % row(c2+1)-1
-        if(A % col(c) .eq. c1) then
-          A % pos(2, s) = c
-          exit
-        end if
-      end do
-    end if
+    ! ... where is matrix(c2,c1)
+    do c=A % row(c2),A % row(c2+1)-1
+      if(A % col(c) .eq. c1) then
+        A % pos(2, s) = c
+        exit
+      end if
+    end do
 
   end do
 

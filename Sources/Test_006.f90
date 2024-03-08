@@ -4,19 +4,24 @@
 !>  Tests calling of the CG algorithm from the Native_Mod
 !------------------------------------------------------------------------------!
   use Native_Mod
+  use Read_Controls_Mod
   use Process_Mod
+  use Time_Mod
+  use Iter_Mod
+  use Gpu_Mod
 !------------------------------------------------------------------------------!
   implicit none
 !------------------------------------------------------------------------------!
-  type(Grid_Type)          :: Grid          ! computational grid
-  type(Field_Type), target :: Flow          ! flow field
+  type(Grid_Type)          :: Grid(MD)      ! computational grid
+  type(Field_Type), target :: Flow(MD)      ! flow field
   real                     :: ts, te
-  integer                  :: n, c, time_step, iter
-  character(15)            :: name_vel     = 'TTTT_II_uvw.vtk'
-  character(13)            :: name_p       = 'TTTT_II_p.vtk'
-!@character(14)            :: name_pp      = 'TTTT_II_pp.vtk'
-!@character(18)            :: name_grad_p  = 'TTTT_II_grad_p.vtk'
-!@character(19)            :: name_grad_pp = 'TTTT_II_grad_pp.vtk'
+  integer                  :: n, c, ldt
+  character(11)            :: name_vel     = 'TTTT_II_uvw'
+  character( 9)            :: name_p       = 'TTTT_II_p'
+!@character(10)            :: name_pp      = 'TTTT_II_pp'
+!@character(14)            :: name_grad_p  = 'TTTT_II_grad_p'
+!@character(15)            :: name_grad_pp = 'TTTT_II_grad_pp'
+  character(11)            :: root_control = 'control.006'
 !==============================================================================!
 
   call Profiler % Start('Test_006')
@@ -25,12 +30,14 @@
   print '(a)', ' # TEST 6: Solution of Navier-Stokes equations'
   print '(a)', ' #====================================================='
 
+  print '(a)', ' # Opening the control file '//root_control
+  call Control % Open_Root_File(root_control)
+  call Control % Time_Step(Flow(1) % dt, verbose=.true.)
+
   print '(a)', ' # Creating a grid'
-  call Grid % Load_Grid("test_006_cavity.ini")
+  call Grid(1) % Load_And_Prepare_For_Processing(1)
 
-  call Control % Load_Control('control.006', Flow)
-
-  n = Grid % n_cells
+  n = Grid(1) % n_cells
   print '(a, i12)',   ' # The problem size is: ', n
   print '(a,es12.3)', ' # Solver tolerace is : ', PICO
 
@@ -42,55 +49,53 @@
   print '(a)', ' #----------------------------------------------------'
 
   print '(a)', ' # Creating a flow field'
-  call Flow % Create_Field(Grid)
+  call Flow(1) % Create_Field(Grid(1))
+
+  ! I am not sure when to call this, but this is a good guess
+  call Read_Control % Boundary_Conditions(Flow(1))
 
   ! Discretize momentum equations ...
-  call Process % Form_Diffusion_Matrix(Flow, dt = Flow % dt)
+  call Process % Form_Diffusion_Matrix(Flow(1), dt=Flow(1) % dt)
 
   ! ... followed by discretization of pressure equation
-  call Process % Form_Pressure_Matrix(Flow)
+  call Process % Form_Pressure_Matrix(Flow(1))
 
   ! Form preconditioning matrices on host
   ! (Must be before transferring them)
-  call Flow % Nat % Prec_Form(Flow % Nat % M)
-  call Flow % Nat % Prec_Form(Flow % Nat % A)
+  call Flow(1) % Nat % Prec_Form(Flow(1) % Nat % M)
+  call Flow(1) % Nat % Prec_Form(Flow(1) % Nat % A)
 
   print '(a)', ' # Calculating gradient matrix for the field'
-  call Flow % Calculate_Grad_Matrix()
-
-  ! Initialize solution
-  Flow % u % n(:) = 0.0
-  Flow % v % n(:) = 0.0
-  Flow % w % n(:) = 0.0
+  call Flow(1) % Calculate_Grad_Matrix()
 
   ! OK, once you formed the preconditioners, you
   ! will want to keep these matrices on the device
-  call Gpu % Sparse_Copy_To_Device(Flow % Nat % M)
-  call Gpu % Sparse_Copy_To_Device(Flow % Nat % A)
+  call Gpu % Sparse_Copy_To_Device(Flow(1) % Nat % M)
+  call Gpu % Sparse_Copy_To_Device(Flow(1) % Nat % A)
 
   ! and that bloody right-hand-side vector too
-  call Gpu % Vector_Real_Copy_To_Device(Flow % Nat % b)
+  call Gpu % Vector_Real_Copy_To_Device(Flow(1) % Nat % b)
 
   ! In addition to system matrices of your discretized
   ! equations, you will want to have gradient matrices, as
   ! well as cell connectivity and cell coordinates on the
   ! device (they are all needed for gradients), ...
-  call Gpu % Matrix_Real_Copy_To_Device(Flow % grad_c2c)
-  call Gpu % Vector_Int_Copy_To_Device(Grid % cells_n_cells)
-  call Gpu % Matrix_Int_Copy_To_Device(Grid % cells_c)
-  call Gpu % Matrix_Int_Copy_To_Device(Grid % cells_f)
-  call Gpu % Vector_Real_Copy_To_Device(Grid % xc)
-  call Gpu % Vector_Real_Copy_To_Device(Grid % yc)
-  call Gpu % Vector_Real_Copy_To_Device(Grid % zc)
-  call Gpu % Vector_Real_Copy_To_Device(Grid % sx)
-  call Gpu % Vector_Real_Copy_To_Device(Grid % sy)
-  call Gpu % Vector_Real_Copy_To_Device(Grid % sz)
-  call Gpu % Vector_Real_Copy_To_Device(Grid % s)
-  call Gpu % Vector_Real_Copy_To_Device(Grid % d)
-  call Gpu % Vector_Real_Copy_To_Device(Grid % vol)
+  call Gpu % Matrix_Real_Copy_To_Device(Flow(1) % grad_c2c)
+  call Gpu % Vector_Int_Copy_To_Device(Grid(1) % cells_n_cells)
+  call Gpu % Matrix_Int_Copy_To_Device(Grid(1) % cells_c)
+  call Gpu % Matrix_Int_Copy_To_Device(Grid(1) % cells_f)
+  call Gpu % Vector_Real_Copy_To_Device(Grid(1) % xc)
+  call Gpu % Vector_Real_Copy_To_Device(Grid(1) % yc)
+  call Gpu % Vector_Real_Copy_To_Device(Grid(1) % zc)
+  call Gpu % Vector_Real_Copy_To_Device(Grid(1) % sx)
+  call Gpu % Vector_Real_Copy_To_Device(Grid(1) % sy)
+  call Gpu % Vector_Real_Copy_To_Device(Grid(1) % sz)
+  call Gpu % Vector_Real_Copy_To_Device(Grid(1) % s)
+  call Gpu % Vector_Real_Copy_To_Device(Grid(1) % d)
+  call Gpu % Vector_Real_Copy_To_Device(Grid(1) % vol)
                                                   
   ! ... and the vectors of the native suite of solvers
-  call Gpu % Native_Transfer_To_Device(Flow % Nat)
+  call Gpu % Native_Transfer_To_Device(Flow(1) % Nat)
 
   ! OK, fine, now you have all sort of matrices and supporting
   ! data on the device, but you will also need variables sol-
@@ -98,104 +103,124 @@
   ! for them all (b) and the variables whose gradients are
   ! being computed (pp % n and p % n) as well as gradient com
   ! ponents (pp % x, pp % y, pp % z, p % x, p % y and p % z)
-  call Gpu % Vector_Real_Copy_To_Device(Flow % pp % n)
-  call Gpu % Vector_Real_Copy_To_Device(Flow % p % n)
-  call Gpu % Vector_Real_Copy_To_Device(Flow % u % n)
-  call Gpu % Vector_Real_Copy_To_Device(Flow % v % n)
-  call Gpu % Vector_Real_Copy_To_Device(Flow % w % n)
-  call Gpu % Vector_Real_Copy_To_Device(Flow % u % o)
-  call Gpu % Vector_Real_Copy_To_Device(Flow % v % o)
-  call Gpu % Vector_Real_Copy_To_Device(Flow % w % o)
-  call Gpu % Vector_Real_Copy_To_Device(Flow % pp % x)
-  call Gpu % Vector_Real_Copy_To_Device(Flow % pp % y)
-  call Gpu % Vector_Real_Copy_To_Device(Flow % pp % z)
-  call Gpu % Vector_Real_Copy_To_Device(Flow % p % x)
-  call Gpu % Vector_Real_Copy_To_Device(Flow % p % y)
-  call Gpu % Vector_Real_Copy_To_Device(Flow % p % z)
-  call Gpu % Vector_Real_Copy_To_Device(Flow % v_flux)
+  call Gpu % Vector_Real_Copy_To_Device(Flow(1) % pp % n)
+  call Gpu % Vector_Real_Copy_To_Device(Flow(1) % p % n)
+  call Gpu % Vector_Real_Copy_To_Device(Flow(1) % u % n)
+  call Gpu % Vector_Real_Copy_To_Device(Flow(1) % v % n)
+  call Gpu % Vector_Real_Copy_To_Device(Flow(1) % w % n)
+  call Gpu % Vector_Real_Copy_To_Device(Flow(1) % u % o)
+  call Gpu % Vector_Real_Copy_To_Device(Flow(1) % v % o)
+  call Gpu % Vector_Real_Copy_To_Device(Flow(1) % w % o)
+  call Gpu % Vector_Real_Copy_To_Device(Flow(1) % pp % x)
+  call Gpu % Vector_Real_Copy_To_Device(Flow(1) % pp % y)
+  call Gpu % Vector_Real_Copy_To_Device(Flow(1) % pp % z)
+  call Gpu % Vector_Real_Copy_To_Device(Flow(1) % p % x)
+  call Gpu % Vector_Real_Copy_To_Device(Flow(1) % p % y)
+  call Gpu % Vector_Real_Copy_To_Device(Flow(1) % p % z)
+  call Gpu % Vector_Real_Copy_To_Device(Flow(1) % v_flux)
 
   !------------------------------------------!
   !                                          !
   !   Performing a time loop on the device   !
   !                                          !
   !------------------------------------------!
+
+  ! Read the number of time steps ...
+  call Control % Number_Of_Time_Steps(ldt, verbose=.true.)
+
+  ! ... and if iterations from control file
+  call Read_Control % Iterations()
+
+  ! Time stepping initializations
+  call Time % Set_Curr_Dt(0)
+  call Time % Set_First_Dt(0)
+  call Time % Set_Last_Dt(ldt)
+
   print '(a)', ' # Performing a demo of the computing momentum equations'
   call cpu_time(ts)
-  do time_step = 1, Control % time_steps
+  do while (Time % Needs_More_Steps())
     print '(a)',            ' #=========================='
-    print '(a,i12,es12.3)', ' # Time step = ', time_step
+    print '(a,i12,es12.3)', ' # Time step = ', Time % Curr_Dt()
     print '(a)',            ' #--------------------------'
 
     ! Preparation for the new time step
     !$acc parallel loop
     do c = 1, n
-      Flow % u % o(c) = Flow % u % n(c)
-      Flow % v % o(c) = Flow % v % n(c)
-      Flow % w % o(c) = Flow % w % n(c)
+      Flow(1) % u % o(c) = Flow(1) % u % n(c)
+      Flow(1) % v % o(c) = Flow(1) % v % n(c)
+      Flow(1) % w % o(c) = Flow(1) % w % n(c)
     end do
     !$acc end parallel
 
-    write(name_vel    (1:4), '(i4.4)') time_step
-    write(name_p      (1:4), '(i4.4)') time_step
-!@  write(name_pp     (1:4), '(i4.4)') time_step
-!@  write(name_grad_pp(1:4), '(i4.4)') time_step
-!@  write(name_grad_p (1:4), '(i4.4)') time_step
+    write(name_vel    (1:4), '(i4.4)') Time % Curr_Dt()
+    write(name_p      (1:4), '(i4.4)') Time % Curr_Dt()
+!@  write(name_pp     (1:4), '(i4.4)') Time % Curr_Dt()
+!@  write(name_grad_pp(1:4), '(i4.4)') Time % Curr_Dt()
+!@  write(name_grad_p (1:4), '(i4.4)') Time % Curr_Dt()
 
     !-----------------------------------!
     !   Iterations within a time step   !
     !-----------------------------------!
-    do iter = 1, Control % max_simple
+    do while (Iter % Needs_More_Iterations(Flow, 1))
 
-!@    write(name_vel    (6:7), '(i2.2)') iter
-!@    write(name_p      (6:7), '(i2.2)') iter
-!@    write(name_pp     (6:7), '(i2.2)') iter
-!@    write(name_grad_pp(6:7), '(i2.2)') iter
-!@    write(name_grad_p (6:7), '(i2.2)') iter
+!@    write(name_vel    (6:7), '(i2.2)') Iter % Current()
+!@    write(name_p      (6:7), '(i2.2)') Iter % Current()
+!@    write(name_pp     (6:7), '(i2.2)') Iter % Current()
+!@    write(name_grad_pp(6:7), '(i2.2)') Iter % Current()
+!@    write(name_grad_p (6:7), '(i2.2)') Iter % Current()
 
       print '(a)', ' # Solving u'
-      call Process % Compute_Momentum(Flow, comp=1)
+      call Process % Compute_Momentum(Flow(1), comp=1)
 
       print '(a)', ' # Solving v'
-      call Process % Compute_Momentum(Flow, comp=2)
+      call Process % Compute_Momentum(Flow(1), comp=2)
 
       print '(a)', ' # Solving w'
-      call Process % Compute_Momentum(Flow, comp=3)
+      call Process % Compute_Momentum(Flow(1), comp=3)
 
       print '(a)', ' # Solving pp'
-      call Process % Compute_Pressure(Flow)
+      call Process % Compute_Pressure(Flow(1))
 
-      call Flow % Grad_Pressure(Grid, Flow % pp)
+      call Flow(1) % Grad_Pressure(Grid(1), Flow(1) % pp)
 
       print '(a)', ' # Correcting velocity'
-      call Process % Correct_Velocity(Flow)
+      call Process % Correct_Velocity(Flow(1))
 
-      call Flow % Grad_Pressure(Grid, Flow % p)
+      call Flow(1) % Grad_Pressure(Grid(1), Flow(1) % p)
 
     end do  ! iterations
 
-    if(mod(time_step, Control % save_int) .eq. 0) then
-      call Gpu % Vector_Update_Host(Flow % u % n)
-      call Gpu % Vector_Update_Host(Flow % v % n)
-      call Gpu % Vector_Update_Host(Flow % w % n)
-      call Gpu % Vector_Update_Host(Flow % p % n)
-      call Grid % Save_Vtk_Vector(name_vel, Flow % u % n(1:n),  &
-                                            Flow % v % n(1:n),  &
-                                            Flow % w % n(1:n))
-      call Grid % Save_Vtk_Scalar(name_p, Flow % p % n(1:n))
+    if(mod(Time % Curr_Dt(), 12) .eq. 0) then
+      call Gpu % Vector_Update_Host(Flow(1) % u % n)
+      call Gpu % Vector_Update_Host(Flow(1) % v % n)
+      call Gpu % Vector_Update_Host(Flow(1) % w % n)
+      call Gpu % Vector_Update_Host(Flow(1) % p % n)
+      call Grid(1) % Save_Debug_Vtu(name_vel,                         &
+                                    vector_name="velocity",           &
+                                    vector_cell=(/Flow(1) % u % n,    &
+                                                  Flow(1) % v % n,    &
+                                                  Flow(1) % w % n/))
+      call Grid(1) % Save_Debug_Vtu(name_p,                         &
+                                    scalar_name="pressure",         &
+                                    scalar_cell=Flow(1) % p % n)
     end if
 
   end do    ! time steps
   call cpu_time(te)
 
   ! Save results
-  call Gpu % Vector_Update_Host(Flow % u % n)
-  call Gpu % Vector_Update_Host(Flow % v % n)
-  call Gpu % Vector_Update_Host(Flow % w % n)
-  call Gpu % Vector_Update_Host(Flow % p % n)
-  call Grid % Save_Vtk_Vector(name_vel, Flow % u % n(1:n),  &
-                                        Flow % v % n(1:n),  &
-                                        Flow % w % n(1:n))
-  call Grid % Save_Vtk_Scalar(name_p, Flow % p % n(1:n))
+  call Gpu % Vector_Update_Host(Flow(1) % u % n)
+  call Gpu % Vector_Update_Host(Flow(1) % v % n)
+  call Gpu % Vector_Update_Host(Flow(1) % w % n)
+  call Gpu % Vector_Update_Host(Flow(1) % p % n)
+  call Grid(1) % Save_Debug_Vtu(name_vel,                       &
+                                vector_name="velocity",         &
+                                vector_cell=(/Flow(1) % u % n,  &
+                                              Flow(1) % v % n,  &
+                                              Flow(1) % w % n/))
+  call Grid(1) % Save_Debug_Vtu(name_p,                    &
+                             scalar_name="pressure",       &
+                             scalar_cell=Flow(1) % p % n)
 
   call Profiler % Stop('Test_006')
 

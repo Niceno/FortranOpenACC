@@ -8,8 +8,9 @@
   implicit none
 !------------------------------------------------------------------------------!
   real, allocatable  :: a(:), b(:), c(:), d(:)
-  integer            :: n, nx, ny, nz, time_step
+  integer, parameter :: N = 600*600*600
   integer, parameter :: N_STEPS = 1200  ! spend enough time on device
+  integer            :: step
   real               :: ts, te
 !==============================================================================!
 
@@ -18,11 +19,7 @@
   print '(a)', ' #         c = a + s * b  and  c = a - s * b'
   print '(a)', ' #===================================================='
 
-  nx = 600
-  ny = 600
-  nz = 600
-  n  = nx * ny * nz
-  print '(a,i12)', ' # The problem size is: ', n
+  print '(a,i12)', ' # The problem size is: ', N
 
   print '(a)', ' #----------------------------------------------------'
   print '(a)', ' # Be careful with memory usage.  If you exceed the'
@@ -32,10 +29,10 @@
   print '(a)', ' #----------------------------------------------------'
 
   print '(a)', ' # Creating three vectors'
-  allocate(a(n))
-  allocate(b(n))
-  allocate(c(n))
-  allocate(d(n))
+  allocate(a(N))
+  allocate(b(N))
+  allocate(c(N))
+  allocate(d(N))
 
   a(:) = 1.0
   b(:) = 2.0
@@ -52,9 +49,9 @@
   print '(a,i6,a)', ' # Performing a sparse-matrix vector product',  &
                     N_STEPS, ' times'
   call cpu_time(ts)
-  do time_step = 1, N_STEPS
-    call Linalg % Vec_P_Sca_X_Vec(n, c, a,  2.0, b)  ! result should be  5
-    call Linalg % Vec_P_Sca_X_Vec(n, d, c, -2.0, b)  ! result should be  1
+  do step = 1, N_STEPS
+    call Linalg % Vec_P_Sca_X_Vec(N, c, a,  2.0, b)  ! result should be  5
+    call Linalg % Vec_P_Sca_X_Vec(N, d, c, -2.0, b)  ! result should be  1
   end do
   call cpu_time(te)
 
@@ -71,12 +68,12 @@
   ! Print results
   print '(a,es12.3)', ' vector c(1  ):', c(1  )
   print '(a,es12.3)', ' vector c(2  ):', c(2  )
-  print '(a,es12.3)', ' vector c(n-1):', c(n-1)
-  print '(a,es12.3)', ' vector c(n  ):', c(n  )
+  print '(a,es12.3)', ' vector c(N-1):', c(N-1)
+  print '(a,es12.3)', ' vector c(N  ):', c(N  )
   print '(a,es12.3)', ' vector c(1  ):', d(1  )
   print '(a,es12.3)', ' vector c(2  ):', d(2  )
-  print '(a,es12.3)', ' vector c(n-1):', d(n-1)
-  print '(a,es12.3)', ' vector c(n  ):', d(n  )
+  print '(a,es12.3)', ' vector c(N-1):', d(N-1)
+  print '(a,es12.3)', ' vector c(N  ):', d(N  )
 
   print '(a,f12.3,a)', ' # Time elapsed for TEST 3: ', te-ts, ' [s]'
 

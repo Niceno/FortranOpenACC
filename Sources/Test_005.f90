@@ -15,15 +15,19 @@
   real, allocatable  :: phi_z(:)        ! gradient in z direction
   integer, parameter :: N_STEPS = 120   ! spend enough time on device
   real               :: ts, te
-  integer            :: n, c, time_step
+  integer            :: n, c, step
+  character(len=11)  :: root_control    = 'control.005'
 !==============================================================================!
 
   print '(a)', ' #===================================================='
   print '(a)', ' # TEST 5: Creating a flow field and gradient matrix'
   print '(a)', ' #===================================================='
 
+  print '(a)', ' # Opening the control file '//root_control
+  call Control % Open_Root_File(root_control)
+
   print '(a)', ' # Creating a grid'
-  call Grid % Load_Grid("test_005_cube.ini")
+  call Grid % Load_And_Prepare_For_Processing(1)
 
   n = Grid % n_cells
   print '(a, i12)', ' # The problem size is: ', n
@@ -49,7 +53,7 @@
                     + 0.222222 * Grid % yc(c)**2  &
                     + 0.333333 * Grid % zc(c)**2
   end do
-  call Grid % Save_Vtk_Scalar("init.vtk", Flow % p % n(1:Grid % n_cells))
+  call Grid % Save_Debug_Vtu("init", scalar_name="init", scalar_cell=Flow % p % n)
 
   print '(a)', ' # Calculating gradient matrix for the field'
   call Flow % Calculate_Grad_Matrix()
@@ -72,9 +76,9 @@
   print '(a,i6,a)', ' # Calculating gradients of the field over ',  &
                     N_STEPS, ' pseudo time steps'
   call cpu_time(ts)
-  do time_step = 1, N_STEPS
-    if(mod(time_step, 12) .eq. 0)  &
-      print '(a,i12,es12.3)', ' time step = ', time_step
+  do step = 1, N_STEPS
+    if(mod(step, 12) .eq. 0)  &
+      print '(a,i12,es12.3)', ' time step = ', step
     call Flow % Grad_Component(Grid, Flow % p % n, 1, phi_x)
     call Flow % Grad_Component(Grid, Flow % p % n, 2, phi_y)
     call Flow % Grad_Component(Grid, Flow % p % n, 3, phi_z)
@@ -85,7 +89,7 @@
   call Gpu % Vector_Update_Host(phi_x)
   call Gpu % Vector_Update_Host(phi_y)
   call Gpu % Vector_Update_Host(phi_z)
-  call Grid % Save_Vtk_Vector("grad_0.vtk", phi_x(1), phi_y(1), phi_z(1))
+  call Grid % Save_Debug_Vtu("grad_0", vector_name="graed_0", vector_cell=(/phi_x, phi_y, phi_z/))
 
   ! Destroy data on the device, you don't need them anymore
   call Gpu % Matrix_Real_Destroy_On_Device(Flow % grad_c2c)

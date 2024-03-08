@@ -4,6 +4,7 @@
 !>  Tests calling of the CG algorithm from the Native_Mod
 !------------------------------------------------------------------------------!
   use Native_Mod
+  use Read_Controls_Mod
   use Process_Mod
   use Gpu_Mod
 !------------------------------------------------------------------------------!
@@ -12,18 +13,21 @@
   type(Sparse_Type), pointer :: A
   type(Grid_Type)            :: Grid  ! computational grid
   type(Field_Type),   target :: Flow  ! flow field
-  real,          allocatable :: x(:)  ! solution, dependent variable
-  real,              pointer :: b(:)
+  real,              pointer :: b(:), x(:)
   real                       :: ts, te
   integer                    :: n
+  character(len=11)          :: root_control = 'control.004'
 !==============================================================================!
 
   print '(a)', ' #====================================================='
   print '(a)', ' # TEST 4: Call Conjugate Gradient from Native_Mod'
   print '(a)', ' #====================================================='
 
+  print '(a)', ' # Opening the control file '//root_control
+  call Control % Open_Root_File(root_control)
+
   print '(a)', ' # Creating a grid'
-  call Grid % Load_Grid("test_004_cube.ini")
+  call Grid % Load_And_Prepare_For_Processing(1)
 
   n = Grid % n_cells
   print '(a,i12)',    ' # The problem size is: ', n
@@ -39,17 +43,17 @@
   print '(a)', ' # Creating a field'
   call Flow % Create_Field(Grid)
 
+  ! I am not sure when to call this, but this is a good guess
+  call Read_Control % Boundary_Conditions(Flow)
+
   ! Discretize the matrix for diffusion
   call Process % Form_Diffusion_Matrix(Flow)
+  call Process % Insert_Diffusion_Bc(Flow, comp=1)
 
   ! Take the aliases now
   A => Flow % Nat % M
   b => Flow % Nat % b
-
-  allocate(x(-Grid % n_bnd_cells:Grid % n_cells))
-
-  call Process % Form_Diffusion_Matrix(Flow)
-  call Process % Insert_Diffusion_Bc(Flow, comp=1)
+  x => Flow % u % n
 
   ! Initialize solution
   x(:) = 0.0
@@ -84,13 +88,17 @@
   call Gpu % Native_Destroy_On_Device(Flow % Nat)
 
   ! Print result
-  print '(a,es12.3)', ' vector x(1  ):', x(1)
-  print '(a,es12.3)', ' vector x(2  ):', x(2)
-  print '(a,es12.3)', ' vector x(n-1):', x(Grid % n_cells-1)
-  print '(a,es12.3)', ' vector x(n  ):', x(Grid % n_cells)
+  print '(a,es12.3)', ' vector u(1  ):', x(1)
+  print '(a,es12.3)', ' vector u(2  ):', x(2)
+  print '(a,es12.3)', ' vector u(3  ):', x(3)
+  print '(a,es12.3)', ' vector u(n-2):', x(Grid % n_cells-2)
+  print '(a,es12.3)', ' vector u(n-1):', x(Grid % n_cells-1)
+  print '(a,es12.3)', ' vector u(n  ):', x(Grid % n_cells)
 
   ! Save results
-  call Grid % Save_Vtk_Scalar("solution.vtk", x(1:Grid % n_cells))
+  call Grid % Save_Debug_Vtu("solution",       &
+                             scalar_name="u",  &
+                             scalar_cell=x)
 
   print '(a,f12.3,a)', ' # Time elapsed for TEST 4: ', te-ts, ' [s]'
 

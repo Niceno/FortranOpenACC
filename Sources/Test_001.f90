@@ -13,17 +13,21 @@
   real, allocatable          :: b(:), c(:)
   type(Grid_Type)            :: Grid
   type(Field_Type),   target :: Flow                   ! flow field
-  integer                    :: n, time_step
   integer,         parameter :: N_STEPS = 1200  ! spend enough time on device
   real                       :: ts, te
+  integer                    :: n, step
+  character(len=11)          :: root_control    = 'control.001'
 !==============================================================================!
 
   print '(a)', ' #===================================================='
   print '(a)', ' # TEST 1: Performing a sparse-matrix vector product'
   print '(a)', ' #===================================================='
 
+  print '(a)', ' # Opening the control file '//root_control
+  call Control % Open_Root_File(root_control)
+
   print '(a)', ' # Creating a grid'
-  call Grid % Load_Grid("test_001_cube.ini")
+  call Grid % Load_And_Prepare_For_Processing(1)
 
   n = Grid % n_cells
   print '(a,i12)', ' # The problem size is: ', n
@@ -60,7 +64,7 @@
   !-----------------------------------------------!
   print '(a,i6,a)', ' # Performing ', N_STEPS, ' sparse-matrix vector products'
   call cpu_time(ts)
-  do time_step = 1, N_STEPS
+  do step = 1, N_STEPS
     call Linalg % Mat_X_Vec(n, c, A, b)
   end do
   call cpu_time(te)

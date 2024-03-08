@@ -8,7 +8,7 @@
   class(Gpu_Type) :: Gpu     !! parent class
   integer         :: a(:,:)  !! matrix to copy
 !-----------------------[Avoid unused argument warning]------------------------!
-# if VFS_GPU == 0
+# if T_FLOWS_GPU == 0
     Unused(Gpu)
     Unused(a)
 # endif
@@ -16,7 +16,7 @@
 
   !$acc enter data copyin(a)
 
-# if VFS_GPU == 1
+# if T_FLOWS_GPU == 1
     Gpu % gb_used = Gpu % gb_used + real(sizeof(a)) / GIGABYTE
     print '(a,f7.3,a)', ' # '//__FILE__//' :', Gpu % gb_used, ' GB on device'
 # endif

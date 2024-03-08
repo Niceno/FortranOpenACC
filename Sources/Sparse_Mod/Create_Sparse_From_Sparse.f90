@@ -17,16 +17,52 @@
 
   print '(a)', ' # Creating a sparse matrix from another matrix'
 
-  ! Copy all significant fields from the matrix
+  ! Copy the number of nonzeros
   A % nonzeros = B % nonzeros
-  allocate (A % val(A % nonzeros));       A % val(:)   = B % val(:)
-  allocate (A % fc (Grid % n_faces));     A % fc(:)    = B % fc(:)
-  allocate (A % col(A % nonzeros));       A % col(:)   = B % col(:)
-  allocate (A % row(Grid % n_cells+1));   A % row(:)   = B % row(:)
-  allocate (A % dia(Grid % n_cells));     A % dia(:)   = B % dia(:)
-  allocate (A % mir(A % nonzeros));       A % mir(:)   = B % mir(:)
-  allocate (A % pos(2, Grid % n_faces));  A % pos(:,:) = B % pos(:,:)
-  allocate (A % d_inv(Grid % n_cells));   A % d_inv(:) = B % d_inv(:)
-  allocate (A % v_m  (Grid % n_cells));   A % v_m  (:) = B % v_m  (:)
+
+  ! Allocatte the memory for all significant fields from the matrix ...
+
+  allocate (A % val(A % nonzeros))
+  allocate (A % fc (Grid % n_faces))
+  allocate (A % col(A % nonzeros))
+  allocate (A % row(Grid % n_cells+1))
+  allocate (A % dia(Grid % n_cells))
+  allocate (A % mir(A % nonzeros))
+  allocate (A % pos(2, Grid % n_faces))
+  allocate (A % d_inv(Grid % n_cells))
+  allocate (A % v_m  (Grid % n_cells))
+
+  ! ... and then copy them from one matrix to another
+
+# ifdef __INTEL_COMPILER
+  do i = 1, A % nonzeros
+    A % val(i) = B % val(i)
+    A % col(i) = B % col(i)
+    A % mir(i) = B % mir(i)
+  end do
+  do i = 1, Grid % n_faces
+    A % fc(i)    = B % fc(i)
+    A % pos(1,i) = B % pos(1,i)
+    A % pos(2,i) = B % pos(2,i)
+  end do
+  do i = 1, Grid % n_cells
+    A % row  (i) = B % row  (i)
+    A % dia  (i) = B % dia  (i)
+    A % d_inv(i) = B % d_inv(i)
+    A % v_m  (i) = B % v_m  (i)
+  end do
+  Assert(i .eq. Grid % n_cells + 1)
+  A % row(i) = B % row(i)
+# else
+  A % val(:)   = B % val(:)
+  A % fc(:)    = B % fc(:)
+  A % col(:)   = B % col(:)
+  A % row(:)   = B % row(:)
+  A % dia(:)   = B % dia(:)
+  A % mir(:)   = B % mir(:)
+  A % pos(:,:) = B % pos(:,:)
+  A % d_inv(:) = B % d_inv(:)
+  A % v_m  (:) = B % v_m  (:)
+# endif
 
   end subroutine

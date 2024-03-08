@@ -19,4 +19,10 @@
   allocate (phi % y(-Grid % n_bnd_cells:Grid % n_cells));  phi % y = 0.0
   allocate (phi % z(-Grid % n_bnd_cells:Grid % n_cells));  phi % z = 0.0
 
+  ! Variable's boundary value
+  allocate (phi % b(-Grid % n_bnd_cells:-1));  phi % b = 0.
+
+  ! Variable's boundary flux
+  allocate (phi % q(-Grid % n_bnd_cells:-1));  phi % q = 0.
+
   end subroutine

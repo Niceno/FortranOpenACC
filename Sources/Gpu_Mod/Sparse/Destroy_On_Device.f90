@@ -10,7 +10,7 @@
   class(Gpu_Type)   :: Gpu !! parent class
   type(Sparse_Type) :: A   !! matrix to destroy
 !-----------------------[Avoid unused argument warning]------------------------!
-# if VFS_GPU == 0
+# if T_FLOWS_GPU == 0
     Unused(Gpu)
     Unused(A)
 # endif
@@ -23,7 +23,7 @@
   !$acc exit data delete(A % d_inv)
   !$acc exit data delete(A % v_m)
 
-# if VFS_GPU == 1
+# if T_FLOWS_GPU == 1
     Gpu % gb_used = Gpu % gb_used - (  real(sizeof(A % val))    &
                                      + real(sizeof(A % fc))     &
                                      + real(sizeof(A % col))    &

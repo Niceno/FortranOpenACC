@@ -6,6 +6,7 @@
   class(Process_Type)      :: Proc
   type(Field_Type), target :: Flow
 !-----------------------------------[Locals]-----------------------------------!
+  type(Grid_Type),   pointer :: Grid
   type(Sparse_Type), pointer :: A
   real, contiguous,  pointer :: pp_n(:), b(:)
   real                       :: tol
@@ -17,6 +18,7 @@
   call Profiler % Start('Compute_Pressure')
 
   ! Take some aliases
+  Grid => Flow % pnt_grid
   A    => Flow % Nat % A
   pp_n => Flow % pp % n
   b    => Flow % Nat % b
@@ -26,10 +28,18 @@
   ! Insert proper source (volume source) to pressure equation
   call Process % Insert_Volume_Source_For_Pressure(Flow)
 
+  !@ call Grid % Save_Debug_Vtu("bp_0",               &
+  !@                           inside_name="vol_src", &
+  !@                           inside_cell=b)
+
   ! Call linear solver
   call Profiler % Start('CG_for_Pressure')
   call Flow % Nat % Cg(A, pp_n, b, n, tol)
   call Profiler % Stop('CG_for_Pressure')
+
+  !@ call Grid % Save_Debug_Vtu("pp_0",          &
+  !@                           scalar_name="pp", &
+  !@                           scalar_cell=pp_n)
 
   call Profiler % Stop('Compute_Pressure')
 
