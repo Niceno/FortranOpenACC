@@ -1,21 +1,17 @@
 #!/bin/bash
 
-#==============================================================================#
-# An extremelly useful script to create the "makefile_explicit_dependencies"
-#
-# Reason why you may want to use this:
-# - When you edit some file in Sources/, all dependent functions/subroutines
-#   must be updated to link program later.
-# - Program make by default does not track dependencies.
-# - Thus, you need to type "make clean; make ..." everytime you make changes
-# - Although it is allowed to specify such dependencies yourself, it is a very
-#   tedious process and this script does it for you.
-#
-#                                                          Author: Egor Palkin
-#------------------------------------------------------------------------------#
+# it is an useful script to create "makefile_explicit_dependencies"
+# reason why you may want to use this:
+# when you edit some file in Sources/, all dependent functions/subroutines must
+# be updated to link program later.
+# program make by default does not track dependencies.
+# Therefore, you need to type "make clean; make ..." everytime you make changes
+# It is allowed to specify such dependencies yourself.
+# This script does it for you.
 
 # folder structure
-CURR_DIR=$PWD
+CURR_DIR=$PWD                      # Generate/, Convert/, Divide/, Process/
+SHAR_DIR=$PWD/../Shared            # Process  src folder
 
 # tmp file name and location
 tmp_file=$CURR_DIR/tmp_makefile_explicit_dependencies
@@ -24,23 +20,21 @@ tmp_file=$CURR_DIR/tmp_makefile_explicit_dependencies
 #   Read above this line   #
 #--------------------------#
 
-#set -e #Exit when any command fails (avoid it as it seems to exit the shell)
+#set -e # exit when any command fails
 #set -v #Prints shell input lines as they are read.
 #set -x #Print command traces before executing command.
-#set +x #Disable previous line
+#set +x #disable previous line
 
-# Keep track of the last executed command
+# keep track of the last executed command
 trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
-# Echo an error message before exiting
+# echo an error message before exiting
 trap 'echo "\"${last_command}\" command filed with exit code $?."' EXIT
 
-#==============================================================================#
-#   Produces correct module structure                                          #
-#                                                                              #
-#   Arguments:                                                                 #
-#   $1 - working folder                                                        #
-#------------------------------------------------------------------------------#
+#---------------------------------------#
+#   Produces correct module structure   #
+#---------------------------------------#
 function module_list() {
+  # $1 - dir
 
   cd $1
   # find file
@@ -75,19 +69,16 @@ function module_list() {
 
   echo "$result"
 }
-
-#==============================================================================#
-#   Searches for string in a list                                              #
-#                                                                              #
-#   Arguments:                                                                 #
-#   $1 - string
-#   $2 - list
-#   $3 - f90_file name without extension
-#   $4 - text to append in front
-#------------------------------------------------------------------------------#
+#---------------------------------------#
+#   Produces correct module structure   #
+#---------------------------------------#
 function search_string_in_list() {
+  # $1 - string
+  # $2 - list
+  # $3 - f90_file name without extension
+  # $4 - text to append in front
 
-  # To deal with "Comm_Mod_Par" and "Cgns_Mod_Par"
+  # to deal with "Comm_Mod_Par" and "Cgns_Mod_Par"
   str=$(echo "$1" | sed 's%Mod_.*$%Mod%g')
   while read -r line_of_list; do # read $2 line by line
     if [[ $line_of_list == *"$str"* ]]; then # if string 1 contains string 2
@@ -103,14 +94,11 @@ function search_string_in_list() {
     fi
   done <<< "$2"
 }
-
-#==============================================================================#
-#   Make file explicit dependencies constructor                                #
-#                                                                              #
-#   Arguments:                                                                 #
-#   $1 - working folder                                                        #
-#------------------------------------------------------------------------------#
+#-------------------------------------------------#
+#   Make file explicit dependencies constructor   #
+#-------------------------------------------------#
 function make_file_explicit_dependencies() {
+  # $1 - folder to create makefile list (Generate, Divide, Process, ..)
 
   # create empty file or remove all content
   cd $1; cp /dev/null $tmp_file
@@ -118,10 +106,14 @@ function make_file_explicit_dependencies() {
   #------------------------#
   #   Search for modules   #
   #------------------------#
-  proc_mods=$(module_list $1)
-  echo -e "$proc_mods"
 
-  for folder in "$1"; do
+  proc_mods=$(module_list $1)
+  #echo -e "$proc_mods"
+
+  shared_mods=$(module_list $SHAR_DIR)
+  #echo -e "$shared_mods"
+
+  for folder in "$1" "$SHAR_DIR"; do
     cd "$folder"
 
     for f90_file in $(find . -print | grep -i .f90); do
@@ -131,6 +123,7 @@ function make_file_explicit_dependencies() {
       #--------------------------------#
       #   Determine deps of f90 file   #
       #--------------------------------#
+
       dependencies='' # all deps for $f90_file are store in this var
 
       #-----------------------------------------------------------------------#
@@ -179,10 +172,9 @@ function make_file_explicit_dependencies() {
         #echo "$f90_file" | sed 's%.f90%%g' | sed 's%./%%g'
         dependencies=$(echo -e "$dependencies\n$(echo "$f90_file" | sed 's%.f90%%g' | sed 's%./%%g')")
       fi
-
-      #-----------------------------------------------#
-      #   Dependencies of functions and subroutines   #
-      #-----------------------------------------------#
+      #------------------------------------------
+      # dependencies of functions and subroutines
+      #------------------------------------------
       file_included_this=$(grep -ie "use .*Mod" $f90_file \
         | cut -d"!" -f1 \
         | sed 's/\,.*$//' \
@@ -216,13 +208,15 @@ function make_file_explicit_dependencies() {
         #echo -e "$(basename -- "${f90_file%.*}")"" depends on\n""$dependencies"
       fi
 
-      #---------------------------------------#
-      #   Search for deps in list proc_mods   #
-      #   if found : add them to $tmp_file    #
-      #---------------------------------------#
-      echo '#-- '$f90_file >> $tmp_file
-
+      #-------------------------------------------------
+      # search for deps in list proc_mods and shar_mods
+      # if found : add them to $tmp_file
+      #-------------------------------------------------
       if [ ! -z "$dependencies" ]; then #if non-empty
+
+        echo '#---------------------------------------------------' >> $tmp_file
+        echo '# Dependencies for: '$f90_file >> $tmp_file
+        echo '#---------------------------------------------------' >> $tmp_file
 
         echo "\$(DIR_OBJECT)/""$base_name".o:\\ >> $tmp_file
 
@@ -231,6 +225,13 @@ function make_file_explicit_dependencies() {
           # $1 deps
           dep_list=$(search_string_in_list \
             "$line_of_deps_list" "$proc_mods" "$base_name" "")
+          if [ ! -z "$dep_list" ]; then
+            echo "$dep_list" >> $tmp_file
+          fi
+
+          # Shared deps
+          dep_list=$(search_string_in_list \
+            "$line_of_deps_list" "$shared_mods" "$base_name" "\$(DIR_SHARED)/")
           if [ ! -z "$dep_list" ]; then
             echo "$dep_list" >> $tmp_file
           fi
@@ -246,10 +247,35 @@ function make_file_explicit_dependencies() {
 
   cd $1; mv $tmp_file makefile_explicit_dependencies
 }
+#------------------------------------#
+#   Check T-Flows folder structure   #
+#------------------------------------#
+function check_if_lauched_in_correct_folder() {
+  stop_execution=false
 
-#==============================================================================#
-#   Actual script                                                              #
-#------------------------------------------------------------------------------#
+  case "${CURR_DIR##*/}" in
+    "Process"|"Divide"|"Convert"|"Generate")
+    parent_dir="$(dirname "$CURR_DIR")"
+    if [ ! "${parent_dir##*/}" == "Sources" ]; then
+      echo "$parent_dir"
+      stop_execution=true
+    fi
+    ;;
+    *)
+      stop_execution=true
+    ;;
+  esac
+
+  if [ $stop_execution == true ]; then
+    echo This script can only be launched from Generate/, Convert/, Divide/, Process/ folders of T-Flows
+    echo Launch it this way: bash ../Utilities/create_makefile_dependencies.sh
+    exit 3
+  fi
+}
+#-------------------#
+#   Actual script   #
+#-------------------#
+check_if_lauched_in_correct_folder
 echo creating makefile_explicit_dependencies in $CURR_DIR
 make_file_explicit_dependencies $CURR_DIR
 echo done
