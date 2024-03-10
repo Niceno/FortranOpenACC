@@ -4,6 +4,7 @@
   module Field_Mod
 !----------------------------------[Modules]-----------------------------------!
   use Assert_Mod
+  use Bulk_Mod
   use Sparse_Mod
   use Native_Mod
   use Var_mod
@@ -72,6 +73,9 @@
     integer                     :: n_scalars  !! number of (passive) scalars
     type(Var_Type), allocatable :: scalar(:)  !! storage for scalars
 
+    ! Bulk velocities, pressure drops, etc.
+    type(Bulk_Type) :: bulk  !! holder of volume flow rates through domain and,
+                             !! associated with that, bulk velocities
 
     ! Time step used in this field
     real :: dt  !! time step in this field [s]

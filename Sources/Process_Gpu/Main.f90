@@ -46,7 +46,7 @@
 
     ! An attempt to solve Navier-Stokes equations
     else if(arg .eq. '7') then
-!     call Test_007()
+      call Test_007()
       goto 1
 
     end if

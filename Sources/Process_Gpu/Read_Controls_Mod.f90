@@ -13,6 +13,7 @@
 !------------------------------------------------------------------------------!
 !----------------------------------[Modules]-----------------------------------!
   use Iter_Mod
+  use Field_Mod
 !------------------------------------------------------------------------------!
   implicit none
 !---------------------------------[Interfaces]---------------------------------!
@@ -33,7 +34,8 @@
     contains
       procedure          :: Boundary_Conditions
       procedure          :: Iterations
-      procedure, private :: Native_Solvers
+      procedure          :: Native_Solvers
+      procedure          :: Physical_Models
       procedure          :: Physical_Properties
 
   end type
@@ -47,6 +49,7 @@
 #   include "Read_Controls_Mod/Boundary_Conditions.f90"
 #   include "Read_Controls_Mod/Iterations.f90"
 #   include "Read_Controls_Mod/Native_Solvers.f90"
+#   include "Read_Controls_Mod/Physical_Models.f90"
 #   include "Read_Controls_Mod/Physical_Properties.f90"
 
   end module

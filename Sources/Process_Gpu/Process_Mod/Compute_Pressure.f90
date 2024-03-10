@@ -28,18 +28,22 @@
   ! Insert proper source (volume source) to pressure equation
   call Process % Insert_Volume_Source_For_Pressure(Flow)
 
+# if T_FLOWS_DEBUG == 1
   !@ call Grid % Save_Debug_Vtu("bp_0",               &
   !@                           inside_name="vol_src", &
   !@                           inside_cell=b)
+# endif
 
   ! Call linear solver
   call Profiler % Start('CG_for_Pressure')
   call Flow % Nat % Cg(A, pp_n, b, n, tol)
   call Profiler % Stop('CG_for_Pressure')
 
+# if T_FLOWS_DEBUG == 1
   !@ call Grid % Save_Debug_Vtu("pp_0",          &
   !@                           scalar_name="pp", &
   !@                           scalar_cell=pp_n)
+# endif
 
   call Profiler % Stop('Compute_Pressure')
 

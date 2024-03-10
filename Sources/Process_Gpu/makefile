@@ -198,7 +198,8 @@ SRC_F_MOD = Const_Mod.f90      \
             Grid_Mod.f90
 
 # Modules in shared directories
-SRC_F_MOD += Sparse_Mod.f90         \
+SRC_F_MOD += Bulk_Mod.f90           \
+             Sparse_Mod.f90         \
              Linalg_Mod.f90         \
              Native_Mod.f90         \
              Var_Mod.f90            \

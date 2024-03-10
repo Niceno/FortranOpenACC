@@ -1,3 +1,6 @@
+#--------------
+# Problem name
+#--------------
   PROBLEM_NAME  test_006_cavity
 
 #--------------------------
@@ -23,12 +26,13 @@
   MASS_DENSITY       1.0
   DYNAMIC_VISCOSITY    0.001
 
-
+#---------------------
+# Boundary conditions
+#---------------------
   BOUNDARY_CONDITION static_wall
     TYPE             wall
     VARIABLES        u     v     w
     VALUES           0.0   0.0   0.0
-
 
   BOUNDARY_CONDITION moving_wall
     TYPE             wall

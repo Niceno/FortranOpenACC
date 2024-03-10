@@ -1,5 +1,5 @@
 !==============================================================================!
-  subroutine Test_006
+  subroutine Test_007
 !------------------------------------------------------------------------------!
 !>  Tests calling of the CG algorithm from the Native_Mod
 !------------------------------------------------------------------------------!
@@ -21,13 +21,13 @@
 !@character(10)            :: name_pp      = 'TTTT_II_pp'
 !@character(14)            :: name_grad_p  = 'TTTT_II_grad_p'
 !@character(15)            :: name_grad_pp = 'TTTT_II_grad_pp'
-  character(11)            :: root_control = 'control.006'
+  character(11)            :: root_control = 'control.007'
 !==============================================================================!
 
-  call Profiler % Start('Test_006')
+  call Profiler % Start('Test_007')
 
   print '(a)', ' #====================================================='
-  print '(a)', ' # TEST 6: Solution of Navier-Stokes equations'
+  print '(a)', ' # TEST 7: Matrix of cubes'
   print '(a)', ' #====================================================='
 
   print '(a)', ' # Opening the control file '//root_control
@@ -36,6 +36,9 @@
 
   print '(a)', ' # Creating a grid'
   call Grid(1) % Load_And_Prepare_For_Processing(1)
+
+  print '(a)', ' # Reading physical models'
+  call Read_Control % Physical_Models(Flow(1))
 
   n = Grid(1) % n_cells
   print '(a, i12)',   ' # The problem size is: ', n
@@ -70,6 +73,15 @@
 
   print '(a)', ' # Calculating gradient matrix for the field'
   call Flow(1) % Calculate_Grad_Matrix()
+
+  ! Initialize solution
+  Flow(1) % u % n(1:n) = 0.1
+  Flow(1) % v % n(1:n) = 0.0
+  Flow(1) % w % n(1:n) = 0.0
+
+  Flow(1) % u % o(1:n) = 0.1
+  Flow(1) % v % o(1:n) = 0.0
+  Flow(1) % w % o(1:n) = 0.0
 
   ! OK, once you formed the preconditioners, you
   ! will want to keep these matrices on the device
@@ -225,7 +237,7 @@
                              scalar_name="pressure",       &
                              scalar_cell=Flow(1) % p % n)
 
-  call Profiler % Stop('Test_006')
+  call Profiler % Stop('Test_007')
 
   call Profiler % Statistics(indent=1)
 

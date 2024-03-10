@@ -38,8 +38,10 @@
   call Process % Insert_Diffusion_Bc(Flow, comp=comp)
   call Process % Add_Inertial_Term  (Flow, comp=comp)
   call Process % Add_Advection_Term (Flow, comp=comp)
+  call Process % Add_Body_Force_Term(Flow, comp=comp)
   call Process % Add_Pressure_Term  (Flow, comp=comp)
 
+# if T_FLOWS_DEBUG == 1
   !@ if(comp .eq. 1) call Grid % Save_Debug_Vtu("bu_0",                 &
   !@                                             inside_name="u_force", &
   !@                                             inside_cell=b)
@@ -49,12 +51,14 @@
   !@ if(comp .eq. 3) call Grid % Save_Debug_Vtu("bw_0",                 &
   !@                                             inside_name="w_force", &
   !@                                             inside_cell=b)
+# endif
 
   ! Call linear solver
   call Profiler % Start('CG_for_Momentum')
   call Flow % Nat % Cg(M, ui_n, b, n, tol)
   call Profiler % Stop('CG_for_Momentum')
 
+# if T_FLOWS_DEBUG == 1
   !@ if(comp .eq. 1) call Grid % Save_Debug_Vtu("u_0",                 &
   !@                                             scalar_name="u_comp", &
   !@                                             scalar_cell=ui_n)
@@ -64,6 +68,7 @@
   !@ if(comp .eq. 3) call Grid % Save_Debug_Vtu("w_0",                 &
   !@                                             scalar_name="w_comp", &
   !@                                             scalar_cell=ui_n)
+# endif
 
   call Profiler % Stop('Compute_Momentum')
 
